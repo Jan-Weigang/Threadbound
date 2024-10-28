@@ -18,3 +18,11 @@ instance
 instance/
 _backup
 _backup/
+Thumbs.db
+*.log
+docker-compose.yml
+Dockerfile
+**/.venv/
+.venv/
+**/venv/
+venv/
