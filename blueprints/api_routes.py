@@ -13,7 +13,7 @@ import json
 # ========== API Endpoints =============
 # ======================================
 
-api = Blueprint('api', __name__)
+api = Blueprint('api_bp', __name__)
 
 @api.route('/users', methods=['GET'])
 @decorators.login_required

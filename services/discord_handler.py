@@ -7,6 +7,7 @@ import asyncio
 # discord_handler.py
 class DiscordHandler:
     def __init__(self, main_event_loop):
+        assert main_event_loop is not None, "Main event loop must be provided"
         self.main_event_loop = main_event_loop
 
 
@@ -18,10 +19,6 @@ class DiscordHandler:
         
         print(f"Trying to do discord handling with action {action}")
 
-        # Ensure we have the main event loop available
-        if self.main_event_loop is None:
-            return {'status': 'Error', 'error': 'Main event loop not available'}
-        
         if action == 'delete' and not utils.is_event_deletable(event):
                 action = 'cancel'
 
@@ -48,10 +45,6 @@ class DiscordHandler:
 
 
     def get_nickname(self, discord_id):
-        # Ensure we have the main event loop available
-        if self.main_event_loop is None:
-            return {'status': 'Error', 'error': 'Main event loop not available'}
-        
         future = asyncio.run_coroutine_threadsafe(
             discord_bot.get_nickname(discord_user_id=int(discord_id)),  # Call the async function to send a message
             self.main_event_loop
@@ -65,17 +58,13 @@ class DiscordHandler:
             return None 
 
 
-    def is_member(self, discord_user_id):
+    def is_role(self, discord_user_id, role_string):
         """
         Check if a user is a club member.
         """
-        if self.main_event_loop is None:
-            print("Error: Main event loop not available.")
-            return {'status': 'Error', 'error': 'Main event loop not available'}
-
         # Run the `is_club_member` coroutine in the main event loop
         future = asyncio.run_coroutine_threadsafe(
-            discord_bot.is_club_member(discord_user_id=discord_user_id), 
+            discord_bot.is_guild_role(discord_user_id, role_string), 
             self.main_event_loop
         )
 
