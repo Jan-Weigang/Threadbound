@@ -95,6 +95,7 @@ init_admin(app)
 import blueprints
 app.register_blueprint(blueprints.api, url_prefix='/api')
 app.register_blueprint(blueprints.event, url_prefix='/events')
+app.register_blueprint(blueprints.cal, url_prefix='/calendar')
 
 # ======================================
 # ============== Routes ================
@@ -121,7 +122,7 @@ def index():
 
     if not session['is_member']:
         flash('You are not a member and cannot be given access', 'failure')
-    return redirect(url_for('mycalendar'))  # Redirect to a member-specific area
+    return redirect(url_for('cal_bp.day'))  # Redirect to a member-specific area
 
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -159,23 +160,7 @@ def list_events():
     return render_template('events/list.html', events=events)
 
 
-@app.route('/month', methods=['GET'])
-def month():
-    return render_template('month.html')
 
-
-@app.route('/mycalendar', defaults={'view_type': 'regular'}, methods=['GET'])
-@app.route('/mycalendar/<string:view_type>', methods=['GET'])
-def mycalendar(view_type):
-    if view_type not in ['public', 'regular', 'template']:
-        abort(404)
-
-    date = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
-
-    if view_type != 'public':
-        if not discord.authorized:
-            return redirect(url_for('mycalendar', view_type='public'))
-    return render_template('mycalendar.html', view_type=view_type, date=date)
 
 
 

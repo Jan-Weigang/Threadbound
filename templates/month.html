@@ -213,7 +213,7 @@
         <!-- </div> -->
 
         <div class="calendar-footer">
-            <form action="{{ url_for('mycalendar') }}" 
+            <form action="{{ url_for('cal_bp.day') }}" 
                 method="GET">
                 <button type="submit">Zur anderen Ansicht</button>
             </form>
@@ -584,7 +584,7 @@
                     dayElement.addEventListener('click', function() {
                         const formattedDate = formatDateToYYYYMMDDLocal(currentDay); // Use local time formatting
                         console.log(`Clicked on day: ${formattedDate}`);
-                        window.location.href = `/mycalendar?date=${formattedDate}`;
+                        window.location.href = `/calendar/day?date=${formattedDate}`;
                     });
                 })(new Date(day)); // Passing a copy of the day to the closure
 

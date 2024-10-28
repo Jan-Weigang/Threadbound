@@ -351,11 +351,11 @@ function combine_reservations(calendar) {
     let previousBlock = null;
 
     reservationBlocks.forEach((block, index) => {
-        const currentId = block.getAttribute('data-reservation-id');
+        const currentId = block.getAttribute('data-event-id');
         const currentRow = parseInt(block.getAttribute('data-table-row'), 10);
 
         if (previousBlock) {
-            const previousId = previousBlock.getAttribute('data-reservation-id');
+            const previousId = previousBlock.getAttribute('data-event-id');
             const previousEndRow = parseInt(previousBlock.style.gridRowEnd, 10);
 
             // Check if current block is part of the same reservation on consecutive rows
@@ -517,10 +517,7 @@ function openReservationPopup(reservation) {
     setTimeout(() => document.addEventListener('click', closeOnOutsideClick), 0);
 }
 
-// document.getElementById('viewTypeSelect').addEventListener('change', function() {
-//     const viewType = this.value; // Get the selected value
-//     window.location.href = `/mycalendar/${viewType}`; // Redirect to the new URL
-// });
+
 
 const viewTypeSelect = document.getElementById('viewTypeSelect');
 const dateInput = document.getElementById('dateInput');
@@ -533,7 +530,7 @@ dateInput.addEventListener('change', updateCalendarView);
 function updateCalendarView() {
     const viewType = viewTypeSelect.value;  // Get the selected view type
     const selectedDate = dateInput.value;   // Get the selected date
-    window.location.href = `/mycalendar/${viewType}?date=${selectedDate}`;  // Redirect to the new URL
+    window.location.href = `/calendar/day/${viewType}?date=${selectedDate}`;  // Redirect to the new URL
 }
 
 
