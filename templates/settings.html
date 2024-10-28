@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" href="/static/css/mycalendar.css">
+</head>
+<body>
+    <h1>Game Category Channel Settings</h1>
+
+    <form action="{{ url_for('settings') }}" method="post">
+        {% for category in game_categories %}
+            <div>
+                <label for="category-{{ category.id }}">{{ category.name }}</label>
+                <select name="{{ category.id }}" id="category-{{ category.id }}">
+                    <option value="">-- Select a Channel --</option>
+                    {% for channel in discord_channels %}
+                        <option value="{{ channel.id }}" 
+                            {% if category.discord_channel_id == channel.id %} selected {% endif %}>
+                            {{ channel.name }} (ID: {{ channel.discord_channel_id }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endfor %}
+        <button type="submit">Save Settings</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

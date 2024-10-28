@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'std_elements/head.html' %}
+
+    <link rel="stylesheet" href="/static/css/mycalendar.css">
+    <script src="/static/js/mycalendar.js" defer></script>
+
+    <title>Reservations Week View</title>
+
+    <meta name="view-type" content="{{ view_type }}">
+    <meta name="date" content="{{ date }}">
+    <style>
+        #dateInput {
+            grid-area: headerLeft;
+        }
+        #viewHeading {
+            grid-area: headerCenter;
+        }
+        #viewTypeSelect {
+            grid-area: headerRight;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <div class="calendar-header">
+            
+            <input type="date" name="dateInput" id="dateInput" required value="{{ event.date if event else '' }}">
+            <span id="viewHeading" class="view-heading">Tagesansicht</span>
+            <form id="viewTypeForm">
+                <select id="viewTypeSelect" name="viewType" data-disable-scroll>
+                    <option value="regular">Mitglied / Normal</option>
+                    <option value="template">Stammtischkalender</option>
+                    <option value="public">Öffentliche Events</option>
+                </select>
+            </form>
+        </div>
+        <div class="calendar-container">
+            <div class="time-scale">
+                <span class="time-label" data-hour="12">12:00</span>
+                <span class="time-label" data-hour="14">14:00</span>
+                <span class="time-label" data-hour="16">16:00</span>
+                <span class="time-label" data-hour="18">18:00</span>
+                <span class="time-label" data-hour="20">20:00</span>
+                <span class="time-label" data-hour="22">22:00</span>
+                <span class="time-label" data-hour="24">24:00</span>
+            </div>
+            <div id="calendar" class="calendar"></div>
+
+        </div class="calendar-footer">
+        <div class="calendar-footer">
+            <form action="{{ url_for('month') }}" 
+                method="GET">
+                <button type="submit">Zur anderen Ansicht</button>
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>

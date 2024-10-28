@@ -1,0 +1,197 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    padding: 2rem;
+    max-width: 800px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+h1::after {
+    content: ''
+}
+hr {
+    margin: 2rem 0;
+}
+
+
+
+.flash {
+    padding: 1rem;
+}
+.success {
+    background-color: #82e479;
+}
+.failure {
+    background-color: #e06e90;
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem 1rem;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    align-self: center;
+    font-weight: bold;
+}
+
+input[type="text"],
+textarea,
+select,
+input[type="date"],
+input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+select[data-icon]::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.main-form button[type="submit"], .api-button {
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.main-form button[type="submit"] {
+    grid-column: 1 / span 2;
+    background-color: #3788d8;
+    color: white;
+}
+
+.main-form button[type="submit"]:hover {
+    background-color: #125597;
+}
+
+.main-form button[type="submit"].unavailable {
+    background-color: #ccc; /* Light grey color to indicate disabled */
+    color: #666; /* Darker grey color for the text */
+    cursor: not-allowed; /* Change cursor to indicate disabled button */
+    opacity: 0.7; /* Lower opacity for visual indication */
+}
+
+
+.api-button {
+    background-color: #90b0d0;
+}
+
+.api-button:hover {
+    background-color: #125597;
+}
+
+#table_ids {
+    overflow-y: auto;  /* Allows scrolling within this select if necessary */
+}
+
+@media (max-width: 600px) {
+    form {
+        grid-template-columns: 1fr; /* Make labels and inputs stack vertically */
+    }
+
+    button[type="submit"] {
+        grid-column: 1;
+    }
+}
+
+
+
+
+.tisch-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+button {
+    padding: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    height: 3rem;
+    transition: background-color 0.2s, transform 0.1s;
+}
+button:hover {
+    background-color: #ccc;
+}
+.table-button {
+    position:relative;
+}
+
+.table-button.selected {
+    background-color: #3788d8;
+    color: white;
+    transform: scale(1.02);
+}
+.table-button.unavailable {
+    background-color: #ddc7cc;
+    color: gray;
+    border: solid #bf8686 1px;
+}
+
+.table-button:hover {
+    background-color: #ccc;
+    color: black;
+}
+.table-button.selected:hover {
+    background-color: #90b0d0;
+    color: white;
+}
+.table-button::before, .table-button::after {
+    display: block;
+    position: absolute;
+    inset: 0.1rem auto auto auto;
+    font-size: 0.6rem;
+    color: #919191;
+}
+.table-button::before {
+    content: attr(data-earliest-available);
+    left: 0.3rem;
+}
+
+.table-button::after {
+    content: attr(data-latest-available);
+    right: 0.3rem;
+}
+
+.table-button.selected::before, .table-button.selected::after {
+    color: #8fa9f7;
+}
+
+.table-button.bold-earliest::before, .table-button.bold-latest::after {
+    font-weight: bold;
+    color: red;
+}
+
+.half-button {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}

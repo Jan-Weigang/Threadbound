@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'std_elements/head.html' %}
+
+    <link rel="stylesheet" href="/static/css/mycalendar.css">
+    
+
+    <title>Reservations Month View</title>
+
+    <meta name="view-type" content="{{ view_type }}">
+    <meta name="date" content="{{ date }}">
+    <style>
+        #prevMonth {
+            grid-area: headerLeft;
+        }
+        #currentMonth {
+            grid-area: headerCenter;
+        }
+        #nextMonth {
+            grid-area: headerRight;
+        }
+    </style>
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);  /* 7 columns for 7 days */
+            grid-template-rows: 1rem 1fr;
+            gap: 5px;
+            text-align: center;
+            grid-template-rows: 1rem;
+            grid-auto-rows: 1fr;
+            height: 100%;
+        }
+
+        .day-header {
+            font-weight: bold;
+        }
+
+        .day {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border: 1px solid #eee;
+            box-shadow: 2px 2px 8px #ddd;
+            border-radius: .5rem;
+            overflow-y: auto;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .day-heading {
+            align-self: start;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1ch;
+            width: 100%;
+        }
+        .heat-bar {
+            --heat-none: hsl(0, 0%, 100%);
+            --heat-low: hsl(100, 50%, 70%);
+            --heat-medium: hsl(50, 60%, 60%);
+            --heat-high: hsl(0, 70%, 50%);
+            height: 10px;
+            display: block;
+            min-height: 10px;
+            border: 1px solid #ccc;
+            border-radius: .5rem;
+            height: 60%;
+            width: 100%;
+        }
+        .day::-webkit-scrollbar {
+            display: none;
+        }
+        .day:has(.so), .day:has(.sa) {
+            background-color: #e5f4ff;
+            color: grey;
+            border: 1px solid #ccc;
+        }
+        .day:has(.so):is(.other-month), .day:has(.sa):is(.other-month) {
+            background-color: #d1dce4;;
+        }
+        .day:hover {
+            background-color: #a9cce1;
+            cursor: pointer;
+        }
+        .day + .current-day {
+            background-color: #ecd0d0;
+        }
+        .day + .current-day:hover {
+            background-color: #d9aeae;
+        }
+        .current-month {
+            background-color: #fff;
+        }
+
+        .other-month {
+            background-color: #eee;
+            box-shadow: inset 1px 1px 3px lightgray;
+            color: lightgray;
+        }
+        .mobile-weekday {
+            display: none;
+        }
+        .event {
+            padding: .3rem 1.5ch;
+            margin-top: 5px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            color: black;
+            background-color: #3788d8;
+        }
+        .event-name {
+            max-width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .event-time {
+            font-size: .8em;
+            font-style: italic;
+            font-stretch: condensed;
+            align-self: end;
+            color: #555;
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: 1fr; /* Make it a single column */
+                grid-template-rows: repeat(auto-fill, minmax(1fr, auto)); /* Auto rows based on content */
+                gap: 10px; /* Increase the gap between days for better readability on mobile */
+                grid-template-rows: none;
+                overflow-y: auto;
+            }
+
+            #nextMonth {
+                justify-self: end; /* Align next button to the right */
+            }
+            .day {
+                text-align: left;
+                padding: 0;
+                padding-right: 0px;
+                padding-left: 0px;
+                min-height: 2.5rem;
+                display: grid;
+                grid-template-columns: 3ch 1fr;
+                grid-auto-flow: column;
+                align-items: center;
+                grid-gap: .1rem;
+                padding-left: 1ch;
+                padding-right: 1ch;
+            }
+            .day-heading {
+                align-self: center;
+                height: 75%;
+            }
+            .day-header {
+                display: none; /* Optional: Hide the day headers (Mo, Di, Mi, etc.) on mobile */
+            }
+            .mobile-weekday {
+                display: inline;
+            }
+            .event {
+                margin: 0;
+                padding: 0;
+                height: 1.7rem;
+                display: flex;
+                align-items: center;
+                padding-left: 5px;
+                display: none;
+            }
+
+            span.event-name {
+                display: inline-block;
+                max-width: 80%; /* Adjust this value based on your layout */
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                vertical-align: middle; /* Keeps the text aligned with other elements */
+            }
+            span.event-time {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <div class="calendar-header">
+            <button id="prevMonth">Vorheriger</button>
+            <span id="currentMonth" class="view-heading"></span>
+            <button id="nextMonth">Nächster</button>
+        </div>
+
+        <div class="calendar-container month-view calendar-grid" id="daysContainer">
+            <!-- Days of the week -->
+            <!-- <div class="calendar-grid" id="daysContainer"> -->
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+                <div class="day-header">Sun</div>
+
+                <!-- Days of the month will be dynamically generated here -->
+                <!-- <div id="daysContainer" class="days-container"></div> -->
+            </div>
+        <!-- </div> -->
+
+        <div class="calendar-footer">
+            <form action="{{ url_for('mycalendar') }}" 
+                method="GET">
+                <button type="submit">Zur anderen Ansicht</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // let tables = [];
+        // let reservations = [];
+        // let eventTypes = [];
+
+        let reservationsUrl;
+        const daysContainer = document.getElementById('daysContainer');
+        const currentMonthDisplay = document.getElementById('currentMonth');
+        let currentDate = new Date();
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Initial render
+            renderCalendar(currentDate);
+
+            // Navigation buttons
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar(currentDate);
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar(currentDate);
+            });
+        });
+
+        
+        function renderCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Get the first day of the month
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            
+            // Get the first day to display (considering the previous month)
+            const firstDayToDisplay = new Date(firstDayOfMonth);
+            firstDayToDisplay.setDate(firstDayOfMonth.getDate() - ((firstDayOfMonth.getDay() + 6) % 7));
+            
+            // Get the last day to display (considering the next month)
+            const lastDayToDisplay = new Date(lastDayOfMonth);
+            lastDayToDisplay.setDate(lastDayOfMonth.getDate() + (7 - lastDayOfMonth.getDay()));
+
+            // Render the basic calendar structure (without reservations yet)
+            updateCalendarUI(firstDayToDisplay, lastDayToDisplay, month, date);
+            
+            let viewType = 'regular';
+            let requestStartDate = formatDateToYYYYMMDDLocal(firstDayToDisplay)
+            let requestEndDate = formatDateToYYYYMMDDLocal(lastDayToDisplay)
+
+            reservationsUrl = `/api/reservations/${viewType}?date=${requestStartDate}&end_date=${requestEndDate}`
+
+            Promise.all([
+                fetch('/api/tables').then(response => response.json()),
+                fetch(reservationsUrl).then(response => response.json()),
+                fetch('/api/event-types').then(response => response.json())
+            ]).then(([tableData, reservationData, eventTypeData]) => {
+                // console.log("Tables Data:", tableData);
+                // console.log("Reservations Data:", reservationData);
+                // console.log("Event Types Data:", eventTypeData);
+
+                tables = tableData.tables;
+                reservations = reservationData.reservations;
+                eventTypes = eventTypeData.event_types;
+                const calendar = document.getElementById('calendar');
+
+                occupancyByDay= get_occupancy_by_day(reservations, tables)
+                console.log("test");
+                console.log(occupancyByDay);
+                updateReservationsOnCalendar(reservations, eventTypes, firstDayToDisplay, lastDayToDisplay, month, occupancyByDay);
+
+            }).catch(error => {
+                console.error("Error fetching data:", error);
+            });
+                
+            // fetch(reservationsUrl)
+            // .then(response => response.json())
+            // .then(data => {
+            //     const reservationData = data.reservations;
+            //     updateReservationsOnCalendar(reservationData, firstDayToDisplay, lastDayToDisplay, month);
+            // })
+            // .catch(error => {
+            //     console.error("Error fetching data:", error);
+            // });
+            
+        }
+
+        function get_occupancy_by_day(reservations, tables) {
+            totalTables = tables.length
+            const totalCapacity = tables.reduce((sum, table) => sum + table.capacity, 0);
+
+
+            // Step 1: Create an array to track bookings for each day and each hour
+            const hoursRange = [...Array(12).keys()].map(i => i + 11); // Array from 12 to 23
+            
+            // Create a placeholder for each day of the month you're displaying
+            const occupancyByDay = {}; // A map to store hourly bookings for each day
+
+            reservations.forEach(reservation => {
+                // Extract the start time and end time from the reservation
+                const startHour = new Date(reservation.start_time).getHours();
+                const endHour = new Date(reservation.end_time).getHours();
+                const reservationDay = formatDateToYYYYMMDDLocal(new Date(reservation.start_time))
+
+                // Find the table by its table_id in the tables array
+                const table = tables.find(t => t.id === reservation.table_id);
+
+                // Ensure the table exists before proceeding
+                if (!table) {
+                    console.error(`Table with ID ${reservation.table_id} not found.`);
+                    return; // Skip this reservation if table is not found
+                }
+
+                if (!occupancyByDay[reservationDay]) {
+                    occupancyByDay[reservationDay] = Array(12).fill(0); // Initialize hourly bookings (12-23
+                }
+
+                const tableCapacity = table.capacity;
+                for (let hour = Math.max(12, startHour); hour < Math.min(endHour, 23); hour++) {
+                    occupancyByDay[reservationDay][hour - 12] +=  tableCapacity / totalCapacity;
+                }
+            });
+
+            return occupancyByDay;
+        }
+
+            // // Step 2: Generate the heat-bar-graph
+            // Object.keys(occupancyByDay).forEach(day => {
+            //     const dayBookings = occupancyByDay[day];
+
+            //     // Create a div for each day
+            //     const dayDiv = document.createElement('div');
+            //     dayDiv.className = 'day-heatmap';
+
+            //     // Create the heat-bar-graph for each hour
+            //     const heatBar = document.createElement('div');
+            //     heatBar.className = 'heat-bar';
+
+            //     // Calculate the gradient stops based on bookings
+            //     const gradientStops = dayBookings.map((bookingCount, index) => {
+            //         const percentageBooked = (bookingCount / totalTables) * 100;
+            //         return `${getHeatColor(percentageBooked)} ${(index / 12) * 100}%`;
+            //     }).join(',');
+
+            //     // Apply the gradient to the heat bar
+            //     heatBar.style.background = `linear-gradient(to right, ${gradientStops})`;
+
+            //     // Append heat bar to the day's div
+            //     dayDiv.appendChild(heatBar);
+
+            //     // Finally, append the day div to your calendar or container element
+            //     document.querySelector('.calendar-container').appendChild(dayDiv);
+            // });
+
+        // function updateReservationsOnCalendar(reservationData, firstDayToDisplay, lastDayToDisplay, month) {
+        //     let day = new Date(firstDayToDisplay);
+        //     const dayElements = daysContainer.querySelectorAll('.day');
+
+        //     // Iterate through the displayed days
+        //     for (let i = 0; i < dayElements.length; i++) {
+        //         const dayElement = dayElements[i];
+
+        //         // Iterate through the reservation data and add reservations to the corresponding day
+        //         reservationData.forEach(reservation => {
+        //             const reservationDate = new Date(reservation.start_time);
+                    
+        //             // Check if the reservation is on the current day
+        //             if (reservationDate.getFullYear() === day.getFullYear() &&
+        //                 reservationDate.getMonth() === day.getMonth() &&
+        //                 reservationDate.getDate() === day.getDate()) {
+
+        //                 // Create reservation block
+        //                 const reservationBlock = document.createElement('div');
+        //                 reservationBlock.classList.add('event');
+        //                 reservationBlock.style.backgroundColor = '#3788d8'; // Customize color if needed
+        //                 reservationBlock.style.color = '#fff';
+        //                 reservationBlock.style.padding = '5px';
+        //                 reservationBlock.style.marginTop = '5px';
+        //                 reservationBlock.style.borderRadius = '4px';
+        //                 reservationBlock.style.fontSize = '0.8em';
+
+        //                 // Set reservation info
+        //                 reservationBlock.textContent = `${reservation.name} (${reservation.start_time.substring(11, 16)} - ${reservation.end_time.substring(11, 16)})`;
+
+        //                 // Append reservation to the day
+        //                 dayElement.appendChild(reservationBlock);
+        //             }
+        //         });
+
+        //         // Move to the next day
+        //         day.setDate(day.getDate() + 1);
+        //     }
+        // }
+
+        function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDisplay, lastDayToDisplay, month, occupancyByDay) {
+
+            let day = new Date(firstDayToDisplay);
+            const dayElements = daysContainer.querySelectorAll('.day');
+
+            // Create a lookup for event type colors
+            const eventTypeColorMap = {};
+            eventTypes.forEach(eventType => {
+                eventTypeColorMap[eventType.id] = eventType.color;
+            });
+
+            // Iterate through the displayed days
+            for (let i = 0; i < dayElements.length; i++) {
+                const dayElement = dayElements[i];
+
+
+                const eventDateKey = dayElement.getAttribute('data-date');
+
+                // Create the heat-bar-graph for each hour
+                const heatBar = document.createElement('div');
+                heatBar.className = 'heat-bar';
+
+                const occupancyThisDay = occupancyByDay[eventDateKey] || Array(12).fill(0); // Fallback to an empty array with 13 zeroes
+
+                // // Calculate the gradient stops based on booked capacity vs total capacity
+                // const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
+                //     return `${getHeatColor(percentageBooked)} ${(index / 12) * 100}%`;
+                // }).join(',');
+
+                // Calculate the gradient stops based on booked capacity vs total capacity with abrupt transitions
+                const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
+                    const start = (index / 12) * 100;
+                    const end = ((index + .3) / 12) * 100;
+                    const color = getHeatColor(percentageBooked);
+
+                    return `${color} ${start}%, ${color} ${end}%`; // Set abrupt color change between start and end
+                }).join(',');
+
+
+                // Apply the gradient to the heat bar
+                heatBar.style.background = `linear-gradient(to right, ${gradientStops})`;
+
+
+                const dayHeadingElement = dayElement.querySelector('.day-heading');
+
+                // Append heat bar to the day's div
+                dayHeadingElement.appendChild(heatBar);
+
+
+
+                // Create a set to track unique events for this day
+                const eventIdsForDay = new Set();
+
+                // Iterate through the event data and add reservations to the corresponding day
+                reservationData.forEach(reservation => {
+                    const eventDate = new Date(reservation.start_time);
+                    
+                    
+                    // Check if the event is on the current day
+                    if (eventDate.getFullYear() === day.getFullYear() &&
+                    eventDate.getMonth() === day.getMonth() &&
+                    eventDate.getDate() === day.getDate()) {
+                        
+                        // Only add the event if it hasn't been added already (check by event_id)
+                        if (!eventIdsForDay.has(reservation.event_id)) {
+                            eventIdsForDay.add(reservation.event_id); // Add event_id to the set
+
+                            // Create event block
+                            const eventBlock = document.createElement('div');
+                            eventBlock.classList.add('event');
+
+                            // Set the color based on the event type color from the lookup map
+                            const eventColor = eventTypeColorMap[reservation.event_type_id] || '#3788d8'; // Fallback color if none is provided
+                            eventBlock.style.backgroundColor = eventColor;
+
+                            // Set event info
+                            eventBlock.innerHTML = '';
+
+                            // Create a span for the event name
+                            const eventNameSpan = document.createElement('span');
+                            eventNameSpan.textContent = reservation.name;
+                            eventNameSpan.classList.add('event-name')
+                            eventBlock.appendChild(eventNameSpan);
+
+                            // Create a span for the event time range (start and end times)
+                            const eventTimeSpan = document.createElement('span');
+                            eventTimeSpan.textContent = ` ${reservation.start_time.substring(11, 16)} - ${reservation.end_time.substring(11, 16)}`;
+                            eventTimeSpan.classList.add('event-time')
+                            eventBlock.appendChild(eventTimeSpan);
+
+                            // Append event to the day
+                            dayElement.appendChild(eventBlock);
+                        }
+                    }
+                });
+
+                // Move to the next day
+                day.setDate(day.getDate() + 1);
+            }
+        }
+
+
+        function updateCalendarUI(firstDayToDisplay, lastDayToDisplay, month, date) {
+            // Update the current month display
+            currentMonthDisplay.textContent = date.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+
+            // Clear previous days
+            daysContainer.innerHTML = `<div class="day-header">Mo</div>
+            <div class="day-header">Di</div>
+            <div class="day-header">Mi</div>
+            <div class="day-header">Do</div>
+            <div class="day-header">Fr</div>
+            <div class="day-header">Sa</div>
+            <div class="day-header">So</div>`;
+
+            // Get today's date
+            const today = new Date();
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth();
+            const todayDate = today.getDate();
+
+            // Populate the days in the calendar (without reservations)
+            let day = new Date(firstDayToDisplay);
+            while (day <= lastDayToDisplay) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+
+                // Format the date in YYYY-MM-DD
+                const formattedDate = formatDateToYYYYMMDDLocal(day);
+                dayElement.setAttribute('data-date', formattedDate);
+        
+                
+                // If day is in the current month, add a special class
+                if (day.getMonth() === month) {
+                    dayElement.classList.add('current-month');
+                } else {
+                    dayElement.classList.add('other-month');
+                }
+
+                // Add "current-day" class if the day is today
+                if (day.getFullYear() === todayYear && day.getMonth() === todayMonth && day.getDate() === todayDate) {
+                    dayElement.classList.add('current-day');
+                }
+                
+                weekDaySpan = document.createElement('span');
+                const localDayString = day.toLocaleString('de-DE', { weekday: 'short' })
+                weekDaySpan.textContent = localDayString; // 'Mo', 'Di', etc.
+                weekDaySpan.classList.add('mobile-weekday');
+                weekDaySpan.classList.add(localDayString.toLowerCase());
+                dayElement.appendChild(weekDaySpan);
+
+
+                dayHeadingDiv = document.createElement('div');
+                dayHeadingDiv.classList.add('day-heading');
+
+                spanElement = document.createElement('span');
+                spanElement.textContent = day.getDate();
+                spanElement.classList.add('day-number')
+
+                dayHeadingDiv.appendChild(spanElement);
+
+                dayElement.appendChild(dayHeadingDiv);
+
+
+                // Capture the correct day value in a closure
+                (function(currentDay) {
+                    dayElement.addEventListener('click', function() {
+                        const formattedDate = formatDateToYYYYMMDDLocal(currentDay); // Use local time formatting
+                        console.log(`Clicked on day: ${formattedDate}`);
+                        window.location.href = `/mycalendar?date=${formattedDate}`;
+                    });
+                })(new Date(day)); // Passing a copy of the day to the closure
+
+                // Append the day element to the container
+                daysContainer.appendChild(dayElement);
+
+                // Move to the next day
+                day.setDate(day.getDate() + 1);
+            }
+        }
+
+        
+        // // Helper function to get a color based on percentage booked
+        // function getHeatColor(percentage) {
+        //     // Gradient from green (0% booked) to red (100% booked)
+        //     if (percentage <= .2) return 'var(--heat-none)';
+        //     if (percentage <= .4) return 'var(--heat-low)';
+        //     if (percentage <= .7) return 'var(--heat-medium)';
+        //     return 'var(--heat-high)';
+        // }
+        // Helper function to get a color based on percentage booked using CSS lab() color space
+        function getHeatColor(percentage) {
+            // Clamp the percentage between 0 and 1 to avoid out-of-bounds values
+            percentage = Math.max(0, Math.min(percentage, 1));
+
+            // Interpolate between lab(100% 60 -100) for green and lab(55% 60 40) for red
+            const labStart = [100, 3, -9];  // lab(100% 60 -100) -> Green
+            const labEnd = [0, 128, -85];       // lab(55% 60 40) -> Red
+
+            const lastFivePercent = Math.max(Math.min(1, percentage * -20 + 19),0)
+
+            // Interpolate each lab component
+            const L = labStart[0] + (labEnd[0] - labStart[0]) * percentage;
+            const a = labStart[1] + (labEnd[1] - labStart[1]) * Math.min(Math.max(0, percentage * 2 - .7),1) * lastFivePercent;
+            const b = labStart[2] + (labEnd[2] - labStart[2]) * Math.min(1, percentage * 2) * lastFivePercent;
+
+            // Return the color in CSS lab() format
+            return `lab(${L}% ${a} ${b})`;
+        }
+
+        
+    </script>
+</body>
+</html>

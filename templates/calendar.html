@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.7.0"></script>
+    <title>Reservations Week View</title>
+    <style>
+        #calendar {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Week View of Reservations</h1>
+    <div id='calendar'></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,timeGridDay'
+                },
+                events: '/api/reservations',  // We'll create this endpoint next
+                editable: false,
+                selectable: true,
+                eventTimeFormat: { // Format for displaying event time
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false
+                }
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
