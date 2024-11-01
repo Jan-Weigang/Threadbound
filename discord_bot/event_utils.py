@@ -46,6 +46,7 @@ def get_embed_color_from_event(event):
 
 
 def generate_event_embed(event, channel_id, action):
+    calendar_url = url_for('cal_bp.day', view_type='regular', _external=True, date=event.start_time.strftime('%Y-%m-%d'))
     if action == 'cancel':
         embed = discord.Embed(
             title=f"Abgesagt: {event.name}",
@@ -54,7 +55,8 @@ def generate_event_embed(event, channel_id, action):
     else:
             embed = discord.Embed(
             title=f"📅 {event.name}",
-            color=get_embed_color_from_event(event)
+            color=get_embed_color_from_event(event),
+            url=calendar_url
         )
     channel = bot.get_channel(channel_id)
     if isinstance(channel, discord.TextChannel):
@@ -69,8 +71,9 @@ def generate_event_embed(event, channel_id, action):
 
     embed.set_author(name=f"{event.event_type.name} - {event.game_category.name}")
 
-    embed.add_field(name=f"🕒 {event.start_time.strftime('%H:%M')}", value="von", inline=True)
-    embed.add_field(name=f"🕓 {event.end_time.strftime('%H:%M')}", value="bis", inline=True)
+    embed.add_field(name=f"{event.start_time.strftime('%d.%m.%Y')}", value="", inline=False)
+    embed.add_field(name=f"", value=f"🕒 {event.start_time.strftime('%H:%M')}", inline=True)
+    embed.add_field(name=f"", value=f"🕒 {event.end_time.strftime('%H:%M')}", inline=True)
 
     embed.add_field(name="", value="", inline=False)
 

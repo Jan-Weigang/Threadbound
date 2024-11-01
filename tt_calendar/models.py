@@ -84,9 +84,20 @@ class DiscordChannel(db.Model):
     discord_channel_id = db.Column(db.BigInteger, unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
 
+    server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
+    server = db.relationship('Server', back_populates='channels')
+
     # One-to-many relationship with GameCategory
     game_categories = db.relationship('GameCategory', back_populates='channel', lazy=True)
+    
 
+class Server(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    discord_server_id = db.Column(db.BigInteger, unique=True, nullable=False)  # Discord server (guild) ID
+    name = db.Column(db.String(100), nullable=False)
+
+    # One-to-many relationship with DiscordChannel
+    channels = db.relationship('DiscordChannel', back_populates='server', lazy=True)
 
 
 
@@ -129,6 +140,12 @@ class Event(db.Model):
     def get_template_events(cls):
         return cls.query.filter_by(is_template=True)
     
+    def get_discord_message_url(self):
+        if self.discord_post_id and self.game_category and self.game_category.channel: # type: ignore
+            server_id = self.game_category.channel.server.discord_server_id # type: ignore
+            channel_id = self.game_category.channel.discord_channel_id # type: ignore
+            return f"discord.com/channels/{server_id}/{channel_id}/{self.discord_post_id}"
+        return None
 
 # Reservation Model
 class Reservation(db.Model):

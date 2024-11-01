@@ -1,0 +1,77 @@
+<div class="footer">
+    <div class="footer-left">
+        <form action="{{ url_for('cal_bp.day') }}" 
+            method="GET">
+            <button type="submit">Tag</button>
+        </form>
+        <form action="{{ url_for('cal_bp.month') }}" 
+            method="GET">
+            <button type="submit">Monat</button>
+        </form>
+        <form action="{{ url_for('logout') }}" 
+            method="GET">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+
+    <!-- Left Section -->
+    <div class="footer-center">
+        TableTopTreff Hannover e.V.
+    </div>
+
+
+    <!-- Right Section with Info Display -->
+    <div class="footer-right">
+        <span id="info-display" style="font-style: italic; color: #999999;">
+            Hover over items for more info
+        </span>
+    </div>
+</div>
+
+<!-- Inline JavaScript for hover behavior -->
+<script>
+    // Observe changes in the document to add hover events dynamically
+    document.addEventListener('DOMContentLoaded', function() {
+        const infoDisplay = document.getElementById('info-display');
+    
+        function addHoverListeners(element) {
+            element.addEventListener('mouseenter', () => {
+                infoDisplay.style.visibility = 'visible';
+            });
+            element.addEventListener('mousemove', () => {
+                infoDisplay.textContent = element.getAttribute('data-hover-info');
+            });
+            element.addEventListener('mouseleave', () => {
+                infoDisplay.style.visibility = 'hidden';
+            });
+
+            element.addEventListener('touchstart', () => {
+                infoDisplay.style.visibility = 'visible';
+            });
+            element.addEventListener('touchmove', () => {
+                infoDisplay.textContent = element.getAttribute('data-hover-info');
+            });
+            element.addEventListener('touchend', () => {
+                infoDisplay.style.visibility = 'hidden';
+            });
+        }
+    
+        // Initialize hover listeners on existing elements
+        document.querySelectorAll('[data-hover-info]').forEach(addHoverListeners);
+    
+        // Use MutationObserver to watch for dynamically added elements
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('data-hover-info')) {
+                        addHoverListeners(node); // Add hover listener for new elements
+                    }
+                });
+            });
+        });
+    
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+</script>
+

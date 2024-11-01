@@ -21,24 +21,11 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO =====================================
-# TODO CHECK FOR SENSITIVE DATA AND GIT THIS!
-# TODO =====================================
-
 # TODO ICS Button in Discord view
-# Link in discord
-
-
-# TODO Icon to bottom unless container height too small @container to position relative
-# TODO fix hover month out of current weekends
 
 # TODO Templates als Stammtsichkalender
 
 # TODO Calendar / ICS integration?
-
-# TODO admin views better machen
-
-# TODO Flask Flash as include
 
 # TODO Bottom nav and legends
 
@@ -49,7 +36,7 @@ load_dotenv()
 
 # TODO Login-Loop bei nicht-Mitgliedern stoppen und erklären
 
-# TODO kalender monat leitet nicht zu Tag auf Safari month.html 580
+# Fixed? kalender monat leitet nicht zu Tag auf Safari month.html 580
 
 
 # ======================================

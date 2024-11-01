@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 header.style.backgroundColor = 'rgb(216, 225, 196)';
             }
             header.setAttribute('data-table-info', `${table.name}`);
+            header.setAttribute('data-hover-info', `Tisch: ${table.name} - Kapazität: ${table.capacity}`); // Default hover info
             calendar.appendChild(header);
 
             // Create hover reservation block for each table header
@@ -64,34 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hoverReservation.style.gridRow = `${index + 1} / ${index + 2}`;
             calendar.appendChild(hoverReservation);
 
-
-
-            // // Add touch event to place and move hover reservation
-            // let touchMoveHandler = null;
-            // header.addEventListener('touchstart', (e) => {
-            //     e.preventDefault();
-            //     // Hide all other hover reservations
-            //     document.querySelectorAll('.hover-reservation').forEach(hr => {
-            //         hr.style.display = 'none';
-            //     });
-
-            //     hoverReservation.style.display = 'block';
-            //     activeHoverReservation = hoverReservation;
-
-            //     // Position the hover reservation based on touch location
-            //     const touch = e.touches[0];
-            //     // hoverReservation.style.left = `${touch.clientX - calendar.getBoundingClientRect().left}px`;
-            //     hoverReservation.style.left = `${calculateSteppedHoverPosition(touch.clientX, calendar)}px`;
-            //     hoverReservation.style.width = `${calendar.clientWidth / 12}px` // Arbitrary width for visualizing the block
-
-            //     // Add touchmove listener to move the hover reservation along the x-axis
-            //     touchMoveHandler = (moveEvent) => {
-            //         const moveTouch = moveEvent.touches[0];
-            //         // hoverReservation.style.left = `${moveTouch.clientX - calendar.getBoundingClientRect().left}px`;
-            //         hoverReservation.style.left = `${calculateSteppedHoverPosition(moveTouch.clientX, calendar)}px`;
-            //     };
-            //     header.addEventListener('touchmove', touchMoveHandler);
-            // });
 
             let touchMoveHandler = null;
             let longPressTimer = null;
@@ -105,14 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             header.addEventListener('touchstart', (e) => {
                 touchInProgress = true;  // Set the flag when a touch starts
-
+                e.preventDefault(); 
                 const touch = e.touches[0];
                 startX = touch.clientX;
                 startY = touch.clientY;
 
                 longPressTimer = setTimeout(() => {
                     hoverEnabled = true;  // Enable hover functionality after long press
-            
+                    
                     // Hide all other hover reservations
                     document.querySelectorAll('.hover-reservation').forEach(hr => {
                         hr.style.display = 'none';
@@ -129,7 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Add touchmove listener to move the hover reservation along the x-axis
                     touchMoveHandler = (moveEvent) => {
                         const moveTouch = moveEvent.touches[0];
-                        hoverReservation.style.left = `${calculateSteppedHoverPosition(moveTouch.clientX, calendar)}px`;
+                        // hoverReservation.style.left = `${calculateSteppedHoverPosition(moveTouch.clientX, calendar)}px`; // Done: This does not update the info bar yet
+                        let timeOffset = calculateSteppedHoverPosition(moveTouch.clientX, calendar)
+                        hoverReservation.style.left = `${timeOffset}px`;
+                        if (is_inside_header(header, moveEvent)) {
+                            header.setAttribute('data-hover-info', `${table.name} - Uhrzeit: ${get_hover_event_time(timeOffset)}`);
+                        } else {
+                            header.setAttribute('data-hover-info', `Hier loslassen, um abzubrechen.`);
+                        }
                     };
                     header.addEventListener('touchmove', touchMoveHandler);
                 }, longPressDuration);  // Trigger hover after 500ms long press
@@ -149,7 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             header.addEventListener('touchend', (e) => {
                 clearTimeout(longPressTimer);
-                if (hoverEnabled && hoverReservation.style.display === 'block') {
+
+
+                if (hoverEnabled && hoverReservation.style.display === 'block' && is_inside_header(header, e)) {
 
                     const timeOffset = e.changedTouches[0].clientX - calendar.getBoundingClientRect().left;
                     const time = get_hover_event_time(timeOffset)
@@ -170,8 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
 
-
-
             // Add click event for table booking
             header.addEventListener('click', (e) => {
                 if (touchInProgress) {
@@ -188,7 +168,9 @@ document.addEventListener('DOMContentLoaded', function() {
             header.addEventListener('mousemove', (e) => {
                 hoverReservation.style.display = 'block';
                 // hoverReservation.style.left = `${e.clientX - calendar.getBoundingClientRect().left}px`;
-                hoverReservation.style.left = `${calculateSteppedHoverPosition(e.clientX, calendar)}px`;
+                let timeOffset = calculateSteppedHoverPosition(e.clientX, calendar)
+                hoverReservation.style.left = `${timeOffset}px`;
+                header.setAttribute('data-hover-info', `${table.name} - Uhrzeit: ${get_hover_event_time(timeOffset)}`);
                 hoverReservation.style.width = `${calendar.clientWidth / 12}px` // Arbitrary width for visualizing the block
             });
             header.addEventListener('mouseleave', () => {
@@ -217,6 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reservationBlock = document.createElement('div');
             reservationBlock.className = 'reservation';
+
+            let durationString = get_duration_string(start, end)
+            reservationBlock.setAttribute('data-hover-info', `${reservation.name} - ${durationString}`)
 
             // Set the color based on the event type color from the lookup map
             const eventColor = eventTypeColorMap[reservation.event_type_id] || '#3788d8'; // Fallback color if none is provided
@@ -409,6 +394,7 @@ function openReservationPopup(reservation) {
         { label: 'Uhrzeit:', value:  start_time + " Uhr bis " + end_time + " Uhr" },
         { label: 'Tische:', value: relatedTablesInfo },
         ...(reservation.attendee_count != null ? [{ label: 'Teilnehmende:', value: reservation.attendee_count + " Personen" }] : []),
+        { label: 'Discord:', value: 'App: discord://' + reservation.discord_link + ' - Web: https://' + reservation.discord_link },
         { label: 'Beschreibung:', value: reservation.description },
         
     ];
@@ -422,7 +408,7 @@ function openReservationPopup(reservation) {
         value.textContent = field.value;
 
         if (field.heading) {
-            label.className = 'popup-heading';
+            label.className = 'popup-label';
             value.className = 'popup-heading';
         }
         else {
@@ -437,7 +423,7 @@ function openReservationPopup(reservation) {
         popupContent.appendChild(value);
         
     });
-
+    
     // Append the content to the popup
     popup.appendChild(popupContent);
 
@@ -534,63 +520,133 @@ function updateCalendarView() {
 }
 
 
-
 function get_hover_event_time(timeOffset) {
     const timePercentage = timeOffset / calendar.clientWidth;
     const hours = 12 + timePercentage * 12;
-    const roundedHours = Math.floor(hours);
-    const minutes = Math.round((hours - roundedHours) * 60);
+    let roundedHours = Math.floor(hours);
+    let minutes = Math.round((hours - roundedHours) * 60);
+
+    // Adjust if minutes equal 60
+    if (minutes === 60) {
+        minutes = 0;
+        roundedHours += 1;
+    }
+
+    // Wrap hours if it reaches 24
+    if (roundedHours === 24) {
+        roundedHours = 0;
+    }
+
+    // Format time with padded minutes
     const time = `${roundedHours}:${minutes.toString().padStart(2, '0')}`;
-    return time
+    return time;
 }
 
-// Shorten links in a specific popup element before appending
+// function get_hover_event_time(timeOffset) {
+//     const timePercentage = timeOffset / calendar.clientWidth;
+//     const hours = 12 + timePercentage * 12;
+//     const roundedHours = Math.floor(hours);
+//     const minutes = Math.round((hours - roundedHours) * 60);
+//     const time = `${roundedHours}:${minutes.toString().padStart(2, '0')}`;
+//     return time
+// }
+
 function shortenLinksInPopup(popup) {
-    // Select all elements in the popup with the class 'popup-value'
     const popupDivs = popup.querySelectorAll('.popup-value');
     
-    // Regex pattern to find URLs
-    const urlPattern = /(https?:\/\/|www\.)[^\s]+/g;
+    // Regex pattern to find URLs (including discord://)
+    const urlPattern = /(https?:\/\/|discord:\/\/|www\.)[^\s]+/g;
 
     popupDivs.forEach(div => {
-        // Replace URLs in the div's text content with anchor tags
         div.innerHTML = div.innerHTML.replace(urlPattern, (url) => {
-            // Parse the URL to handle formatting consistently
-            const urlObject = new URL(url.startsWith("http") ? url : `https://${url}`);
-            
-            // Get the domain (e.g., "meineSeite.de")
-            const domain = urlObject.hostname;
-            
-            // Determine if there is a path beyond the root
-            const displayPath = urlObject.pathname.length > 1 ? '/..' : '';
+            let displayURL, href, target;
 
-            // Construct the shortened display URL
-            const shortenedDisplayURL = `${domain}${displayPath}`;
+            // Check if it's a discord:// link
+            if (url.startsWith("discord://")) {
+                // Parse the URL manually since `new URL` won't work with `discord://`
+                displayURL = "discord.com/..";
+                href = url; // Keep the original `discord://` link
+                target = "_self"; // Open in the same tab for discord links
+            } else {
+                // For standard URLs, use `new URL` to parse
+                const urlObject = new URL(url.startsWith("http") ? url : `https://${url}`);
+                const domain = urlObject.hostname;
+                const displayPath = urlObject.pathname.length > 1 ? '/..' : '';
+                displayURL = `${domain}${displayPath}`;
+                href = urlObject.href;
+                target = "_blank"; // Open in a new tab for regular links
+            }
 
-            // Return an anchor with the shortened display text
-            return `<a href="${urlObject.href}" target="_blank" rel="noopener noreferrer">${shortenedDisplayURL}</a>`;
+            // Return an anchor with the appropriate display text, href, and target
+            return `<a href="${href}" target="${target}" rel="noopener noreferrer">${displayURL}</a>`;
         });
     });
 }
 
 // // Shorten links in a specific popup element before appending
 // function shortenLinksInPopup(popup) {
+//     // Select all elements in the popup with the class 'popup-value'
 //     const popupDivs = popup.querySelectorAll('.popup-value');
     
-//     const urlPattern = /(https?:\/\/|www\.)[^\s]+/g;
+//     // Regex pattern to find URLs
+//     //const urlPattern = /(https?:\/\/|www\.)[^\s]+/g;
+//     const urlPattern = /(https?:\/\/|discord:\/\/|www\.)[^\s]+/g;
 
 //     popupDivs.forEach(div => {
 //         // Replace URLs in the div's text content with anchor tags
 //         div.innerHTML = div.innerHTML.replace(urlPattern, (url) => {
-//             // Remove the protocol and www prefix for display
-//             const displayURL = url.replace(/^(https?:\/\/)?(www\.)?/, '');
-            
-//             // Shorten the display URL to show only the domain and first path part
+//             // Parse the URL to handle formatting consistently
 //             const urlObject = new URL(url.startsWith("http") ? url : `https://${url}`);
-//             const shortenedDisplayURL = `${displayURL.split('/')[0]}/${displayURL.split('/')[1] || '..'}`;
+            
+//             // Get the domain (e.g., "meineSeite.de")
+//             const domain = urlObject.hostname;
+            
+//             // Determine if there is a path beyond the root
+//             const displayPath = urlObject.pathname.length > 1 ? '/..' : '';
+
+//             // Construct the shortened display URL
+//             const shortenedDisplayURL = `${domain}${displayPath}`;
 
 //             // Return an anchor with the shortened display text
 //             return `<a href="${urlObject.href}" target="_blank" rel="noopener noreferrer">${shortenedDisplayURL}</a>`;
 //         });
 //     });
 // }
+
+function get_duration_string(start, end) {
+    // Calculate the difference in milliseconds
+    let durationMs = end - start;
+
+    // Calculate hours and minutes separately
+    let event_hours = Math.floor(durationMs / (1000 * 60 * 60));
+    let event_minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    // Format the duration string
+    if (event_minutes == 0) {
+        return `${event_hours} Std`;
+    } else {
+        return `${event_hours} Std ${event_minutes} Min`;
+    }
+    
+}
+
+
+function is_inside_header(header, e) {
+    // Get the current touch position
+    const touch = e.changedTouches[0];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+
+    // Get header bounds
+    const headerRect = header.getBoundingClientRect();
+
+    // Check if touch ended inside the header boundaries
+    const isInsideHeader = (
+        touchX >= headerRect.left &&
+        touchX <= headerRect.right &&
+        touchY >= headerRect.top &&
+        touchY <= headerRect.bottom
+    );
+
+    return isInsideHeader;
+}

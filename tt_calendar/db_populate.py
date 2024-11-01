@@ -1,8 +1,11 @@
 import os
 import json
 import base64
-from .models import db, GameCategory, EventType, Publicity, Table, DiscordChannel
+from .models import *
 from flask import current_app as app
+
+from dotenv import load_dotenv
+load_dotenv()
 
 def check_and_populate_db():
     with app.app_context():
@@ -23,6 +26,7 @@ def add_initial_data():
     add_event_types()
     add_publicity_levels()
     add_tables()
+    add_server_from_env()
     add_channels_from_env()
 
 def add_game_categories():
@@ -90,13 +94,35 @@ def add_channels_from_env():
 
     for name, discord_channel_id in channels_dict.items():
         if not DiscordChannel.query.filter_by(discord_channel_id=discord_channel_id).first():
-            new_channel = DiscordChannel(discord_channel_id=discord_channel_id, name=name) # type: ignore
+            new_channel = DiscordChannel(discord_channel_id=discord_channel_id, name=name, server_id=1) # type: ignore
             db.session.add(new_channel)
             print(f"Added channel: {name} with ID {discord_channel_id}")
     db.session.commit()
     print("Channels added successfully.")
 
 
+
+def add_server_from_env():
+    # Fetch the server ID and name from environment variables
+    discord_server_id = os.getenv('GUILD_ID')
+    server_name = os.getenv('SERVER_NAME')
+
+    # Ensure that necessary environment variables are set
+    if not discord_server_id or not server_name:
+        print("Error: GUILD_ID and SERVER_NAME must be set in environment variables.")
+        return
+
+    # Check if the server already exists in the database
+    existing_server = Server.query.filter_by(discord_server_id=discord_server_id).first() # type: ignore
+    if existing_server:
+        print(f"Server '{server_name}' with ID '{discord_server_id}' already exists.")
+        return
+
+    # Create a new server entry
+    new_server = Server(discord_server_id=discord_server_id, name=server_name) # type: ignore
+    db.session.add(new_server)
+    db.session.commit()
+    print(f"Added server '{server_name}' with ID '{discord_server_id}' to the database.")
 
 
 

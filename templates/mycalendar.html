@@ -23,6 +23,8 @@
     </style>
 </head>
 <body>
+    
+    {% include 'std_elements/body.html' %}
     <div class="layout-wrapper">
         <div class="calendar-header">
             
@@ -47,15 +49,13 @@
                 <span class="time-label" data-hour="24">24:00</span>
             </div>
             <div id="calendar" class="calendar"></div>
-
-        </div class="calendar-footer">
-        <div class="calendar-footer">
-            <form action="{{ url_for('cal_bp.month') }}" 
-                method="GET">
-                <button type="submit">Zur anderen Ansicht</button>
-            </form>
         </div>
+
+        {% include 'std_elements/footer.html' %}
+        
     </div>
+    
+
     
 </body>
 </html>

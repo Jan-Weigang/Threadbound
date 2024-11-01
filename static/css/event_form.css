@@ -1,5 +1,4 @@
 body {
-    font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     padding: 2rem;
     max-width: 800px;
@@ -20,16 +19,6 @@ hr {
 
 
 
-.flash {
-    padding: 1rem;
-}
-.success {
-    background-color: #82e479;
-}
-.failure {
-    background-color: #e06e90;
-}
-
 form {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -45,31 +34,6 @@ label {
     font-weight: bold;
 }
 
-input[type="text"],
-textarea,
-select,
-input[type="date"],
-input[type="time"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-}
-select[data-icon]::after {
-    content: '';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    width: 24px;
-    height: 24px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
 
 .main-form button[type="submit"], .api-button {
     padding: 0.75rem;
@@ -96,7 +60,6 @@ select[data-icon]::after {
     cursor: not-allowed; /* Change cursor to indicate disabled button */
     opacity: 0.7; /* Lower opacity for visual indication */
 }
-
 
 .api-button {
     background-color: #90b0d0;
@@ -129,19 +92,7 @@ select[data-icon]::after {
     gap: 10px;
     margin-top: 10px;
 }
-button {
-    padding: 10px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    height: 3rem;
-    transition: background-color 0.2s, transform 0.1s;
-}
-button:hover {
-    background-color: #ccc;
-}
+
 .table-button {
     position:relative;
 }

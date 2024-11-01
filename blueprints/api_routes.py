@@ -199,13 +199,14 @@ def api_get_reservations(view_type=None):
         'attendee_count': len(reservation.associated_event.attendees),
         'time_created': reservation.associated_event.time_created.strftime('%d.%m.%Y %H:%M'),
         'time_updated': reservation.associated_event.time_updated.strftime('%d.%m.%Y %H:%M') if reservation.associated_event.time_updated else None,
-        'publicity': reservation.associated_event.publicity.name
+        'publicity': reservation.associated_event.publicity.name,
+        'discord_link': reservation.associated_event.get_discord_message_url()
     } for reservation in reservations]
 
-    if not discord.authorized or not session.get('is_club_member', False):
+    if not discord.authorized or not session.get('is_member', False):
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
-            del entry['attendee_count']
+            # del entry['attendee_count']
     
     # print(json.dumps(reservation_data, indent=4))
     return jsonify({'reservations': reservation_data})

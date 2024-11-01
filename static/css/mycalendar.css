@@ -1,50 +1,9 @@
 body {
-    font-family: Arial, sans-serif;
     height: 100%;
 }
-b {
-    font-weight: bold;
-}
-
-button {
-    padding: 10px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-input[type="text"],
-textarea,
-select,
-input[type="date"],
-input[type="time"] {
-    box-sizing: border-box;
-    padding: 0.5rem;
-    font-size: min(1rem, 4vw);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-}
-select[data-icon]::after {
-    content: '';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    width: 24px;
-    height: 24px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
 
 
-button:hover {
-    background-color: #ccc;
-}
+
 .layout-wrapper {
     display: grid;
     grid-template-rows: 5rem 1fr 5rem;
@@ -52,9 +11,10 @@ button:hover {
     padding-right: 3rem;
     padding-left: 3rem;
     grid-gap: 1rem;
+    max-height: 45rem;
 }
 .layout-wrapper > * {
-    width: min(110ch,100%);
+    width: min(100ch,100%);
     margin-left: auto;
     margin-right: auto;
     padding: 0 1vw 0 1vw;
@@ -63,8 +23,8 @@ button:hover {
 .calendar-container {
     display: flex;
     flex-direction: column;
-    min-height: 400px;
-    max-height: 35rem;
+    min-height: 300px;
+    /* max-height: 35rem; */
 }
 .time-scale {
     height: 1.5rem;
@@ -149,6 +109,7 @@ button:hover {
 }
 .view-heading {
     font-weight: bold;
+    font-size: 1.5rem;
 }
 
 .table-header::before {
@@ -165,7 +126,7 @@ button:hover {
     position: absolute;
     background-color: #3788d8;
     color: black;
-    padding: .5rem;
+    padding: 0.5rem;
     border: solid grey 1px;
     border-radius: .5rem;
     font-size: 0.7rem;
@@ -184,7 +145,7 @@ button:hover {
 }
 .reservation b {
     font-weight: bold;
-    font-size: 1.1em;
+    font-size: .9rem;
 }
 .hover-reservation {
     position: absolute;
@@ -228,6 +189,7 @@ button:hover {
     z-index: 1000;
     width: clamp(30ch,50vw,80ch);
     /* white-space: pre-wrap; */
+    max-height: 100%;
 }
 
 .popup-content {
@@ -236,6 +198,7 @@ button:hover {
     row-gap: 10px;
     margin-bottom: .3rem;
     border-bottom: 1px solid grey;
+    align-items: center;
 }
 .popup-content>div:nth-child(4n+3),
 .popup-content>div:nth-child(4n+4) {
@@ -250,13 +213,16 @@ button:hover {
     word-break: break-word;
     padding-left: 1rem;
 }
-
 .popup-label {
     font-weight: bold;
 }
 .popup-heading {
     font-weight: bold;
     font-size: 1.3rem;
+    padding-left: 1rem;
+}
+.popup-heading:first {
+    padding-left: 0;
 }
 .popup-footer {
     position: relative;
@@ -347,6 +313,9 @@ button:hover {
     overflow: hidden;
 }
 
+.reservation-info-icon {
+    align-self: end;
+}
 
 .reservation-info-name {grid-area: name;}
 .reservation-info-time {grid-area: time;}
@@ -359,6 +328,7 @@ button:hover {
         grid-template-columns: 1fr 20px;
         grid-template-areas: 
             "name image";
+        height: auto;
     }
     .reservation-info-name {
         display: block;
@@ -385,7 +355,7 @@ button:hover {
         grid-template-columns: 1fr 20px;
         grid-template-areas: 
             "name name"
-            "time image"
+            "time time"
             "attendees image";
     }
     .reservation-info-name, .reservation-info-time, .reservation-info-attendees {
@@ -396,7 +366,7 @@ button:hover {
         color: #444;
     }
     .reservation-info-icon {
-        grid-row: span 2; /* This makes it occupy both the second and third rows */
+        grid-row: span 1; /* This makes it occupy both the second and third rows */
     }
 }
 
@@ -406,7 +376,7 @@ button:hover {
         grid-template-areas: 
             "name name"
             "time time"
-            "attendees image"
+            "attendees attendees"
             "publicity image";
     }
     .reservation-info-name, .reservation-info-time, .reservation-info-attendees, .reservation-info-publicity {
@@ -417,7 +387,7 @@ button:hover {
         color: #444;
     }
     .reservation-info-icon {
-        grid-row: span 2; /* This makes it occupy both the second and third rows */
+        grid-row: span 1; /* This makes it occupy both the second and third rows */
     }
 }
 

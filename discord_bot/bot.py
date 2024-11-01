@@ -42,6 +42,7 @@ async def on_message(message):
         view.add_item(discord.ui.Button(label="Ich bin dabei!", style=discord.ButtonStyle.success, custom_id="attend"))
         # view.add_item(discord.ui.Button(label="Nur vielleicht...", style=discord.ButtonStyle.success, custom_id="maybe"))
         view.add_item(discord.ui.Button(label="Ich kann nicht.", style=discord.ButtonStyle.primary, custom_id="not_attend"))
+        # view.add_item(discord.ui.Button(label="ics.", style=discord.ButtonStyle.primary, custom_id="open_calendar"))
 
 
 
