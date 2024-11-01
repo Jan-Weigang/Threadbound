@@ -27,10 +27,17 @@
 <body>
     {% include 'std_elements/body.html' %}
     <div class="layout-wrapper">
-        <div class="calendar-header">
-            <button id="prevMonth">Vorheriger</button>
-            <span id="currentMonth" class="view-heading"></span>
-            <button id="nextMonth">Nächster</button>
+        <div class="layout-header">
+            <div class="header-left">
+                <button id="today" data-url="{{ url_for('cal_bp.day') }}">Heute</button>
+            </div>
+            <div class="header-center">
+                <span id="currentMonth" class="view-heading"></span>
+            </div>
+            <div class="header-right">
+                <button id="prevMonth">Vorheriger</button>
+                <button id="nextMonth">Nächster</button>
+            </div>
         </div>
 
         <div class="calendar-container month-view calendar-grid" id="daysContainer">

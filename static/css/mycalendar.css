@@ -11,7 +11,7 @@ body {
     padding-right: 3rem;
     padding-left: 3rem;
     grid-gap: 1rem;
-    max-height: 45rem;
+    /* max-height: 45rem; */
 }
 .layout-wrapper > * {
     width: min(100ch,100%);
@@ -24,8 +24,64 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 300px;
-    /* max-height: 35rem; */
+    max-height: 45rem; 
 }
+
+.calendar-container {
+    position: relative;
+}
+
+.side-nav {
+    position: absolute;
+    top: 0;
+    width: 5rem;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    /* pointer-events: none; Prevent clicks unless hovered */
+}
+
+.side-nav:hover {
+    opacity: 0.7;
+    pointer-events: auto; /* Enable clicks on hover */
+    background-color: var(--accent-color-light);
+}
+
+.prev-day {
+    left: -5rem;
+}
+
+.next-day {
+    right: -5rem;
+}
+
+.side-nav::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.prev-day::before {
+    border-width: 10px 15px 10px 0;
+    border-color: transparent white transparent transparent;
+    margin-right: 5px;
+}
+
+.next-day::before {
+    border-width: 10px 0 10px 15px;
+    border-color: transparent transparent transparent white;
+    margin-left: 5px;
+}
+
+
 .time-scale {
     height: 1.5rem;
     border-bottom: 1px solid #ccc;
@@ -190,6 +246,7 @@ body {
     width: clamp(30ch,50vw,80ch);
     /* white-space: pre-wrap; */
     max-height: 100%;
+    border-radius: .5rem;
 }
 
 .popup-content {

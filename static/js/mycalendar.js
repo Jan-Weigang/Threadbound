@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             header.style.gridRow = `${index + 1} / ${index + 2}`;
             // Set background color based on table type
             if (table.type === "RPG") {
-                header.style.backgroundColor = 'rgb(216, 225, 196)';
+                header.style.backgroundColor = 'var(--accent-color-light)';
             }
             header.setAttribute('data-table-info', `${table.name}`);
             header.setAttribute('data-hover-info', `Tisch: ${table.name} - Kapazität: ${table.capacity}`); // Default hover info
@@ -76,12 +76,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const moveThreshold = 25; // 50 pixel threshold
             const longPressDuration = 500;  // 0.5 seconds
 
+            const swipeDurationThreshold = 300; // Quick swipe duration in ms
+            const swipeDistanceThreshold = 50;
+
             header.addEventListener('touchstart', (e) => {
                 touchInProgress = true;  // Set the flag when a touch starts
                 e.preventDefault(); 
                 const touch = e.touches[0];
                 startX = touch.clientX;
                 startY = touch.clientY;
+                touchStartTime = Date.now();
 
                 longPressTimer = setTimeout(() => {
                     hoverEnabled = true;  // Enable hover functionality after long press
@@ -129,6 +133,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
             header.addEventListener('touchend', (e) => {
                 clearTimeout(longPressTimer);
+
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const touchEndTime = Date.now();
+                const touchDuration = touchEndTime - touchStartTime;
+
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
+
+                // Check for quick swipe
+                if (touchDuration < swipeDurationThreshold && Math.abs(deltaX) > swipeDistanceThreshold && Math.abs(deltaY) < swipeDistanceThreshold) {
+                    const selectedDate = new Date(dateInput.value);
+                    if (deltaX > 0) {
+                        // Swipe right, go to previous day
+                        selectedDate.setDate(selectedDate.getDate() - 1);
+                    } else {
+                        // Swipe left, go to next day
+                        selectedDate.setDate(selectedDate.getDate() + 1);
+                    }
+
+                    // Format the new date as yyyy-mm-dd
+                    const formattedDate = selectedDate.toISOString().split('T')[0];
+
+                    // Use URLSearchParams to update the date parameter
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('date', formattedDate);
+                    window.location.href = url.toString();
+                    return;
+                }
 
 
                 if (hoverEnabled && hoverReservation.style.display === 'block' && is_inside_header(header, e)) {
@@ -510,7 +543,12 @@ const dateInput = document.getElementById('dateInput');
 
 // Add event listeners to both the viewTypeSelect and dateInput
 viewTypeSelect.addEventListener('change', updateCalendarView);
-dateInput.addEventListener('change', updateCalendarView);
+// dateInput.addEventListener('change', updateCalendarView); // TODO Month View instead of selecting cate here
+dateInput.addEventListener('click', function(e) {
+    e.preventDefault();
+    const url = this.getAttribute('data-url-month');
+    window.location.href = url;
+})
 
 // Function to handle the redirection based on view type and date
 function updateCalendarView() {
@@ -650,3 +688,60 @@ function is_inside_header(header, e) {
 
     return isInsideHeader;
 }
+
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     document.querySelector('.calendar-container').addEventListener('click', (e) => {
+        
+//         const container = e.currentTarget;
+//         const dateInput = document.getElementById('dateInput');
+//         const currentDate = dateInput.value;
+
+//         // Determine direction based on clicked element
+//         if (e.target === container.querySelector('::before')) {
+//             // Previous day
+//             currentDate.setDate(currentDate.getDate() - 1);
+//             // Format date to yyyy-mm-dd
+//             const formattedDate = currentDate.toISOString().split('T')[0];
+            
+//             // Redirect to the new date
+//             window.location.href = `/day/${formattedDate}`;
+//         } else if (e.target === container.querySelector('::after')) {
+//             // Format date to yyyy-mm-dd
+//             const formattedDate = currentDate.toISOString().split('T')[0];
+            
+//             // Redirect to the new date
+//             window.location.href = `/day/${formattedDate}`;
+//         }
+
+        
+//     });
+// });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('dateInput');
+    const url = dateInput.getAttribute('data-url-day');
+    const prevDay = document.querySelector('.prev-day');
+    const nextDay = document.querySelector('.next-day');
+
+    prevDay.addEventListener('click', () => {
+        // Get current date from dateInput
+        const currentDate = new Date(dateInput.value);
+        currentDate.setDate(currentDate.getDate() - 1); // Move to previous day
+
+        // Format date as yyyy-mm-dd
+        const formattedDate = currentDate.toISOString().split('T')[0];
+        window.location.href = `${url}?date=${formattedDate}`; // Redirect to previous day
+    });
+
+    nextDay.addEventListener('click', () => {
+        // Get current date from dateInput
+        const currentDate = new Date(dateInput.value);
+        currentDate.setDate(currentDate.getDate() + 1); // Move to next day
+
+        // Format date as yyyy-mm-dd
+        const formattedDate = currentDate.toISOString().split('T')[0];
+        window.location.href = `${url}?date=${formattedDate}`; // Redirect to next day
+    });
+});

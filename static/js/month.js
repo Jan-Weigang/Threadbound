@@ -22,6 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
         currentDate.setMonth(currentDate.getMonth() + 1);
         renderCalendar(currentDate);
     });
+    document.getElementById('today').addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        window.location.href = url;
+    });
 });
 
 

@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Accent color caret color
+
 # TODO ICS Button in Discord view
 
 # TODO Templates als Stammtsichkalender

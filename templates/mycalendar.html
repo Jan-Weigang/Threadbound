@@ -26,19 +26,28 @@
     
     {% include 'std_elements/body.html' %}
     <div class="layout-wrapper">
-        <div class="calendar-header">
-            
-            <input type="date" name="dateInput" id="dateInput" required value="{{ event.date if event else '' }}">
-            <span id="viewHeading" class="view-heading">Tagesansicht</span>
-            <form id="viewTypeForm">
-                <select id="viewTypeSelect" name="viewType" data-disable-scroll>
-                    <option value="regular">Mitglied / Normal</option>
-                    <option value="template">Stammtischkalender</option>
-                    <option value="public">Öffentliche Events</option>
-                </select>
-            </form>
+        <div class="layout-header">
+            <div class="header-left">
+                <input type="date" name="dateInput" id="dateInput" 
+                    value="{{ event.date if event else '' }}"
+                    data-url-month="{{ url_for('cal_bp.month') }}"
+                    data-url-day="{{ url_for('cal_bp.day') }}">
+            </div>
+            <div class="header-center">
+                <span id="viewHeading" class="view-heading">Tagesansicht</span>
+            </div>
+            <div class="header-right">
+                <form id="viewTypeForm" style="width:100%">
+                    <select id="viewTypeSelect" name="viewType" data-disable-scroll>
+                        <option value="regular">Mitglied / Normal</option>
+                        <option value="template">Stammtischkalender</option>
+                        <option value="public">Öffentliche Events</option>
+                    </select>
+                </form>
+            </div>
         </div>
         <div class="calendar-container">
+            <div class="side-nav prev-day"></div>
             <div class="time-scale">
                 <span class="time-label" data-hour="12">12:00</span>
                 <span class="time-label" data-hour="14">14:00</span>
@@ -49,6 +58,7 @@
                 <span class="time-label" data-hour="24">24:00</span>
             </div>
             <div id="calendar" class="calendar"></div>
+            <div class="side-nav next-day"></div>
         </div>
 
         {% include 'std_elements/footer.html' %}

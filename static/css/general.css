@@ -1,8 +1,17 @@
+:root {
+    --accent-color-dark: hsl(120, 30%, 30%);
+    --accent-color-light: hsl(120, 30%, 85%);
+    --font-color: black;
+    --font-on-main: white;
+}
+
 body {
     font-family: Arial, sans-serif;
     font-family: "Outfit", sans-serif;
     margin: 0;
     color: black;
+    container-name: body;
+    container-type: inline-size;
 }
 
 input, textarea, button, select, optgroup {
@@ -63,13 +72,61 @@ button:hover {
 }
 
 
-
-.footer {
+.layout-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    
 }
-.footer > * {
+.layout-header > * {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1ch;
+}
+.layout-header > * > * {
+    flex-grow: 1;
+}
+.header-left {
+    text-align: left;
+    justify-content: left;
+}
+.header-center {
+    text-align: center;
+    justify-content: center;
+}
+.header-right {
+    text-align: right;
+    justify-content: right;
+}
+@container body (width < 600px) {
+    body .layout-wrapper {
+        grid-template-rows: 10rem 1fr 10rem;
+    }
+    .layout-header {
+        flex-direction: column;
+    }
+    .layout-header > * {
+        width: 100%;
+    }
+    .layout-header > *:has(:nth-child(2)) {
+        justify-content: space-between;
+    }
+    .layout-header * {
+        text-align: center;
+    }
+    .layout-header > *:first-child {
+        order: 2;
+    }
+}
+
+.layout-footer {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+}
+.layout-footer > * {
     flex: 1;
 }
 .footer-left {
