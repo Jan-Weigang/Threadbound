@@ -96,9 +96,6 @@
 
         <label for="end_time">Endzeit:</label>
         <input type="time" name="end_time" id="end_time" required value="{{ end_time }}">
-        
-        <label for="check-availability">Verfügbarkeit prüfen:</label>
-        <button id="check-availability" type="button">Prüfen</button>
 
         <label for="table_ids">Verfügbare Tische:</label>
         <div id="tisch-container" class="tisch-container">
@@ -112,6 +109,9 @@
                 </button>
             {% endfor %}
         </div>
+
+        <label for="check-availability">Verfügbarkeit prüfen:</label>
+        <button id="check-availability" type="button">Prüfen</button>
 
         <!-- Hidden input to store selected table IDs -->
         <input type="hidden" name="table_ids" id="table_ids" required>
