@@ -65,6 +65,26 @@ load_dotenv()
 # TODO container-name für reservations nutzen
 # TODO wifth vs minwidtj?
 
+# Feadback
+# TODO Ersteller im Embed verlinken (mit @ und echtem Namen?)
+# TODO Abgesagte Events deutlicher markieren, indem das Logo ausgetauscht wird mit einem roten X
+
+# TODO Wochentag in Tagesansicht anzeigen
+# TODO Tagesansicht nicht erst ab 12 - Standard Ansicht ab 14 Uhr für Wochentage und 08 Uhr für Wochenende.
+# TODO das sollte dann nochmal 1 Select field geben, in dem man die Startzeit anzeigen kann.
+# TODO Dafür muss dann JS angepasst werden, damit die Arrays die korrekte Länge haben. In der Monatsansicht nur ab 12 ??
+
+# TODO Month view should take an argument. Save in data- attribute and then take into loading.
+# TODO Month view could use htmx but this would move the entire logic from js to python. Seems like work.
+
+# TODO In event_forms Prüfen farbig hevorheben, dann grau, wenn geprüft. Reset on form change. 
+# TODO In event_forms Nachricht über fail prüfung farbig hervorheben und "Gewählte Tische nicht verfügbar!" ändern
+# TODO event_forms POST - on failure resend arguments to re-fill form
+# TODO event_forms Abbrechen Knopf, um zum gewählten Tag zurückzugelangen. (Back geht nicht immer, bei Post fehlern)
+
+# TODO Favion & Titles of pages 
+
+
 
 # ======================================
 # ============= APP SETUP ==============
