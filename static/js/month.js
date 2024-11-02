@@ -370,3 +370,18 @@ function getHeatColor(percentage) {
     // Return the color in CSS lab() format
     return `lab(${L}% ${a} ${b})`;
 }
+
+
+function scrollToCurrentDay() {
+    // Check if we're in mobile view
+    if (window.innerWidth <= 768) {
+        const currentDay = document.querySelector('.current-day');
+        if (currentDay) {
+            currentDay.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+        }
+    }
+}
+
+// Run on load and on resize
+window.addEventListener('load', scrollToCurrentDay);
+window.addEventListener('resize', scrollToCurrentDay);

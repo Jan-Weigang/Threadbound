@@ -121,6 +121,7 @@
         gap: 10px; /* Increase the gap between days for better readability on mobile */
         grid-template-rows: none;
         overflow-y: auto;
+        scroll-padding: 20vh;
     }
 
     #nextMonth {
