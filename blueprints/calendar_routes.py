@@ -22,7 +22,8 @@ def day(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
-    date = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
+    date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
+    date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
     if view_type != 'public':
         if not discord.authorized:

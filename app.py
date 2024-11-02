@@ -21,7 +21,7 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Accent color caret color
+# TODO Hover Info Month
 
 # TODO ICS Button in Discord view
 

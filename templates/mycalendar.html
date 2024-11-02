@@ -28,10 +28,11 @@
     <div class="layout-wrapper">
         <div class="layout-header">
             <div class="header-left">
-                <input type="date" name="dateInput" id="dateInput" 
-                    value="{{ event.date if event else '' }}"
+                <button name="dateInput" id="dateInput" 
+                    value="{{ date.strftime('%Y-%m-%d') }}"
                     data-url-month="{{ url_for('cal_bp.month') }}"
-                    data-url-day="{{ url_for('cal_bp.day') }}">
+                    data-url-day="{{ url_for('cal_bp.day') }}">{{ date.strftime('%d.%m.%Y') }}
+                </button>
             </div>
             <div class="header-center">
                 <span id="viewHeading" class="view-heading">Tagesansicht</span>
