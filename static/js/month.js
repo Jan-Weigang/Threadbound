@@ -76,16 +76,6 @@ function renderCalendar(date) {
     }).catch(error => {
         console.error("Error fetching data:", error);
     });
-        
-    // fetch(reservationsUrl)
-    // .then(response => response.json())
-    // .then(data => {
-    //     const reservationData = data.reservations;
-    //     updateReservationsOnCalendar(reservationData, firstDayToDisplay, lastDayToDisplay, month);
-    // })
-    // .catch(error => {
-    //     console.error("Error fetching data:", error);
-    // });
     
 }
 
@@ -128,73 +118,47 @@ function get_occupancy_by_day(reservations, tables) {
     return occupancyByDay;
 }
 
-    // // Step 2: Generate the heat-bar-graph
-    // Object.keys(occupancyByDay).forEach(day => {
-    //     const dayBookings = occupancyByDay[day];
+function set_hover_info_for_dayElement(day, dayElement, occupancyThisDay, event_count) {
+    
+    console.log(occupancyThisDay);
+    const avgOccupancy = occupancyThisDay.reduce((a, b) => a + b, 0) / occupancyThisDay.length;
 
-    //     // Create a div for each day
-    //     const dayDiv = document.createElement('div');
-    //     dayDiv.className = 'day-heatmap';
+    // Determine peak hours based on 50% capacity
+    let peakStart = null, peakEnd = null;
+    const peakHour = occupancyThisDay.indexOf(Math.max(...occupancyThisDay)); // Find the highest occupancy hour
 
-    //     // Create the heat-bar-graph for each hour
-    //     const heatBar = document.createElement('div');
-    //     heatBar.className = 'heat-bar';
+    console.log(peakHour);
 
-    //     // Calculate the gradient stops based on bookings
-    //     const gradientStops = dayBookings.map((bookingCount, index) => {
-    //         const percentageBooked = (bookingCount / totalTables) * 100;
-    //         return `${getHeatColor(percentageBooked)} ${(index / 12) * 100}%`;
-    //     }).join(',');
+    // Find the range starting and ending at 50% around the peak
+    for (let j = peakHour; j >= 0; j--) {
+        if (occupancyThisDay[j] < .5) break;
+        peakStart = j;
+    }
+    for (let j = peakHour; j < occupancyThisDay.length; j++) {
+        if (occupancyThisDay[j] < .5) break;
+        peakEnd = j;
+    }
+    const peak_exists = peakStart !== null && peakEnd !== null
 
-    //     // Apply the gradient to the heat bar
-    //     heatBar.style.background = `linear-gradient(to right, ${gradientStops})`;
+    let hoverInfo = [];
 
-    //     // Append heat bar to the day's div
-    //     dayDiv.appendChild(heatBar);
+    // Add event count and occupancy percentage
+    hoverInfo.push(`${event_count} Events`);
+    hoverInfo.push(`${Math.round((1 - avgOccupancy) * 100)}% frei`)
 
-    //     // Finally, append the day div to your calendar or container element
-    //     document.querySelector('.calendar-container').appendChild(dayDiv);
-    // });
+    if (peak_exists) {
+        const peakHoursText = `${String(8 + peakStart).padStart(2, '0')}:00 - ${String(8 + peakEnd).padStart(2, '0')}:00`;
+        hoverInfo.push(`Peak: ${peakHoursText}`);
+    }
 
-// function updateReservationsOnCalendar(reservationData, firstDayToDisplay, lastDayToDisplay, month) {
-//     let day = new Date(firstDayToDisplay);
-//     const dayElements = daysContainer.querySelectorAll('.day');
+    // Set the hover info by joining the array into a single string
+    dayElement.setAttribute('data-hover-info', hoverInfo.join(' | '));
+}
 
-//     // Iterate through the displayed days
-//     for (let i = 0; i < dayElements.length; i++) {
-//         const dayElement = dayElements[i];
 
-//         // Iterate through the reservation data and add reservations to the corresponding day
-//         reservationData.forEach(reservation => {
-//             const reservationDate = new Date(reservation.start_time);
-            
-//             // Check if the reservation is on the current day
-//             if (reservationDate.getFullYear() === day.getFullYear() &&
-//                 reservationDate.getMonth() === day.getMonth() &&
-//                 reservationDate.getDate() === day.getDate()) {
 
-//                 // Create reservation block
-//                 const reservationBlock = document.createElement('div');
-//                 reservationBlock.classList.add('event');
-//                 reservationBlock.style.backgroundColor = '#3788d8'; // Customize color if needed
-//                 reservationBlock.style.color = '#fff';
-//                 reservationBlock.style.padding = '5px';
-//                 reservationBlock.style.marginTop = '5px';
-//                 reservationBlock.style.borderRadius = '4px';
-//                 reservationBlock.style.fontSize = '0.8em';
 
-//                 // Set reservation info
-//                 reservationBlock.textContent = `${reservation.name} (${reservation.start_time.substring(11, 16)} - ${reservation.end_time.substring(11, 16)})`;
 
-//                 // Append reservation to the day
-//                 dayElement.appendChild(reservationBlock);
-//             }
-//         });
-
-//         // Move to the next day
-//         day.setDate(day.getDate() + 1);
-//     }
-// }
 
 function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDisplay, lastDayToDisplay, month, occupancyByDay) {
 
@@ -210,6 +174,7 @@ function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDis
     // Iterate through the displayed days
     for (let i = 0; i < dayElements.length; i++) {
         const dayElement = dayElements[i];
+
         const dayEvents = dayElement.querySelector('.day-events');
 
         const eventDateKey = dayElement.getAttribute('data-date');
@@ -219,11 +184,6 @@ function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDis
         heatBar.className = 'heat-bar';
 
         const occupancyThisDay = occupancyByDay[eventDateKey] || Array(12).fill(0); // Fallback to an empty array with 13 zeroes
-
-        // // Calculate the gradient stops based on booked capacity vs total capacity
-        // const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
-        //     return `${getHeatColor(percentageBooked)} ${(index / 12) * 100}%`;
-        // }).join(',');
 
         // Calculate the gradient stops based on booked capacity vs total capacity with abrupt transitions
         const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
@@ -291,6 +251,8 @@ function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDis
                 }
             }
         });
+
+        set_hover_info_for_dayElement(day, dayElement, occupancyThisDay, eventIdsForDay.size);
 
         // Move to the next day
         day.setDate(day.getDate() + 1);
@@ -375,6 +337,9 @@ function updateCalendarUI(firstDayToDisplay, lastDayToDisplay, month, date) {
             });
         })(new Date(day)); // Passing a copy of the day to the closure
 
+        // this needs to be added now, otherwise the eventlistener does not catch it. It is updated later.
+        dayElement.setAttribute('data-hover-info', '');
+
         // Append the day element to the container
         daysContainer.appendChild(dayElement);
 
@@ -384,14 +349,6 @@ function updateCalendarUI(firstDayToDisplay, lastDayToDisplay, month, date) {
 }
 
 
-// // Helper function to get a color based on percentage booked
-// function getHeatColor(percentage) {
-//     // Gradient from green (0% booked) to red (100% booked)
-//     if (percentage <= .2) return 'var(--heat-none)';
-//     if (percentage <= .4) return 'var(--heat-low)';
-//     if (percentage <= .7) return 'var(--heat-medium)';
-//     return 'var(--heat-high)';
-// }
 // Helper function to get a color based on percentage booked using CSS lab() color space
 function getHeatColor(percentage) {
     // Clamp the percentage between 0 and 1 to avoid out-of-bounds values
