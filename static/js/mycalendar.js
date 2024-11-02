@@ -414,6 +414,7 @@ function openReservationPopup(reservation) {
     console.log(reservation);
     console.log(table);
 
+    let date = new Date(reservation.start_time).toLocaleDateString('de-DE');
     let start_time = new Date(reservation.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
     let end_time = new Date(reservation.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 
@@ -422,9 +423,9 @@ function openReservationPopup(reservation) {
 
     // Add reservation information
     const fields = [
-        { label: event_type.name, value: reservation.name, heading: true },
-        { label: reservation.game_category, value: reservation.publicity },
-        { label: 'Uhrzeit:', value:  start_time + " Uhr bis " + end_time + " Uhr" },
+        { label: date, value: reservation.name, heading: true },
+        { label: event_type.name, value: reservation.publicity },
+        { label: reservation.game_category, value:  start_time + " Uhr bis " + end_time + " Uhr" },
         { label: 'Tische:', value: relatedTablesInfo },
         ...(reservation.attendee_count != null ? [{ label: 'Teilnehmende:', value: reservation.attendee_count + " Personen" }] : []),
         { label: 'Discord:', value: 'App: discord://' + reservation.discord_link + ' - Web: https://' + reservation.discord_link },

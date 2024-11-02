@@ -34,14 +34,10 @@ load_dotenv()
 # Fixed? kalender monat leitet nicht zu Tag auf Safari month.html 580
 
 
-# TODO Wenn man das Datumsfeld in mycalendar cleart zeigt er alle an. Defaultwert ist also falsch. evtl api check
+
 # TODO Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
-# TODO Mobile Ansicht des Monats ist ein bissl hässlich finde ich. Da sollte über template-colums nachgesteuert werden, dass die Heatmap nur bis zum ersten Drittel des Balkens geht und dann die Events folgen. Innerhalb eines letzten divs, was 1fr ist, dann Events mit 10ch breite und overflox-y ohne scrollanzeige im div.
 # TODO Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
 # TODO Attending als Nutzer über eine API-Route machen, die Nutzer mit Nicknamen erstellt, ohne, dass man member sein muss. Damit sich Gäste in DC mit eintragen können.
-# TODO Bei Wechsel auf responsive Monatsansicht direkt zum heutigen Tag scrollen.
-# TODO im embed fehlt das datum!
-# TODO Im Popup der Detailansicht fehlt ebenfalls das Datum.
 # TODO Reminder am Vortag oder Tag des events per pn.
 
 # TODO Idee:

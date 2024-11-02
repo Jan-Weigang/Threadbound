@@ -255,7 +255,7 @@ body {
     row-gap: 10px;
     margin-bottom: .3rem;
     border-bottom: 1px solid grey;
-    align-items: center;
+    align-items: stretch;
 }
 .popup-content>div:nth-child(4n+3),
 .popup-content>div:nth-child(4n+4) {
