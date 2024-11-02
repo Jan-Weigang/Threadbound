@@ -21,8 +21,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Hover Info Month
-
 # TODO ICS Button in Discord view
 
 # TODO Templates als Stammtsichkalender
@@ -30,11 +28,6 @@ load_dotenv()
 # TODO Calendar / ICS integration?
 
 # TODO Bottom nav and legends
-
-# TODO 
-# Calendar Month Media:
-# heat bar fixed width
-# Event display nicht none
 
 # TODO Login-Loop bei nicht-Mitgliedern stoppen und erklären
 
