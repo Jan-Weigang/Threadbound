@@ -118,7 +118,7 @@ function get_occupancy_by_day(reservations, tables) {
     return occupancyByDay;
 }
 
-function set_hover_info_for_dayElement(occupancyThisDay, event_count) {
+function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
     
     console.log(occupancyThisDay);
     const avgOccupancy = occupancyThisDay.reduce((a, b) => a + b, 0) / occupancyThisDay.length;
@@ -252,7 +252,7 @@ function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDis
             }
         });
 
-        hoverInfo = set_hover_info_for_dayElement(occupancyThisDay, eventIdsForDay.size);
+        hoverInfo = get_hover_info_for_dayElement(occupancyThisDay, eventIdsForDay.size);
         dayElement.setAttribute('data-hover-info', hoverInfo);
         
 
