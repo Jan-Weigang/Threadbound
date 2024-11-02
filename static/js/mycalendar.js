@@ -506,6 +506,19 @@ function openReservationPopup(reservation) {
     });
     footer_buttons.appendChild(editButton);
 
+    // Add an edit button
+    const icsButton = document.createElement('button');
+    icsButton.className = 'edit-popup';
+    icsButton.textContent = 'ICS Laden';
+    icsButton.addEventListener('click', () => {
+        // Assuming you have access to the event ID
+        const eventId = reservation.event_id; 
+
+        // Redirect to the edit page for the event
+        window.location.href = `/ics/event/${eventId}`;
+    });
+    footer_buttons.appendChild(icsButton);
+
     // Add a close button
     const closeButton = document.createElement('button');
     closeButton.className = 'close-popup';

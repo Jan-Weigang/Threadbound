@@ -110,6 +110,7 @@ import blueprints
 app.register_blueprint(blueprints.api, url_prefix='/api')
 app.register_blueprint(blueprints.event, url_prefix='/events')
 app.register_blueprint(blueprints.cal, url_prefix='/calendar')
+app.register_blueprint(blueprints.ics, url_prefix='/ics')
 
 # ======================================
 # ============== Routes ================

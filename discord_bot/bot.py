@@ -36,13 +36,28 @@ async def on_message(message):
     # Check if the message was posted in one of the Kalenderchannels
     if message.channel.id in kalender_channels.values():
         
+        # Extract event_id from the embed
+        event_id = None
+        if message.embeds:
+            embed = message.embeds[0]
+            footer_text = embed.footer.text
+            if footer_text and "Event ID: " in footer_text:
+                event_id = footer_text.split("Event ID: ")[-1][:12]  # Get the 12 characters after "Event ID: "
+
+        if not event_id:
+            print("Event ID not found in the embed footer.")
+            return
 
         # Create the buttons
         view = discord.ui.View()  # View holds all the interactive components
         view.add_item(discord.ui.Button(label="Ich bin dabei!", style=discord.ButtonStyle.success, custom_id="attend"))
         # view.add_item(discord.ui.Button(label="Nur vielleicht...", style=discord.ButtonStyle.success, custom_id="maybe"))
         view.add_item(discord.ui.Button(label="Ich kann nicht.", style=discord.ButtonStyle.primary, custom_id="not_attend"))
-        # view.add_item(discord.ui.Button(label="ics.", style=discord.ButtonStyle.primary, custom_id="open_calendar"))
+
+        server_name = os.getenv('SERVER_NAME')
+        ics_url = f"https://{server_name}/ics/event/{event_id}"
+        print(ics_url)
+        view.add_item(discord.ui.Button(label="ICS", style=discord.ButtonStyle.link, url=ics_url))
 
 
 
@@ -105,7 +120,6 @@ async def on_interaction(interaction: discord.Interaction):
     # Map the custom_id to an action
     if custom_id == "attend" or custom_id == "not_attend":
         await interact_with_event(interaction, action=custom_id)
-
     else:
         await interaction.followup.send("Unknown action.", ephemeral=True)
         return
