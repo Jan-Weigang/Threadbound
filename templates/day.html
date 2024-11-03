@@ -20,7 +20,7 @@
 
         {# This sets up the header with the given arguments - these are used in the htmx requests #}
         <form id="viewTypeForm"
-                hx-get="/calendar/fetch"
+                hx-get="{{ url_for('cal_bp.fetch_day')}}"
                 hx-target=".calendar-container"
                 hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect"
                 class="layout-header">
@@ -61,28 +61,9 @@
 
         
 
-        <div class="calendar-container">
+        <div class="calendar-container" id="calendar-container">
         </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const calendarContainer = document.querySelector('.calendar-container');
-                const dateInput = document.getElementById('dateInput');
-                const viewTypeSelect = document.getElementById('viewTypeSelect');
 
-                function updateCalendarUrl() {
-                    const selectedDate = dateInput.value;
-                    const selectedViewType = viewTypeSelect.value;
-                    calendarContainer.setAttribute('hx-get', `/calendar/fetch?date=${selectedDate}&view_type=${selectedViewType}`);
-                    console.log("Triggering load with " + selectedDate + " and " + selectedViewType);
-                    htmx.process(document.body);
-                    calendarContainer.dispatchEvent(new Event('load')); // Trigger HTMX load
-                }
-
-                // Listen for changes in dateInput and viewTypeSelect
-                dateInput.addEventListener('change', updateCalendarUrl);
-                viewTypeSelect.addEventListener('change', updateCalendarUrl);
-            });
-        </script>
         {% include 'std_elements/footer.html' %}
         
     </div>

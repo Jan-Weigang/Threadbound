@@ -156,7 +156,7 @@ class Reservation(db.Model):
 
     # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event_id = db.Column(db.String(21), db.ForeignKey('event.id'), nullable=False)
     table_id = db.Column(db.Integer, db.ForeignKey('table.id'), nullable=False)
 
     # Relationships

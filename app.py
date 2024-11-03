@@ -21,6 +21,17 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Month into new htmx version
+
+# TODO Remove unnecessary info from reservations call since popup is own call
+
+# TODO Remove the DB logic from the api Calls and put them in their own module
+
+# TODO 3 Views: Day, Day with week and month. Selector in footer. All one dynamic site.
+
+
+
+
 # TODO ICS Button in Discord view
 
 # TODO Templates als Stammtsichkalender
@@ -114,6 +125,7 @@ app.config['APPLICATION_ROOT'] = '/'  # Set the application root
 app.config['PREFERRED_URL_SCHEME'] = 'https'  # Use 'http' if you're testing locally
 
 
+
 # ======================================
 # ======== Database Populating =========
 # ======================================
@@ -193,8 +205,6 @@ def serve_thumbnail(filename):
 def list_events():
     events = Event.get_regular_events().all()
     return render_template('events/list.html', events=events)
-
-
 
 
 

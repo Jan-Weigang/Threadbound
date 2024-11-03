@@ -1,18 +1,25 @@
 
-document.addEventListener('htmx:afterSwap', function(event) {
+const calendarContainer = document.getElementById('calendar-container');
 
-    const viewType = document.getElementById('viewTypeSelect').value;
-    const date = document.getElementById('dateInput').value;
-    console.log("MY DATE IS   " + date)
-
+calendarContainer.addEventListener('htmx:afterSwap', function(event) {
+    // const viewType = document.getElementById('viewTypeSelect').value;
+    // const date = document.getElementById('dateInput').value;
     const calendar = document.getElementById('calendar');
 
     set_up_tableHeaders();
     set_up_reservations();
     combine_reservations(calendar);
     initialize_hover();
-
+ 
 });
+
+
+document.addEventListener('htmx:afterSwap', function(event) {
+    const popup = document.querySelector('.reservation-popup');
+    if (popup) {
+        shortenLinksInPopup(popup);
+    }
+})
 
 
 
@@ -21,8 +28,6 @@ function calculateSteppedHoverPosition(clientX, calendar) {
     const safePosition = Math.max(leftPosition, 0);
     return Math.min(safePosition, calendar.clientWidth * (11 / 12));
 }
-
-
 
 
 function set_up_tableHeaders() {
@@ -234,39 +239,9 @@ function set_up_reservations() {
             reservationBlock.style.borderLeft = "none";
         }
 
-        // TODO REPLACE THIS WITH HTMX
-        // reservationBlock.addEventListener('click', function() {
-        //     openReservationPopup(reservation);
-        // });
-
-        // // console.log("Adding Reservation Block:", reservationBlock);
-        // calendar.appendChild(reservationBlock);
-
     });
 }
 
-
-
-
-
-
-
-
-
-
-// function openOverlay(url) {
-//     const overlay = document.getElementById('overlay');
-//     const iframe = document.getElementById('overlay-iframe');
-//     iframe.src = url;
-//     overlay.style.display = 'flex';
-// }
-
-// function closeOverlay() {
-//     const overlay = document.getElementById('overlay');
-//     overlay.style.display = 'none';
-//     document.getElementById('overlay-iframe').src = "";
-//     window.location.reload();
-// }
 
 // Function to combine reservations on consequtive tables with same event id
 function combine_reservations(calendar) {
@@ -314,159 +289,6 @@ function combine_reservations(calendar) {
         previousBlock = block;
     });
 
-}
-
-// Function to create a stylized popup
-function openReservationPopup(reservation) {
-    const table = tables.find(tbl => tbl.id == reservation.table_id);
-    const event_type = eventTypes.find(typ => typ.id == reservation.event_type_id);
-    const relatedTables = reservations.filter(res => res.event_id == reservation.event_id).map(res => tables.find(tbl => tbl.id == res.table_id)).filter(table => table);
-
-    // Create the popup container
-    const popup = document.createElement('div');
-    popup.className = 'reservation-popup';
-
-    // Create the content wrapper
-    const popupContent = document.createElement('div');
-    popupContent.className = 'popup-content';
-
-    console.log(reservation);
-    console.log(table);
-
-    let date = new Date(reservation.start_time).toLocaleDateString('de-DE');
-    let start_time = new Date(reservation.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-    let end_time = new Date(reservation.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-
-    // Add related tables information
-    const relatedTablesInfo = relatedTables.map(table => table.name).join(', ');
-
-    // Add reservation information
-    const fields = [
-        { label: date, value: reservation.name, heading: true },
-        { label: event_type.name, value: reservation.publicity },
-        { label: reservation.game_category, value:  start_time + " Uhr bis " + end_time + " Uhr" },
-        { label: 'Tische:', value: relatedTablesInfo },
-        ...(reservation.attendee_count != null ? [{ label: 'Teilnehmende:', value: reservation.attendee_count + " Personen" }] : []),
-        { label: 'Discord:', value: 'App: discord://' + reservation.discord_link + ' - Web: https://' + reservation.discord_link },
-        { label: 'Beschreibung:', value: reservation.description },
-        
-    ];
-
-    fields.forEach(field => {
-
-        const label = document.createElement('div');
-        label.textContent = field.label;
-
-        const value = document.createElement('div');
-        value.textContent = field.value;
-
-        if (field.heading) {
-            label.className = 'popup-label';
-            value.className = 'popup-heading';
-        }
-        else {
-            label.className = 'popup-label';
-            value.className = 'popup-value';
-        }
-
-        
-        
-
-        popupContent.appendChild(label);
-        popupContent.appendChild(value);
-        
-    });
-    
-    // Append the content to the popup
-    popup.appendChild(popupContent);
-
-    const footer = document.createElement('div');
-    footer.className ='popup-footer';
-
-    // Add Creator Info
-    const creator_info = document.createElement('div');
-    creator_info.className = 'creator-info';
-
-    const author = document.createElement('span');
-    author.innerHTML = reservation.user_name;
-    creator_info.appendChild(author);
-
-    const lastTouched = document.createElement('span');
-    if (reservation.time_updated) {
-        lastTouched.innerHTML = "Editiert am " + reservation.time_updated;
-    }
-    else {
-        lastTouched.innerHTML = "Erstellt am " + reservation.time_created;
-    }
-    creator_info.appendChild(lastTouched);
-    
-    
-    // creator_info.innerHTML = "Erstellt von <b>" + reservation.user_name + "</b> am " + reservation.time_created;
-    
-
-
-    footer.appendChild(creator_info);
-    
-    const footer_buttons = document.createElement('div');
-    footer_buttons.className = 'popup-footer-buttons';
-    footer.appendChild(footer_buttons);
-
-
-    // Add an edit button
-    const editButton = document.createElement('button');
-    editButton.className = 'edit-popup';
-    editButton.textContent = 'Editieren';
-    editButton.addEventListener('click', () => {
-        // Assuming you have access to the event ID
-        const eventId = reservation.event_id; 
-
-        // Redirect to the edit page for the event
-        window.location.href = `/events/edit/${eventId}`;
-    });
-    footer_buttons.appendChild(editButton);
-
-    // Add an edit button
-    const icsButton = document.createElement('button');
-    icsButton.className = 'edit-popup';
-    icsButton.textContent = 'ICS Laden';
-    icsButton.addEventListener('click', () => {
-        // Assuming you have access to the event ID
-        const eventId = reservation.event_id; 
-
-        // Redirect to the edit page for the event
-        window.location.href = `/ics/event/${eventId}`;
-    });
-    footer_buttons.appendChild(icsButton);
-
-    // Add a close button
-    const closeButton = document.createElement('button');
-    closeButton.className = 'close-popup';
-    closeButton.textContent = 'Schließen';
-    closeButton.addEventListener('click', () => {
-        document.body.removeChild(popup);
-    });
-    footer_buttons.appendChild(closeButton);
-
-    
-    
-
-    
-    footer.appendChild(footer_buttons)
-    popup.appendChild(footer);
-
-    shortenLinksInPopup(popup);
-
-    // Append the popup to the body
-    document.body.appendChild(popup);
-
-    // Add an event listener to close the popup when clicking outside of it
-    function closeOnOutsideClick(event) {
-        if (!popup.contains(event.target)) {
-            document.body.removeChild(popup);
-            document.removeEventListener('click', closeOnOutsideClick);
-        }
-    }
-    setTimeout(() => document.addEventListener('click', closeOnOutsideClick), 0);
 }
 
 
@@ -564,7 +386,7 @@ function is_inside_header(header, e) {
     return isInsideHeader;
 }
 
-
+// Month view on dateInput
 // document.addEventListener('DOMContentLoaded', function() {
 //     document.querySelector('.calendar-container').addEventListener('click', (e) => {
         

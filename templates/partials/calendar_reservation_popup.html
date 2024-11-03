@@ -1,0 +1,64 @@
+<div class="popup-overlay" style="inset: 0;
+                                margin: 0;
+                                position: fixed;
+                                backdrop-filter: blur(3px);">
+    <div class="reservation-popup">
+        <div class="popup-content">
+            <!-- TODO Might not be datetime sensitive?  -->
+            {# {% set date = reservation.start_time.strftime('%d.%m.%Y') %}
+            {% set start_time = reservation.start_time.strftime('%H:%M') %}
+            {% set end_time = reservation.end_time.strftime('%H:%M') %} #}
+
+            <!-- Reservation Information -->
+            <div class="popup-label">{{ reservation.date }}</div>
+            <div class="popup-heading">{{ reservation.name }}</div>
+
+            <div class="popup-label">{{ event_type.name }}</div>
+            <div class="popup-value">{{ reservation.publicity }}</div>
+
+            <div class="popup-label">{{ reservation.game_category }}</div>
+            <div class="popup-value">{{ reservation.start_time }} Uhr bis {{ reservation.end_time }} Uhr</div>
+
+            <div class="popup-label">Tische:</div>
+            <div class="popup-value">{{ relatedTablesInfo }}</div>
+
+            <div class="popup-label">Teilnehmende:</div>
+            <div class="popup-value">{{ reservation.attendees or 0 }}</div>
+
+
+            <div class="popup-label">Discord:</div>
+            <div class="popup-value" style="white-space: initial">
+                App: discord://{{ reservation.discord_link }} -
+                Web: https://{{ reservation.discord_link }}
+            </div>
+
+
+            <div class="popup-label">Beschreibung:</div>
+            <div class="popup-value">{{ reservation.description }}</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="popup-footer">
+            <div class="creator-info">
+                <span>{{ reservation.user_name }}</span>
+                <span style="text-align: right;">{{ "Editiert am " + reservation.time_updated if reservation.time_updated else "Erstellt am " + reservation.time_created }}</span>
+            </div>
+            <div class="popup-footer-buttons">
+                <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
+                <button class="edit-popup" onclick="window.location.href='{{ url_for('ics_bp.get_event_ics', event_id=reservation.event_id) }}'">ICS Laden</button>
+                <button class="close-popup" onclick="this.closest('.popup-overlay').remove()">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('click', function(event) {
+    const overlay = document.querySelector('.popup-overlay');
+    const popup = document.querySelector('.reservation-popup');
+
+    // Check if the click is outside the popup
+    if (overlay && popup && !popup.contains(event.target)) {
+        overlay.remove();
+    }
+});
+</script>
