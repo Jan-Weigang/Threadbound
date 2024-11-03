@@ -152,7 +152,14 @@ def api_get_reservations(view_type=None):
     date_param = request.args.get('date', current_date)
     end_date_param = request.args.get('end_date', date_param)
 
+    reservation_data = prepare_reservations(date_param=date_param, end_date_param=end_date_param, view_type=view_type)
+    
+    # print(json.dumps(reservation_data, indent=4))
+    return jsonify({'reservations': reservation_data})
 
+
+def prepare_reservations(view_type, date_param, end_date_param):
+    print(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
     if discord.authorized is None:
         # If the user is not authenticated, only load events with publicity 3
         reservations = Reservation.get_regular_reservations().filter(Reservation.associated_event.has(publicity_id=3)).all() # type:ignore
@@ -207,9 +214,10 @@ def api_get_reservations(view_type=None):
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
             # del entry['attendee_count']
-    
-    # print(json.dumps(reservation_data, indent=4))
-    return jsonify({'reservations': reservation_data})
+
+    return reservation_data
+
+
 
 # POST endpoint to add a new reservation (if needed)
 @api.route('/reservations', methods=['POST'])

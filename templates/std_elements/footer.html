@@ -25,6 +25,10 @@
 <script>
     // Observe changes in the document to add hover events dynamically
     document.addEventListener('DOMContentLoaded', function() {
+        initialize_hover();
+    });
+
+    function initialize_hover() {
         const infoDisplay = document.getElementById('info-display');
     
         function addHoverListeners(element) {
@@ -64,6 +68,6 @@
         });
     
         observer.observe(document.body, { childList: true, subtree: true });
-    });
+    }
 </script>
 

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'std_elements/head.html' %}
+
+    <link rel="stylesheet" href="/static/css/mycalendar.css">
+    <script src="/static/js/general.js" defer></script>
+    <script src="/static/js/dynamic-view.js" defer></script>
+
+    <title>Reservations Week View</title>
+
+    <meta name="view-type" content="{{ view_type }}">
+    <meta name="date" content="{{ date }}">
+
+</head>
+<body>
+    
+    {% include 'std_elements/body.html' %}
+    <div class="layout-wrapper">
+
+        {# This sets up the header with the given arguments - these are used in the htmx requests #}
+        <form id="viewTypeForm"
+                hx-get="/calendar/fetch"
+                hx-target=".calendar-container"
+                hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect"
+                class="layout-header">
+            <!-- <div class="layout-header"> -->
+
+                <div class="header-left">
+                    <input type="date" name="date" id="dateInput" 
+                        value="{{ date.strftime('%Y-%m-%d') }}"
+                        data-url-month="{{ url_for('cal_bp.month') }}"
+                        data-url-day="{{ url_for('cal_bp.day') }}">
+                </div>
+                <div class="header-center">
+                    <span id="viewHeading" class="view-heading">Tagesansicht</span>
+                </div>
+                <div class="header-right">
+                    <select id="viewTypeSelect" name="view_type" data-disable-scroll>
+                        {% if view_type == "regular" %}
+                            <option value="regular" selected>Mitglied / Normal</option>
+                        {% else %}
+                            <option value="regular" >Mitglied / Normal</option>
+                        {% endif %}
+
+                        {% if view_type == "template" %}
+                            <option value="template" selected>Stammtischkalender</option>
+                        {% else %}
+                            <option value="template" >Stammtischkalender</option>
+                        {% endif %}
+
+                        {% if view_type == "public" %}
+                            <option value="public" selected>Öffentliche Events</option>
+                        {% else %}
+                            <option value="public" >Öffentliche Events</option>
+                        {% endif %}
+                    </select>
+                </div>
+            <!-- </div> -->
+        </form>
+
+        
+
+        <div class="calendar-container">
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const calendarContainer = document.querySelector('.calendar-container');
+                const dateInput = document.getElementById('dateInput');
+                const viewTypeSelect = document.getElementById('viewTypeSelect');
+
+                function updateCalendarUrl() {
+                    const selectedDate = dateInput.value;
+                    const selectedViewType = viewTypeSelect.value;
+                    calendarContainer.setAttribute('hx-get', `/calendar/fetch?date=${selectedDate}&view_type=${selectedViewType}`);
+                    console.log("Triggering load with " + selectedDate + " and " + selectedViewType);
+                    htmx.process(document.body);
+                    calendarContainer.dispatchEvent(new Event('load')); // Trigger HTMX load
+                }
+
+                // Listen for changes in dateInput and viewTypeSelect
+                dateInput.addEventListener('change', updateCalendarUrl);
+                viewTypeSelect.addEventListener('change', updateCalendarUrl);
+            });
+        </script>
+        {% include 'std_elements/footer.html' %}
+        
+    </div>
+    
+
+    
+</body>
+</html>

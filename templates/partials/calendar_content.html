@@ -1,0 +1,58 @@
+{% set rowSizes = tables | map(attribute='capacity') | join('fr ') + 'fr' %}
+
+{% set eventTypeColorMap = {} %}
+{% for event_type in event_types %}
+    {% set _ = eventTypeColorMap.update({ event_type.id: event_type.color }) %}
+{% endfor %}
+
+{% include 'partials/calendar_scale.html' %}
+
+
+<div id="calendar" 
+    class="calendar"
+    style="grid-template-rows: {{ rowSizes }};">
+
+    <!-- Table Headers -->
+    {% for table in tables %}
+        <div class="table-header" 
+             style="grid-row: {{ loop.index  }} / {{ loop.index + 1 }};
+                {% if table.type == 'RPG' %}
+                    background-color: var(--accent-color-light);
+                {% endif %}"
+             data-table-id="{{ table.id }}"
+             data-table-name="{{ table.name }}"
+             data-table-info="{{ table.name }}"
+             data-hover-info="Tisch: {{ table.name }} - Kapazität: {{ table.capacity }}">
+        </div>
+        <div class = "hover-reservation"
+            style="grid-row: {{ loop.index  }} / {{ loop.index + 1 }};">
+        </div>
+    {% endfor %}
+
+    <!-- Reservations -->
+    {% for reservation in reservations %}
+
+        <div class="reservation" 
+             style="background-color: {{ eventTypeColorMap.get(reservation.event_type_id, '#3788d8') }};
+                grid-row: {{ reservation.table_id }} / {{ reservation.table_id + 1}};"
+             data-event-id="{{ reservation.event_id }}"
+             data-table-id="{{ reservation.table_id }}"
+             data-reservation-start="{{ reservation.start_time }}"
+             data-reservation-end="{{ reservation.end_time }}">
+
+            <div class="reservation-wrapper">
+                <b class="reservation-info-name">{{ reservation.name }}</b>
+                <i class="reservation-info-time"></i>
+                <span class="reservation-info-attendees">{{ reservation.attendee_count }} Personen</span>
+                <span class="reservation-info-publicity">{{ reservation.publicity }}</span>
+                
+                {% if reservation.game_category_icon %}
+                    <img src="data:image/svg+xml;base64,{{ reservation.game_category_icon }}" 
+                         alt="Category Icon" 
+                         class="reservation-info-icon"
+                         style="height: 20px; width: 20px;">
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
