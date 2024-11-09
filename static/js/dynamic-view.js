@@ -1,9 +1,54 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const dateButtons = document.querySelectorAll('.date-changer');
+
+    dateButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const amount = parseInt(button.getAttribute('data-amount'), 10);
+            change_dateInputBy(amount);
+        });
+    });
+
+    let currentMonth = new Date(document.getElementById('dateInput').value).getMonth();
+    const dateInput = this.document.getElementById('dateInput');
+
+    // Fill Calendar on load.
+    htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}`, { target: '#calendar-grid' });
+    
+
+    // Catchall EventListener for Date Changes
+    dateInput.addEventListener('change', function() {
+
+        // Trigger Calendar UI Updates
+        const newDate = new Date(dateInput.value);
+        const newMonth = newDate.getMonth();
+        if (newMonth !== currentMonth) {
+            currentMonth = newMonth; // Update the current month to the new month
+            htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}`, { target: '#calendar-grid' });
+        } else {
+            updateCalendarClasses(newDate);
+        }
+    });
+});
+
+
 
 const calendarContainer = document.getElementById('calendar-container');
 
+// Calendar Setup
 calendarContainer.addEventListener('htmx:afterSwap', function(event) {
     // const viewType = document.getElementById('viewTypeSelect').value;
     // const date = document.getElementById('dateInput').value;
+    const dateInput = document.getElementById('dateInput');
+    const currentDate = new Date(dateInput.value);
+    const heading = document.getElementById('viewHeading');
+    const formattedDate = new Intl.DateTimeFormat('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).format(currentDate);
+    heading.textContent = formattedDate;
+
+
     const calendar = document.getElementById('calendar');
 
     set_up_tableHeaders();
@@ -13,15 +58,49 @@ calendarContainer.addEventListener('htmx:afterSwap', function(event) {
  
 });
 
+const calendarGrid = document.getElementById('calendar-grid');
 
+calendarGrid.addEventListener('htmx:afterSwap', function(event) {
+    renewCalendarGridEventListeners();
+
+    const newDate = new Date(dateInput.value);
+    updateCalendarClasses(newDate);
+})
+
+
+// Small Updates after any htmx requests
 document.addEventListener('htmx:afterSwap', function(event) {
     const popup = document.querySelector('.reservation-popup');
     if (popup) {
         shortenLinksInPopup(popup);
     }
+
+    const prevDay = document.querySelector('.prev-day');
+    const nextDay = document.querySelector('.next-day');
+
+    prevDay.addEventListener('click', () => {
+        change_dateInputBy(-1);
+    });
+
+    nextDay.addEventListener('click', () => {
+        change_dateInputBy(1);
+    });
 })
 
-
+function change_dateInputBy(dayAmount) {
+    const dateInput = document.getElementById('dateInput');
+    const currentDate = new Date(dateInput.value);
+        // Use UTC methods to prevent DST issues
+        const utcDate = new Date(Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate()
+        ));
+        utcDate.setUTCDate(utcDate.getUTCDate() + dayAmount);
+        const formattedDate = utcDate.toISOString().split('T')[0];
+        dateInput.value = formattedDate;
+        dateInput.dispatchEvent(new Event('change'));
+}
 
 function calculateSteppedHoverPosition(clientX, calendar) {
     const leftPosition = Math.round((clientX - calendar.getBoundingClientRect().left) / (calendar.clientWidth / 48)) * (calendar.clientWidth / 48);
@@ -415,30 +494,63 @@ function is_inside_header(header, e) {
 //     });
 // });
 
-// Prev and Next Logix KEEP THIS
-// document.addEventListener('DOMContentLoaded', () => {
-//     const dateInput = document.getElementById('dateInput');
-//     const url = dateInput.getAttribute('data-url-day');
-//     const prevDay = document.querySelector('.prev-day');
-//     const nextDay = document.querySelector('.next-day');
 
-//     prevDay.addEventListener('click', () => {
-//         // Get current date from dateInput
-//         const currentDate = new Date(dateInput.value);
-//         currentDate.setDate(currentDate.getDate() - 1); // Move to previous day
 
-//         // Format date as yyyy-mm-dd
-//         const formattedDate = currentDate.toISOString().split('T')[0];
-//         window.location.href = `${url}?date=${formattedDate}`; // Redirect to previous day
-//     });
+function updateCalendarClasses(date) {
+    const weekStart = new Date(date);
+    if (weekStart.getDay() === 0) {
+        // If Sunday
+        weekStart.setDate(weekStart.getDate() - 6);
+    } else {
+        weekStart.setDate(weekStart.getDate() - (weekStart.getDay() - 1));
+    }
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
 
-//     nextDay.addEventListener('click', () => {
-//         // Get current date from dateInput
-//         const currentDate = new Date(dateInput.value);
-//         currentDate.setDate(currentDate.getDate() + 1); // Move to next day
+    // Select all day elements inside the calendar grid
+    const dayElements = document.querySelectorAll('#calendar-grid .day');
 
-//         // Format date as yyyy-mm-dd
-//         const formattedDate = currentDate.toISOString().split('T')[0];
-//         window.location.href = `${url}?date=${formattedDate}`; // Redirect to next day
-//     });
-// });
+    dayElements.forEach(dayElement => {
+        // Get the date attribute and parse it into a Date object
+        const divDate = new Date(dayElement.getAttribute('data-date'));
+
+        // Remove any existing classes
+        dayElement.classList.remove('active-month', 'other-month', 'active-day', 'not-active-week');
+
+        // Add class for active month or other month
+        if (divDate.getMonth() === date.getMonth()) {
+            dayElement.classList.add('active-month');
+        } else {
+            dayElement.classList.add('other-month');
+        }
+
+        // Add class for active day (today)
+        if (divDate.toDateString() === date.toDateString()) {
+            dayElement.classList.add('active-day');
+        }
+
+        // Add class for not-active-week if the day is outside the current week
+        if (divDate < weekStart || divDate > weekEnd) {
+            dayElement.classList.add('not-active-week');
+        }
+
+        const localDayString = divDate.toLocaleString('de-DE', { weekday: 'short' })
+        dayElement.classList.add(localDayString.toLowerCase());
+    });
+
+}
+
+function renewCalendarGridEventListeners() {
+    // Select all day elements inside the calendar grid
+    const dayElements = document.querySelectorAll('#calendar-grid .day');
+    const dateInput = document.getElementById('dateInput');
+
+    dayElements.forEach(dayElement => {
+        dayElement.addEventListener('click', function() {
+            const date_str = dayElement.getAttribute('data-date');
+            console.log(date_str);
+            dateInput.value = date_str;
+            dateInput.dispatchEvent(new Event('change'));
+        });
+    });
+}

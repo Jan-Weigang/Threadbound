@@ -1,0 +1,681 @@
+body {
+    height: 100%;
+}
+
+
+
+.layout-wrapper {
+    display: grid;
+    grid-template-rows: 5rem 1fr 5rem;
+    height: 100vh;
+    padding-right: 3rem;
+    padding-left: 3rem;
+    grid-gap: 1rem;
+    /* max-height: 45rem; */
+}
+.layout-wrapper > * {
+    width: min(100ch,100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1vw 0 1vw;
+    min-width: 0;
+}
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+    max-height: 45rem; 
+}
+
+.calendar-container {
+    position: relative;
+}
+
+.side-nav {
+    position: absolute;
+    top: 0;
+    width: 5rem;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    /* pointer-events: none; Prevent clicks unless hovered */
+}
+
+.side-nav:hover {
+    opacity: 0.7;
+    pointer-events: auto; /* Enable clicks on hover */
+    background-color: var(--accent-color-light);
+}
+
+.prev-day {
+    left: -5rem;
+}
+
+.next-day {
+    right: -5rem;
+}
+
+.side-nav::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.prev-day::before {
+    border-width: 10px 15px 10px 0;
+    border-color: transparent white transparent transparent;
+    margin-right: 5px;
+}
+
+.next-day::before {
+    border-width: 10px 0 10px 15px;
+    border-color: transparent transparent transparent white;
+    margin-left: 5px;
+}
+
+
+.time-scale {
+    height: 1.5rem;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+}
+.time-label {
+    position: absolute;
+    height: 100%;
+    top: 0;
+    text-align: bottom;
+    padding-bottom: 5px;
+    font-size: 0.8em;
+    border-left: 1px dotted #ccc;
+}
+.time-label[data-hour='12'] { left: 0%; }
+.time-label[data-hour='14'] { left: 16.66%; }
+.time-label[data-hour='16'] { left: 33.33%; }
+.time-label[data-hour='18'] { left: 50%; }
+.time-label[data-hour='20'] { left: 66.66%; }
+.time-label[data-hour='22'] { left: 83.33%; }
+.time-label[data-hour='24'] { left: 100%; }
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    align-items: center;
+    position: relative;
+    justify-content: space-between;
+    justify-items: center;
+    grid-template-areas: 
+        "headerLeft headerCenter headerRight";
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: white;
+}
+
+@media (max-width: 600px) {
+    .calendar-header {
+        grid-template-columns: auto auto; 
+        grid-template-rows: auto auto; 
+        grid-template-areas: 
+            "headerCenter headerCenter"
+            "headerLeft headerRight"; /* Heading in first row, buttons in second row */
+    }
+    .calendar-header > * {
+        margin-top: 1rem;
+    }
+}
+
+
+
+/* #viewTypeForm {
+    right: 0;
+    position: absolute;
+} */
+
+
+#calendar {
+    display: grid;
+    gap: 5px;
+    grid-template-rows: repeat(var(--num-tables), 1fr);
+    /* border: 1px solid #ccc; */
+    position: relative;
+    height: 100%;
+}
+.table-header {
+    text-align: center;
+    background-color: #f1f1f1;
+    font-weight: bold;
+    padding: 5px;
+    border: 1px solid #ccc;
+    min-width: 0;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 1px 1px 3px #eee;
+}
+.view-heading {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.table-header::before {
+    content: attr(data-table-info);
+    align-self: center;
+    position: absolute;
+    font-weight: bold;
+    font-size: 1rem;
+    bottom: 0;
+    left: 0;
+    color: gray;
+}
+.reservation {
+    position: absolute;
+    background-color: #3788d8;
+    color: black;
+    padding: 0.5rem;
+    border: solid grey 1px;
+    border-radius: .5rem;
+    font-size: 0.7rem;
+    min-height: 0;
+    box-sizing: border-box;
+    height: calc(100% - 1px);
+    display: flex;
+    align-items: center;
+    line-height: 1.5em;
+    box-shadow: 1px 1px 4px gray;
+}
+.reservation:hover {
+    cursor: pointer;
+    filter: drop-shadow(3px 3px 8px gray) brightness(110%);
+    transform: translate(-1px, -1px);
+}
+.reservation b {
+    font-weight: bold;
+    font-size: .9rem;
+}
+.hover-reservation {
+    position: absolute;
+    background-color: rgba(55, 136, 216, 0.5);
+    color: black;
+    padding: .5rem;
+    border: dashed grey 1px;
+    border-radius: .5rem;
+    font-size: 0.6rem;
+    min-height: 0;
+    box-sizing: border-box;
+    height: 100%;
+    pointer-events: none;
+    display: none;
+    box-shadow: 1px 1px 5px gray;
+}
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+    background: red;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    z-index: 2000;
+}
+.close-button:hover {
+    background-color: darkred;
+}
+.reservation-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #ccc;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    width: clamp(30ch,50vw,80ch);
+    /* white-space: pre-wrap; */
+    max-height: 100%;
+    border-radius: .5rem;
+}
+
+.popup-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    row-gap: 10px;
+    margin-bottom: .3rem;
+    border-bottom: 1px solid grey;
+    align-items: stretch;
+}
+.popup-content>div:nth-child(4n+3),
+.popup-content>div:nth-child(4n+4) {
+    background-color: rgb(227, 243, 248);
+}
+.popup-content > * {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+.popup-value {
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding-left: 1rem;
+}
+.popup-label {
+    font-weight: bold;
+}
+.popup-heading {
+    font-weight: bold;
+    font-size: 1.3rem;
+    padding-left: 1rem;
+}
+.popup-heading:first {
+    padding-left: 0;
+}
+.popup-footer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.popup-footer-buttons {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+.creator-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .75rem;
+    color: gray;
+    height: fit-content;
+    margin: 0 0 .3rem 0;
+}
+.popup-footer button {
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+.close-popup {
+    background-color: #f44336;
+}
+.edit-popup {
+    background-color: #858585;
+}
+.close-popup:hover {
+    background-color: #d32f2f;
+}
+.edit-popup:hover {
+    background-color: #666666;
+}
+.hide-away {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.hide-away > * {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* @container (height < 1.2rem) {
+    .hide-away i {
+        display: none;
+    }
+}
+
+
+@container (width < 16ch) {
+    .hide-away {
+        display:none;
+    }
+} */
+
+
+
+.reservation {
+    container-type: size;
+    overflow: hidden;
+    gap: 2px;
+}
+
+.reservation-wrapper {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    align-items: center;
+}
+
+
+.reservation-info-name, .reservation-info-name, .reservation-info-time, .reservation-info-attendees, .reservation-info-publicity {
+    display: none;
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.reservation-info-icon {
+    align-self: end;
+}
+
+.reservation-info-name {grid-area: name;}
+.reservation-info-time {grid-area: time;}
+.reservation-info-attendees {grid-area: attendees;}
+.reservation-info-publicity {grid-area: publicity;}
+.reservation-info-icon {grid-area: image;}
+
+@container (min-width: 10ch) and (max-height: 2rem) {
+    .reservation-wrapper{
+        grid-template-columns: 1fr 20px;
+        grid-template-areas: 
+            "name image";
+        height: auto;
+    }
+    .reservation-info-name {
+        display: block;
+    }
+}
+
+@container (min-width: 10ch) and (min-height: 2rem) {
+    .reservation-wrapper {
+        grid-template-columns: 1fr 20px;
+        grid-template-areas: 
+            "name image"
+            "time image";
+    }
+    .reservation-info-name, .reservation-info-time {
+        display: block;
+    }
+    .reservation-info-icon {
+        grid-row: span 2; /* This makes it occupy both the second and third rows */
+    }
+}
+
+@container (min-width: 10ch) and (min-height: 3rem) {
+    .reservation-wrapper {
+        grid-template-columns: 1fr 20px;
+        grid-template-areas: 
+            "name name"
+            "time time"
+            "attendees image";
+    }
+    .reservation-info-name, .reservation-info-time, .reservation-info-attendees {
+        display: block;
+    }
+    .reservation-info-attendees {
+        font-style: italic;
+        color: #444;
+    }
+    .reservation-info-icon {
+        grid-row: span 1; /* This makes it occupy both the second and third rows */
+    }
+}
+
+@container (min-width: 10ch) and (min-height: 4rem) {
+    .reservation-wrapper {
+        grid-template-columns: 1fr 20px;
+        grid-template-areas: 
+            "name name"
+            "time time"
+            "attendees attendees"
+            "publicity image";
+    }
+    .reservation-info-name, .reservation-info-time, .reservation-info-attendees, .reservation-info-publicity {
+        display: block;
+    }
+    .reservation-info-attendees, .reservation-info-publicity {
+        font-style: italic;
+        color: #444;
+    }
+    .reservation-info-icon {
+        grid-row: span 1; /* This makes it occupy both the second and third rows */
+    }
+}
+
+@container (max-width: 10ch) {
+    .reservation-wrapper {
+        grid-template-columns: 1fr 20px;
+        grid-template-areas: 
+            ". image";
+    }
+}
+
+
+
+
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);  /* 7 columns for 7 days */
+    grid-template-rows: 1rem 1fr;
+    gap: 5px;
+    text-align: center;
+    grid-template-rows: 1rem;
+    grid-auto-rows: 1fr;
+    height: 100%;
+    overflow: hidden;
+}
+
+.day-header {
+    font-weight: bold;
+}
+
+.day {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid #eee;
+    box-shadow: 2px 2px 8px #ddd;
+    border-radius: .5rem;
+    overflow-y: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.day-heading {
+    align-self: start;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: .4ch;
+    width: 100%;
+}
+.day-events {
+    display: flex;
+    flex-direction: column;
+}
+.heat-bar {
+    --heat-none: hsl(0, 0%, 100%);
+    --heat-low: hsl(100, 50%, 70%);
+    --heat-medium: hsl(50, 60%, 60%);
+    --heat-high: hsl(0, 70%, 50%);
+    height: 10px;
+    display: block;
+    min-height: 10px;
+    border: 1px solid #ccc;
+    border-radius: .5rem;
+    height: 60%;
+    width: 100%;
+}
+
+.day::-webkit-scrollbar {
+    display: none;
+}
+.day:is(.so), .day:is(.sa) {
+    background-color: #e5f4ff;
+    color: grey;
+    border: 1px solid #ccc;
+}
+.day:is(.so):is(.other-month), .day:is(.sa):is(.other-month) {
+    background-color: #d1dce4;
+}
+.day:is(.so):is(.other-month):hover, .day:is(.sa):is(.other-month):hover {
+    background-color: #a9cce1;
+    cursor: pointer;
+}
+.day:hover {
+    background-color: #a9cce1;
+    cursor: pointer;
+}
+.day + .active-day {
+    background-color: #ecd0d0;
+}
+.day + .active-day:hover {
+    background-color: #d9aeae;
+}
+.active-month {
+    background-color: #fff;
+}
+
+.other-month {
+    background-color: #eee;
+    box-shadow: inset 1px 1px 3px lightgray;
+    color: lightgray;
+}
+.mobile-weekday {
+    display: none;
+}
+.event {
+    padding: .3rem 1.5ch;
+    margin-top: 5px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    color: black;
+    background-color: #3788d8;
+    letter-spacing: -.03rem;
+}
+.event-name {
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.event-time {
+    font-size: .8em;
+    font-style: italic;
+    font-stretch: condensed;
+    align-self: end;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .calendar-grid {
+        grid-template-columns: 1fr; /* Make it a single column */
+        grid-template-rows: repeat(auto-fill, minmax(1fr, auto)); /* Auto rows based on content */
+        gap: 10px; /* Increase the gap between days for better readability on mobile */
+        grid-template-rows: none;
+        overflow-y: auto;
+        scroll-padding: 20vh;
+    }
+
+    #nextMonth {
+        justify-self: end; /* Align next button to the right */
+    }
+    .day {
+        text-align: left;
+        padding: 0;
+        padding-right: 0px;
+        padding-left: 0px;
+        min-height: 2.5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1ch;
+        padding-left: 1ch;
+        padding-right: 1ch;
+    }
+    .day-heading {
+        align-self: center;
+        height: 75%;
+        flex-basis: 15ch;
+        flex-shrink: 0;
+    }
+    .day-events {
+        flex-direction: row;
+        flex-grow: 1;
+        flex-shrink: 1;
+        gap: 1ch;
+    }
+    .day-header {
+        display: none; /* Optional: Hide the day headers (Mo, Di, Mi, etc.) on mobile */
+    }
+    .mobile-weekday {
+        display: inline;
+        flex-basis: 2ch;
+        flex-shrink: 0;
+    }
+    .day-number {
+        flex-basis: 2ch;
+        flex-shrink: 0;
+    }
+    .heat-bar {
+        flex-grow: 1;
+    }
+    .event {
+        margin: 0;
+        padding: 0;
+        height: 1.7rem;
+        display: flex;
+        align-items: center;
+        padding-left: 5px;
+        flex-grow: 1;
+        flex-basis: 5ch;
+        flex-shrink: 0;
+        justify-content: center;
+    }
+
+    span.event-name {
+        display: inline-block;
+        max-width: 80%; /* Adjust this value based on your layout */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle; /* Keeps the text aligned with other elements */
+    }
+    span.event-time {
+        display: none;
+    }
+}
+
+[data-layout="day"] {
+    grid-template-rows: 5rem 1fr 5rem;
+}
+
+[data-layout="day"] .calendar-grid {
+    display: none;
+}
+
+[data-layout="mixed"] {
+    grid-template-rows: 5rem 7rem 1fr 5rem;
+}
+
+[data-layout="mixed"] .not-active-week {
+    display: none;
+}
+
+[data-layout="month"] {
+    grid-template-rows: 5rem 1fr 5rem;
+}
+
+[data-layout="month"] .calendar-container {
+    display: none;
+}

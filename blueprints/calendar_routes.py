@@ -2,6 +2,7 @@ from flask import session, request, redirect, render_template, url_for, abort
 from flask import request, Blueprint, current_app
 from flask_dance.contrib.discord import discord
 from tt_calendar.models import *
+from tt_calendar import utils
 
 from datetime import datetime
 
@@ -82,14 +83,21 @@ def fetch_month():
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     view_type = request.args.get('view_type', 'public')
 
-    reservations = prepare_reservations(view_type, date_str, date_str)
+    week_start, week_end = utils.get_end_days_of_week(date)
+    date_range, first_date_str, last_date_str = utils.get_end_days_of_month(date)
+    reservations = prepare_reservations(view_type, first_date_str, last_date_str)
+
     tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
-    return render_template('partials/calendar_content.html', 
+    return render_template('partials/month_content.html', 
                            date=date, 
                            tables=tables, 
                            event_types=event_types,
-                           reservations=reservations)
+                           reservations=reservations,
+                           date_list=list(date_range),
+                           week_start=week_start,
+                           week_end=week_end)
+
 
 
 @cal.route('/fetch/reservation/<string:event_id>')

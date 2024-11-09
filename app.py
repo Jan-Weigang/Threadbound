@@ -23,7 +23,9 @@ load_dotenv()
 
 # TODO Month into new htmx version
 
-# TODO Remove unnecessary info from reservations call since popup is own call
+# TODO "1Personen" statt Namen in Popup. Check login requirements.
+
+# TODO Remove unnecessary info from reservations call since popup is own call / Refactor into one function on server side
 
 # TODO Remove the DB logic from the api Calls and put them in their own module
 
@@ -45,6 +47,7 @@ load_dotenv()
 # Fixed? kalender monat leitet nicht zu Tag auf Safari month.html 580
 
 
+# TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
 
 # TODO Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
 # TODO Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
@@ -95,6 +98,10 @@ load_dotenv()
 
 # TODO Favion & Titles of pages 
 
+
+# TODO Vorlagen für Events mit Textbeschreibung.
+
+# TODO Popup QR for ics
 
 
 # ======================================

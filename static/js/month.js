@@ -155,11 +155,6 @@ function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
     return hoverInfo.join(' | ');
 }
 
-
-
-
-
-
 function updateReservationsOnCalendar(reservationData, eventTypes, firstDayToDisplay, lastDayToDisplay, month, occupancyByDay) {
 
     let day = new Date(firstDayToDisplay);

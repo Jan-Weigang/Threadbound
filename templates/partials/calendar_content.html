@@ -5,8 +5,9 @@
     {% set _ = eventTypeColorMap.update({ event_type.id: event_type.color }) %}
 {% endfor %}
 
-{% include 'partials/calendar_scale.html' %}
+<div class="side-nav prev-day"></div>
 
+{% include 'partials/calendar_scale.html' %}
 
 <div id="calendar" 
     class="calendar"
@@ -59,3 +60,5 @@
         </div>
     {% endfor %}
 </div>
+
+<div class="side-nav next-day"></div>

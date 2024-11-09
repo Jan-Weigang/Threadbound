@@ -1,0 +1,33 @@
+{% set eventTypeColorMap = {} %}
+{% for event_type in event_types %}
+    {% set _ = eventTypeColorMap.update({ event_type.id: event_type.color }) %}
+{% endfor %}
+
+
+
+<div class="day-header">Mo</div>
+<div class="day-header">Di</div>
+<div class="day-header">Mi</div>
+<div class="day-header">Do</div>
+<div class="day-header">Fr</div>
+<div class="day-header">Sa</div>
+<div class="day-header">So</div>
+
+{% for day in date_list %}
+    <div class="day" data-date="{{ day.strftime('%Y-%m-%d') }}">
+        <div class="day-heading">
+            <span class="mobile-weekday">{{ day.strftime('%a') }}</span>
+            <span class="day-number">{{ day.day }}</span>
+        </div>
+        <div class="day-events">
+            {% for reservation in reservations %}
+                {% if reservation.date == day %}
+                    <div class="event" style="background-color: {{ eventTypeColorMap.get(reservation.event_type_id, '#3788d8') }};">
+                        <span class="event-name">{{ reservation['name'] }}</span>
+                        <span class="event-time">{{ reservation['start_time_str'] }} - {{ reservation['end_time_str'] }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}

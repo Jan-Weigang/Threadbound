@@ -185,3 +185,24 @@ def localize_to_berlin_time(naive_time: datetime) -> datetime:
     berlin_zone = pytz.timezone('Europe/Berlin')
     localized_berlin_time = berlin_zone.localize(naive_time, is_dst=None)
     return localized_berlin_time
+
+
+def get_end_days_of_month(date):
+    first_day_of_month = date.replace(day=1)
+    last_day_of_month = (first_day_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    first_day_to_display = first_day_of_month - timedelta(days=(first_day_of_month.weekday()) % 7)
+    last_day_to_display = last_day_of_month + timedelta(days=(13 - last_day_of_month.weekday()) % 7)
+    first_day_to_display_str = first_day_to_display.strftime('%Y-%m-%d')
+    last_day_to_display_str = last_day_to_display.strftime('%Y-%m-%d')
+    return date_range(first_day_to_display, last_day_to_display), first_day_to_display_str, last_day_to_display_str
+
+def date_range(start_date, end_date):
+    current_date = start_date
+    while current_date <= end_date:
+        yield current_date
+        current_date += timedelta(days=1)
+
+def get_end_days_of_week(date):
+    week_start = date - timedelta(days=date.weekday())
+    week_end = week_start + timedelta(days=6)
+    return week_start, week_end
