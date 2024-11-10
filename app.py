@@ -25,8 +25,6 @@ load_dotenv()
 
 # TODO "1Personen" statt Namen in Popup. Check login requirements.
 
-# TODO Remove unnecessary info from reservations call since popup is own call / Refactor into one function on server side
-
 # TODO Remove the DB logic from the api Calls and put them in their own module
 
 # TODO 3 Views: Day, Day with week and month. Selector in footer. All one dynamic site.

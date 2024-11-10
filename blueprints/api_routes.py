@@ -152,13 +152,13 @@ def api_get_reservations(view_type=None):
     date_param = request.args.get('date', current_date)
     end_date_param = request.args.get('end_date', date_param)
 
-    reservation_data = prepare_reservations(date_param=date_param, end_date_param=end_date_param, view_type=view_type)
+    reservation_data = prepare_reservations_for_jinja(date_param=date_param, end_date_param=end_date_param, view_type=view_type)
     
     # print(json.dumps(reservation_data, indent=4))
     return jsonify({'reservations': reservation_data})
 
 
-def prepare_reservations(view_type, date_param, end_date_param):
+def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
     print(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
     if discord.authorized is None:
         # If the user is not authenticated, only load events with publicity 3

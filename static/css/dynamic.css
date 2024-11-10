@@ -470,6 +470,7 @@ body {
     grid-auto-rows: 1fr;
     height: 100%;
     overflow: hidden;
+    padding-bottom: 1rem;
 }
 
 .day-header {
@@ -657,7 +658,7 @@ body {
 }
 
 [data-layout="day"] {
-    grid-template-rows: 5rem 1fr 5rem;
+    grid-template-rows: 4rem 1fr 3rem;
 }
 
 [data-layout="day"] .calendar-grid {
@@ -665,7 +666,7 @@ body {
 }
 
 [data-layout="mixed"] {
-    grid-template-rows: 5rem 7rem 1fr 5rem;
+    grid-template-rows: 4rem 7rem 1fr 3rem;
 }
 
 [data-layout="mixed"] .not-active-week {
@@ -673,7 +674,7 @@ body {
 }
 
 [data-layout="month"] {
-    grid-template-rows: 5rem 1fr 5rem;
+    grid-template-rows: 4rem 1fr 3rem;
 }
 
 [data-layout="month"] .calendar-container {

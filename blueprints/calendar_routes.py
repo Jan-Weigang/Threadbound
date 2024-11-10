@@ -38,8 +38,8 @@ def day(view_type):
     return render_template('mycalendar.html', view_type=view_type, date=date)
 
 
-@cal.route('/day2', defaults={'view_type': 'regular'}, methods=['GET'])
-@cal.route('/day2/<string:view_type>', methods=['GET'])
+@cal.route('/', defaults={'view_type': 'regular'}, methods=['GET'])
+@cal.route('/<string:view_type>', methods=['GET'])
 def day2(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
@@ -57,7 +57,7 @@ def day2(view_type):
 
 
 
-from blueprints.api_routes import prepare_reservations
+from blueprints.api_routes import prepare_reservations_for_jinja
 
 #This takes no argument since they come from an html form.
 @cal.route('/fetch/day')
@@ -66,7 +66,7 @@ def fetch_day():
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     view_type = request.args.get('view_type', 'public')
 
-    reservations = prepare_reservations(view_type, date_str, date_str)
+    reservations = prepare_reservations_for_jinja(view_type, date_str, date_str)
     tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
     return render_template('partials/calendar_content.html', 
@@ -85,7 +85,7 @@ def fetch_month():
 
     week_start, week_end = utils.get_end_days_of_week(date)
     date_range, first_date_str, last_date_str = utils.get_end_days_of_month(date)
-    reservations = prepare_reservations(view_type, first_date_str, last_date_str)
+    reservations = prepare_reservations_for_jinja(view_type, first_date_str, last_date_str)
 
     tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()

@@ -1,21 +1,73 @@
+// Page Setup
 document.addEventListener('DOMContentLoaded', () => {
-    const dateButtons = document.querySelectorAll('.date-changer');
 
+    const dateInput = document.getElementById('dateInput');
+
+    // enable Date Changing via buttons
+    const dateButtons = document.querySelectorAll('.date-changer');
     dateButtons.forEach(button => {
         button.addEventListener('click', () => {
+            const wrapper = document.getElementById('layoutWrapper');
+            layout = wrapper.getAttribute('data-layout');
             const amount = parseInt(button.getAttribute('data-amount'), 10);
-            change_dateInputBy(amount);
+
+            if (layout == 'month') {
+                const mode = button.getAttribute('data-mode');
+                newDate = get_new_date_changed_month(amount, mode)
+                change_dateInput_to(newDate);
+            } else {
+                change_dateInput_by(amount);
+            }
         });
     });
 
-    let currentMonth = new Date(document.getElementById('dateInput').value).getMonth();
-    const dateInput = this.document.getElementById('dateInput');
+    // enable layout Change via buttons
+    const layoutButtons = document.querySelectorAll('.layout-picker-button');
+    layoutButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            attribute_string = button.getAttribute('data-layout');
+            set_layout_buttons(attribute_string);
+        });
+    });
 
+    
+    const datePickerButton = document.getElementById('datePickerButton');
+
+    // Initialize the Air Datepicker
+    const datepicker = new AirDatepicker(dateInput, {
+        locale: {
+                    days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                    daysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+                    daysMin: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+                    months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+                    monthsShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+                    today: 'Heute',
+                    clear: 'Löschen',
+                    dateFormat: 'yyyy-MM-dd',
+                    timeFormat: 'HH:mm',
+                    firstDay: 1
+                },
+        isMobile: true,
+        autoClose: true,
+        onSelect: function (dateObject) {
+            dateInput.value = dateObject.formattedDate;
+            // Trigger change event manually to make htmx work
+            dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+
+    // Show the datepicker when the button is clicked
+    datePickerButton.addEventListener('click', function () {
+        datepicker.show();
+    });
+
+    
     // Fill Calendar on load.
     htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}`, { target: '#calendar-grid' });
     
 
     // Catchall EventListener for Date Changes
+    let currentMonth = new Date(document.getElementById('dateInput').value).getMonth();
     dateInput.addEventListener('change', function() {
 
         // Trigger Calendar UI Updates
@@ -79,15 +131,15 @@ document.addEventListener('htmx:afterSwap', function(event) {
     const nextDay = document.querySelector('.next-day');
 
     prevDay.addEventListener('click', () => {
-        change_dateInputBy(-1);
+        change_dateInput_by(-1);
     });
 
     nextDay.addEventListener('click', () => {
-        change_dateInputBy(1);
+        change_dateInput_by(1);
     });
 })
 
-function change_dateInputBy(dayAmount) {
+function change_dateInput_by(dayAmount) {
     const dateInput = document.getElementById('dateInput');
     const currentDate = new Date(dateInput.value);
         // Use UTC methods to prevent DST issues
@@ -100,6 +152,12 @@ function change_dateInputBy(dayAmount) {
         const formattedDate = utcDate.toISOString().split('T')[0];
         dateInput.value = formattedDate;
         dateInput.dispatchEvent(new Event('change'));
+}
+
+function change_dateInput_to(yyyy_mm_dd) {
+    const dateInput = document.getElementById('dateInput');
+    dateInput.value = yyyy_mm_dd;
+    dateInput.dispatchEvent(new Event('change'));
 }
 
 function calculateSteppedHoverPosition(clientX, calendar) {
@@ -541,16 +599,132 @@ function updateCalendarClasses(date) {
 }
 
 function renewCalendarGridEventListeners() {
-    // Select all day elements inside the calendar grid
     const dayElements = document.querySelectorAll('#calendar-grid .day');
     const dateInput = document.getElementById('dateInput');
 
+    // Click event for grid
     dayElements.forEach(dayElement => {
         dayElement.addEventListener('click', function() {
             const date_str = dayElement.getAttribute('data-date');
-            console.log(date_str);
             dateInput.value = date_str;
             dateInput.dispatchEvent(new Event('change'));
+            const wrapper = document.getElementById('layoutWrapper');
+            const layout = wrapper.getAttribute('data-layout')
+            const is_grid = 'month';
+            if (layout == is_grid) {
+                wrapper.setAttribute('data-layout', 'mixed');
+                set_layout_buttons('mixed');
+            }
         });
     });
+}
+
+
+
+function set_layout_buttons(attribute_string) {
+    const wrapper = document.getElementById('layoutWrapper');
+    wrapper.setAttribute('data-layout', attribute_string);
+
+    const layoutButtons = document.querySelectorAll('.layout-picker-button');
+    layoutButtons.forEach(button => {
+        button.classList.remove('set');
+        buttonAttribute = button.getAttribute('data-layout');
+        if (buttonAttribute == attribute_string) {
+            button.classList.add('set');
+        }
+    });
+}
+
+function get_new_date_changed_month(amount, mode) {
+    if (mode == 'weekday') {
+        return get_new_date_for_weekday(amount);
+    } else {
+        return get_new_date_for_day(amount);
+    }
+}
+
+function get_new_date_for_day(amount) {
+    const dateInput = document.getElementById('dateInput');
+    const currentValue = dateInput.value;
+    let [year, month, day] = currentValue.split('-');
+    month = parseInt(month, 10);
+
+    // change based on button
+    if (amount < 0) {
+        month -= 1;
+    } else {
+        month += 1;
+    }
+    // check month overflow
+    if (month > 12) {
+        month = 1;
+        year = parseInt(year, 10) + 1; 
+    } else if (month < 1) {
+        month = 12;
+        year = parseInt(year, 10) - 1; 
+    }
+    month = month.toString().padStart(2, '0');
+    const newDateValue = `${year}-${month}-${day}`;
+    return newDateValue
+}
+
+function get_new_date_for_weekday(amount) {
+    const dateInput = document.getElementById('dateInput');
+    const currentValue = dateInput.value;
+    let [year, month, day] = currentValue.split('-');
+    month = parseInt(month, 10);
+    day = parseInt(day, 10);
+
+    const currentDate = new Date(year, month - 1, day);
+    const currentWeekday = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+
+    // Calculate which nth occurrence of the current weekday it is in the current month
+    let count = 0;
+    for (let d = 1; d <= day; d++) {
+        const tempDate = new Date(year, month - 1, d);
+        if (tempDate.getDay() === currentWeekday) {
+            count++;
+        }
+    }
+
+    // Change the month by the specified amount
+    if (amount < 0) {
+        month -= 1;
+    } else {
+        month += 1;
+    }
+
+    // Handle month overflow
+    if (month > 12) {
+        month = 1;
+        year = parseInt(year, 10) + 1;
+    } else if (month < 1) {
+        month = 12;
+        year = parseInt(year, 10) - 1;
+    }
+
+    // Find the nth occurrence of the weekday in the new month
+    let newDay = null;
+    let occurrence = 0;
+    for (let d = 1; d <= 31; d++) {
+        const tempDate = new Date(year, month - 1, d);
+        if (tempDate.getMonth() !== month - 1) break; // Stop if we move into the next month
+        if (tempDate.getDay() === currentWeekday) {
+            occurrence++;
+            if (occurrence === count) {
+                newDay = d;
+                break;
+            }
+        }
+    }
+
+    // If not found, fallback to the last valid weekday (4th occurrence max)
+    if (newDay === null) {
+        newDay = occurrence > 0 ? occurrence * 7 - (7 - currentWeekday) : day;
+    }
+
+    month = month.toString().padStart(2, '0');
+    newDay = newDay.toString().padStart(2, '0');
+    return `${year}-${month}-${newDay}`;
 }

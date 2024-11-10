@@ -59,6 +59,12 @@ button:hover {
     background-color: #ccc;
 }
 
+button:is(.set) {
+    border-style: inset;
+    box-shadow: 1px 1px 1px inset gray;
+    background-color: #ccc;
+}
+
 
 
 .flash {

@@ -3,11 +3,19 @@
 <head>
     {% include 'std_elements/head.html' %}
 
+    <!-- fontawesome -->
+    <script defer src="/static/js/fontawesome/fontawesome.min.js"></script>
+    <script defer src="/static/js/fontawesome/solid.min.js"></script>
+
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="/static/css/air-datepicker.css">
+    <script src="/static/js/air-datepicker/air-datepicker.js"></script>
+
+    <!-- Custom statics -->
     <link rel="stylesheet" href="/static/css/dynamic.css">
     <script src="/static/js/general.js" defer></script>
     <script src="/static/js/dynamic-view.js" defer></script>
-    <script defer src="/static/js/fontawesome/fontawesome.min.js"></script>
-    <script defer src="/static/js/fontawesome/solid.min.js"></script>
+
 
     <title>Reservations Week View</title>
 
@@ -18,7 +26,7 @@
 <body>
     
     {% include 'std_elements/body.html' %}
-    <div class="layout-wrapper" data-layout="mixed">
+    <div class="layout-wrapper" id="layoutWrapper" data-layout="mixed">
 
         {# This sets up the header with the given arguments - these are used in the htmx requests #}
         <form id="viewTypeForm"
@@ -26,54 +34,9 @@
                 hx-target=".calendar-container"
                 hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect"
                 class="layout-header">
-            <!-- <div class="layout-header"> -->
 
-                <div class="header-left">
-                    <button type="button" class="date-changer" data-amount="-7">
-                        <i class="fa-solid fa-angles-left"></i>
-                        </button>
-                    <button type="button" class="date-changer" data-amount="-1">
-                        <i class="fa-solid fa-angle-left"></i>
-                        </button>
-                    <input style="width: auto; display:none;"
-                        type="date" name="date" id="dateInput" 
-                        value="{{ date.strftime('%Y-%m-%d') }}"
-                        data-url-month="{{ url_for('cal_bp.month') }}"
-                        data-url-day="{{ url_for('cal_bp.day') }}">
-                    <button type="button" class="date-changer" data-amount="1">
-                        <i class="fa-solid fa-angle-right"></i>
-                    </button>
-                    <button type="button" class="date-changer" data-amount="7">
-                        <i class="fa-solid fa-angles-right"></i>
-                    </button>
-                </div>
-                <div class="header-center">
-                    <span id="viewHeading" class="view-heading" style="font-variant-numeric: tabular-nums">Tagesansicht</span>
-                </div>
-                <div class="header-right">
-                    <select id="viewTypeSelect" name="view_type" data-disable-scroll>
-                        {% if view_type == "regular" %}
-                            <option value="regular" selected>Mitglied / Normal</option>
-                        {% else %}
-                            <option value="regular" >Mitglied / Normal</option>
-                        {% endif %}
-
-                        {% if view_type == "template" %}
-                            <option value="template" selected>Stammtischkalender</option>
-                        {% else %}
-                            <option value="template" >Stammtischkalender</option>
-                        {% endif %}
-
-                        {% if view_type == "public" %}
-                            <option value="public" selected>Öffentliche Events</option>
-                        {% else %}
-                            <option value="public" >Öffentliche Events</option>
-                        {% endif %}
-                    </select>
-                </div>
-            <!-- </div> -->
+                {% include 'std_elements/header.html' %}
         </form>
-
         
         <div class="calendar-grid" id="calendar-grid"></div>
         <div class="calendar-container" id="calendar-container"></div>
