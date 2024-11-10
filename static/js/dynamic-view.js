@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // initialize Layout Buttons
+    set_layout_buttons('mixed');
+
     // enable layout Change via buttons
     const layoutButtons = document.querySelectorAll('.layout-picker-button');
     layoutButtons.forEach(button => {
@@ -30,35 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    
+    // Initialize Month Shortcut
     const datePickerButton = document.getElementById('datePickerButton');
 
-    // Initialize the Air Datepicker
-    const datepicker = new AirDatepicker(dateInput, {
-        locale: {
-                    days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-                    daysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-                    daysMin: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-                    months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-                    monthsShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-                    today: 'Heute',
-                    clear: 'Löschen',
-                    dateFormat: 'yyyy-MM-dd',
-                    timeFormat: 'HH:mm',
-                    firstDay: 1
-                },
-        isMobile: true,
-        autoClose: true,
-        onSelect: function (dateObject) {
-            dateInput.value = dateObject.formattedDate;
-            // Trigger change event manually to make htmx work
-            dateInput.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    });
-
-    // Show the datepicker when the button is clicked
     datePickerButton.addEventListener('click', function () {
-        datepicker.show();
+        set_layout_buttons('month');
     });
 
     
