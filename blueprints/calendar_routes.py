@@ -91,7 +91,6 @@ def fetch_month():
     event_types = EventType.query.all()
 
     occupancy_by_day = utils.get_occupancy_by_day(reservations, tables)
-    print(occupancy_by_day)
     return render_template('partials/month_content.html', 
                            date=date, 
                            tables=tables, 

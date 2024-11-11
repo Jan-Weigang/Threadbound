@@ -44,8 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
     // Fill Calendar on load.
-    htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}`, { target: '#calendar-grid' });
-    
+    loadNewMonth();
 
     // Catchall EventListener for Date Changes
     let currentMonth = new Date(document.getElementById('dateInput').value).getMonth();
@@ -56,12 +55,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const newMonth = newDate.getMonth();
         if (newMonth !== currentMonth) {
             currentMonth = newMonth; // Update the current month to the new month
-            htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}`, { target: '#calendar-grid' });
+            loadNewMonth();
         } else {
             updateCalendarClasses(newDate);
         }
     });
+
+    const selectionBox = document.getElementById('viewTypeSelect');
+    viewTypeSelect.addEventListener('change', function() {
+        loadNewMonth();
+    });
 });
+
+function loadNewMonth() {
+    const viewTypeSelect = document.getElementById('viewTypeSelect');
+    const viewType = viewTypeSelect ? viewTypeSelect.value : 'public';
+    htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}&view_type=${encodeURIComponent(viewType)}`, { target: '#calendar-grid' });
+}
 
 
 
@@ -100,7 +110,7 @@ calendarGrid.addEventListener('htmx:afterSwap', function(event) {
     updateCalendarClasses(newDate);
 });
 
-document.addEventListener('gridLoaded', function() {
+document.addEventListener('newMonthLoaded', function() {
     updateDayElements();
     initialize_hover();
 });
@@ -777,7 +787,8 @@ function getHeatColor(percentage) {
 }
 
 function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
-    
+    const viewTypeSelect = document.getElementById('viewTypeSelect');
+    const viewtype = viewTypeSelect.value;
     const avgOccupancy = occupancyThisDay.reduce((a, b) => a + b, 0) / occupancyThisDay.length;
 
     // Determine peak hours based on 50% capacity
@@ -798,9 +809,12 @@ function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
     let hoverInfo = [];
 
     // Add event count and occupancy percentage
-    hoverInfo.push(`${event_count} Events`);
-    hoverInfo.push(`${Math.round((1 - avgOccupancy) * 100)}% frei`)
-
+    if (viewtype == 'public') {
+        hoverInfo.push(`${event_count} öffentliche Events`);
+    } else {
+        hoverInfo.push(`${event_count} Events`);
+        hoverInfo.push(`${Math.round((1 - avgOccupancy) * 100)}% frei`)
+    }
     if (peak_exists) {
         const peakHoursText = `${String(peakStart).padStart(2, '0')}:00 - ${String(peakEnd).padStart(2, '0')}:00`;
         hoverInfo.push(`Peak: ${peakHoursText}`);

@@ -5,7 +5,7 @@
 
 <script>
     occupancyByDay = JSON.parse('{{ occupancy_by_day | safe }}');
-    document.dispatchEvent(new CustomEvent('gridLoaded'));
+    document.dispatchEvent(new CustomEvent('newMonthLoaded'));
 </script>
 
 
