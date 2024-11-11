@@ -5,7 +5,7 @@ from tt_calendar.models import *
 from tt_calendar import utils
 
 from datetime import datetime
-
+import json
 
 
 cal = Blueprint('cal_bp', __name__)
@@ -89,6 +89,9 @@ def fetch_month():
 
     tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
+
+    occupancy_by_day = utils.get_occupancy_by_day(reservations, tables)
+    print(occupancy_by_day)
     return render_template('partials/month_content.html', 
                            date=date, 
                            tables=tables, 
@@ -96,7 +99,8 @@ def fetch_month():
                            reservations=reservations,
                            date_list=list(date_range),
                            week_start=week_start,
-                           week_end=week_end)
+                           week_end=week_end,
+                           occupancy_by_day=json.dumps(occupancy_by_day))
 
 
 

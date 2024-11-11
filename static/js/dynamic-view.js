@@ -1,3 +1,5 @@
+let occupancyByDay = {};
+
 // Page Setup
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -96,7 +98,12 @@ calendarGrid.addEventListener('htmx:afterSwap', function(event) {
 
     const newDate = new Date(dateInput.value);
     updateCalendarClasses(newDate);
-})
+});
+
+document.addEventListener('gridLoaded', function() {
+    updateDayElements();
+    initialize_hover();
+});
 
 
 // Small Updates after any htmx requests
@@ -706,4 +713,99 @@ function get_new_date_for_weekday(amount) {
     month = month.toString().padStart(2, '0');
     newDay = newDay.toString().padStart(2, '0');
     return `${year}-${month}-${newDay}`;
+}
+
+function updateDayElements() {
+    const daysContainer = document.getElementById('calendar-grid');
+    const dayElements = daysContainer.querySelectorAll('.day');
+    
+    for (let i = 0; i < dayElements.length; i++) {
+        const dayElement = dayElements[i];
+        const eventDateKey = dayElement.getAttribute('data-date');
+
+        // Create the heat-bar-graph for each hour
+        const heatBar = dayElement.querySelector('.heat-bar');
+        const occupancyThisDay = occupancyByDay[eventDateKey] || Array(24).fill(0); // Fallback to an empty array with 13 zeroes
+
+        // Calculate the gradient stops based on booked capacity vs total capacity with abrupt transitions
+        const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
+            const start = (index / 24) * 100;
+            const end = ((index + .3) / 24) * 100;
+            const color = getHeatColor(percentageBooked);
+
+            return `${color} ${start}%, ${color} ${end}%`; // Set abrupt color change between start and end
+        }).join(',');
+        heatBar.style.background = `linear-gradient(to right, ${gradientStops})`;
+
+        // Create a set to track unique events for this day
+        const eventIdsForDay = new Set();
+        const reservations = Array.from(dayElement.getElementsByClassName('event'));
+
+        // Remove double events
+        reservations.forEach(reservation => {
+            const eventId = reservation.getAttribute('data-event-id');
+            if (eventIdsForDay.has(eventId)) {
+                reservation.remove(); // Remove the reservation element from the DOM if it's a duplicate
+            } else {
+                eventIdsForDay.add(eventId);
+            }
+        });
+
+        hoverInfo = get_hover_info_for_dayElement(occupancyThisDay, eventIdsForDay.size);
+        dayElement.setAttribute('data-hover-info', hoverInfo);
+    }
+}
+
+// Helper function to get a color based on percentage booked using CSS lab() color space
+function getHeatColor(percentage) {
+    // Clamp the percentage between 0 and 1 to avoid out-of-bounds values
+    percentage = Math.max(0, Math.min(percentage, 1));
+
+    // Interpolate between lab(100% 60 -100) for green and lab(55% 60 40) for red
+    const labStart = [100, 3, -9];  // lab(100% 60 -100) -> Green
+    const labEnd = [0, 128, -85];       // lab(55% 60 40) -> Red
+
+    const lastFivePercent = Math.max(Math.min(1, percentage * -20 + 19),0)
+
+    // Interpolate each lab component
+    const L = labStart[0] + (labEnd[0] - labStart[0]) * percentage;
+    const a = labStart[1] + (labEnd[1] - labStart[1]) * Math.min(Math.max(0, percentage * 2 - .7),1) * lastFivePercent;
+    const b = labStart[2] + (labEnd[2] - labStart[2]) * Math.min(1, percentage * 2) * lastFivePercent;
+
+    // Return the color in CSS lab() format
+    return `lab(${L}% ${a} ${b})`;
+}
+
+function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
+    
+    const avgOccupancy = occupancyThisDay.reduce((a, b) => a + b, 0) / occupancyThisDay.length;
+
+    // Determine peak hours based on 50% capacity
+    let peakStart = null, peakEnd = null;
+    const peakHour = occupancyThisDay.indexOf(Math.max(...occupancyThisDay)); // Find the highest occupancy hour
+
+    // Find the range starting and ending at 50% around the peak
+    for (let j = peakHour; j >= 0; j--) {
+        if (occupancyThisDay[j] < .5) break;
+        peakStart = j;
+    }
+    for (let j = peakHour; j < occupancyThisDay.length; j++) {
+        if (occupancyThisDay[j] < .5) break;
+        peakEnd = j;
+    }
+    const peak_exists = peakStart !== null && peakEnd !== null
+
+    let hoverInfo = [];
+
+    // Add event count and occupancy percentage
+    hoverInfo.push(`${event_count} Events`);
+    hoverInfo.push(`${Math.round((1 - avgOccupancy) * 100)}% frei`)
+
+    if (peak_exists) {
+        const peakHoursText = `${String(peakStart).padStart(2, '0')}:00 - ${String(peakEnd).padStart(2, '0')}:00`;
+        hoverInfo.push(`Peak: ${peakHoursText}`);
+    }
+
+    // Set the hover info by joining the array into a single string
+    return hoverInfo.join(' | ');
 }

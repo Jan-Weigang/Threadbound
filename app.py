@@ -21,7 +21,7 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Month into new htmx version
+# TODO Month view has only public events and they are not combined.Other js needs to still happen.
 
 # TODO "1Personen" statt Namen in Popup. Check login requirements.
 

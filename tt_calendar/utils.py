@@ -206,3 +206,74 @@ def get_end_days_of_week(date):
     week_start = date - timedelta(days=date.weekday())
     week_end = week_start + timedelta(days=6)
     return week_start, week_end
+
+
+# ======================================
+# ============== Heat-Bar ==============
+# ======================================
+
+def get_heat_color(percentage):
+    # Clamp the percentage between 0 and 1
+    percentage = max(0, min(percentage, 1))
+
+    # Lab color interpolation between lab(100% 60 -100) (green) and lab(55% 60 40) (red)
+    lab_start = [100, 3, -9]  # Green
+    lab_end = [0, 128, -85]   # Red
+
+    last_five_percent = max(min(1, percentage * -20 + 19), 0)
+
+    # Interpolate each component
+    L = lab_start[0] + (lab_end[0] - lab_start[0]) * percentage
+    a = lab_start[1] + (lab_end[1] - lab_start[1]) * min(max(0, percentage * 2 - 0.7), 1) * last_five_percent
+    b = lab_start[2] + (lab_end[2] - lab_start[2]) * min(1, percentage * 2) * last_five_percent
+
+    return f'lab({L:.1f}% {a:.1f} {b:.1f})'
+
+
+def get_occupancy_by_day(reservation_data, tables):
+    total_capacity = sum(table.capacity for table in tables)
+
+    hours = 24
+
+    # Create a dictionary to store hourly bookings for each day
+    occupancy_by_day = {}
+
+    # Iterate over each reservation
+    for reservation in reservation_data:
+        start_time = datetime.fromisoformat(reservation['start_time'])
+        end_time = datetime.fromisoformat(reservation['end_time'])
+        reservation_day = start_time.strftime('%Y-%m-%d')
+
+        # Find the table by its table_id in the tables list
+        table = next((t for t in tables if t.id == reservation['table_id']), None)
+
+        # Ensure the table exists before proceeding
+        if not table:
+            print(f"Table with ID {reservation['table_id']} not found.")
+            continue  # Skip this reservation if the table is not found
+
+        # Initialize hourly bookings for the day if not already present
+        if reservation_day not in occupancy_by_day:
+            occupancy_by_day[reservation_day] = [0] * hours  # One per hour
+
+        for hour in range(max(0, start_time.hour), min(end_time.hour, hours - 1)):
+            occupancy_by_day[reservation_day][hour] += table.capacity / total_capacity
+
+    return occupancy_by_day
+
+
+def create_gradient_list(date_range, occupancy_by_day):
+    gradient_list = []
+    for day in date_range:
+        day_key = day.strftime('%Y-%m-%d')
+        occupancy = occupancy_by_day.get(day_key, [0] * 24)
+        
+        gradient_stops = []
+        for index, percentage_booked in enumerate(occupancy):
+            start = (index / 24) * 100
+            end = ((index + 0.3) / 24) * 100
+            color = get_heat_color(percentage_booked)
+            gradient_stops.append(f"{color} {start:.1f}%, {color} {end:.1f}%")
+
+        gradient_list.append(','.join(gradient_stops))
+    return gradient_list
