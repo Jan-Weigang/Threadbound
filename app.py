@@ -31,23 +31,13 @@ load_dotenv()
 # Also add a button for "ask to overlap" --> Stammtisch
 
 
-# TODO ICS Button in Discord view
-
 # TODO Templates als Stammtsichkalender
-
-# TODO Calendar / ICS integration?
-
-# TODO Bottom nav and legends
-
-# TODO Login-Loop bei nicht-Mitgliedern stoppen und erklären
-
-# Fixed? kalender monat leitet nicht zu Tag auf Safari month.html 580
-
 
 # TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
 
-# TODO Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
-# TODO Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
+# Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
+# Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
+
 # TODO Attending als Nutzer über eine API-Route machen, die Nutzer mit Nicknamen erstellt, ohne, dass man member sein muss. Damit sich Gäste in DC mit eintragen können.
 # TODO Reminder am Vortag oder Tag des events per pn.
 

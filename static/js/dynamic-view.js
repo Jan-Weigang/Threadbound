@@ -348,24 +348,13 @@ function set_up_reservations() {
         const endHour = end.getHours();
         const endMinutes = end.getMinutes();
 
-        // Only show reservations starting after 12:00 PM (noon)
-        // if (endHour < 12 || startHour > 24) {
-        //     return;
-        // }
-        console.log("Have an Event with End " + startHour + "for selected" + selectedEndHour);
         // Filter reservations that fall outside the selected time window
         if (endHour < selectedStartHour || startHour >= selectedEndHour) {
             reservationBlock.style.display = "none";
             return;
         } 
-
-        console.log("Still Have an Event with End " + startHour + "for selected" + selectedEndHour);
         let durationString = get_duration_string(start, end)
         reservationBlock.setAttribute('data-hover-info', `${name} - ${durationString}`)
-
-        // Adjust the start and duration for the 12:00-24:00 time window
-        // let adjustedStartHour = startHour - 12;
-        // let adjustedEndHour = Math.min(12, (endHour = 24 ? 24 : endHour) - 12);
 
         // Adjust start and duration based on the selected time window
         let adjustedStartHour = startHour - selectedStartHour;
