@@ -1,5 +1,4 @@
 import discord
-from .config import guild_id, guild_roles
 from .bot import bot
 
 from flask import url_for

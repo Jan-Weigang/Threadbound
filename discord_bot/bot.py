@@ -1,9 +1,9 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from .config import discord_token, kalender_channels, guild_id, guild_roles
 
-import os, requests
+import os, requests, datetime, pytz
 
 
 
@@ -25,6 +25,11 @@ async def on_ready():
     assert guild
     print(f'{bot.user} has connected to Discord guild {guild.name}!')
 
+
+
+# ==============================================================================
+#                                 Event Threads
+# ==============================================================================
 
 
 @bot.event
@@ -127,12 +132,16 @@ async def on_interaction(interaction: discord.Interaction):
 
 
 async def interact_with_event(interaction, action):
+    from .utils import get_nickname
     # Prepare data for the Flask API request
+    
+    nickname = await get_nickname(interaction.user.id)
+
     data = {
         "discord_user_id": interaction.user.id,
         "message_id": interaction.message.id,
         "action": action,
-        "username": interaction.user.name
+        "username": nickname
     }
 
     # Call the Flask API endpoint

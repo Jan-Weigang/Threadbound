@@ -6,6 +6,7 @@ import signal, os, asyncio, threading
 
 import discord_bot
 from services import *
+from services.task_scheduler import scheduler
 
 from tt_calendar import decorators, utils
 from tt_calendar.models import *
@@ -23,23 +24,23 @@ load_dotenv()
 
 # TODO Remove the DB logic from the api Calls and put them in their own module
 
-# TODO 3 Views: Day, Day with week and month. Selector in footer. All one dynamic site.
+# Possibly add other hovering buttons for time scale movements (left right)
 
-# TODO Possibly add other hovering buttons for time scale movements (left right)
 # TODO Adjust Editing Termine so check does not always say "12:00".
+# TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
 # TODO Adjust Editing Termine: Button should be grey, not invis. 
 # Also add a button for "ask to overlap" --> Stammtisch
 
 
 # TODO Templates als Stammtsichkalender
 
-# TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
+
 
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
 # Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
 
-# TODO Attending als Nutzer über eine API-Route machen, die Nutzer mit Nicknamen erstellt, ohne, dass man member sein muss. Damit sich Gäste in DC mit eintragen können.
-# TODO Reminder am Vortag oder Tag des events per pn.
+# DONE? Attending als Nutzer über eine API-Route machen, die Nutzer mit Nicknamen erstellt, ohne, dass man member sein muss. Damit sich Gäste in DC mit eintragen können.
+# Reminder am Vortag oder Tag des events per pn.
 
 # TODO Idee:
 # TODO Stammtische schattiert einzeichnen, damit man Belegungen in der Tagesansicht sieht. 
@@ -201,6 +202,19 @@ def settings():
 
 
 # ======================================
+# =========== Test routes ==============
+# ======================================
+
+
+@app.route('/remind')
+def remind():
+    import services.task_scheduler
+    services.task_scheduler.run_daily_reminder()
+    return "Done"
+
+
+
+# ======================================
 # ============ DB Routes ===============
 # ======================================
 
@@ -236,6 +250,7 @@ def signal_handler(signal, frame):
 if __name__ == '__main__':
     with app.app_context():
         check_and_populate_db()
+        scheduler.start()
     signal.signal(signal.SIGINT, signal_handler)
 
     # Start Flask in a separate thread
