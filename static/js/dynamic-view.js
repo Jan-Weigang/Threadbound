@@ -1,5 +1,10 @@
 let occupancyByDay = {};
 
+const calendarContainer = document.getElementById('calendar-container');
+const visibleHours = 8;
+let selectedStartHour;
+let selectedEndHour;
+
 // Page Setup
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -75,7 +80,7 @@ function loadNewMonth() {
 
 
 
-const calendarContainer = document.getElementById('calendar-container');
+
 
 // Calendar Setup
 calendarContainer.addEventListener('htmx:afterSwap', function(event) {
@@ -94,6 +99,7 @@ calendarContainer.addEventListener('htmx:afterSwap', function(event) {
 
     const calendar = document.getElementById('calendar');
 
+    update_time_labels();
     set_up_tableHeaders();
     set_up_reservations();
     combine_reservations(calendar);
@@ -161,9 +167,10 @@ function change_dateInput_to(yyyy_mm_dd) {
 }
 
 function calculateSteppedHoverPosition(clientX, calendar) {
-    const leftPosition = Math.round((clientX - calendar.getBoundingClientRect().left) / (calendar.clientWidth / 48)) * (calendar.clientWidth / 48);
+    const steps = visibleHours * 4
+    const leftPosition = Math.round((clientX - calendar.getBoundingClientRect().left) / (calendar.clientWidth / steps)) * (calendar.clientWidth / steps);
     const safePosition = Math.max(leftPosition, 0);
-    return Math.min(safePosition, calendar.clientWidth * (11 / 12));
+    return Math.min(safePosition, calendar.clientWidth * ((visibleHours - 1) / visibleHours));
 }
 
 function set_up_tableHeaders() {
@@ -323,8 +330,12 @@ function set_up_tableHeaders() {
     });
 }
 
+
+
 function set_up_reservations() {
     const reservations = document.querySelectorAll('.reservation');
+    selectedStartHour = parseInt(document.getElementById('hourSelect').value, 10); // Get selected start hour
+    selectedEndHour = selectedStartHour + visibleHours; 
 
     reservations.forEach(reservationBlock => {
 
@@ -338,21 +349,38 @@ function set_up_reservations() {
         const endMinutes = end.getMinutes();
 
         // Only show reservations starting after 12:00 PM (noon)
-        if (endHour < 12 || startHour > 24) {
+        // if (endHour < 12 || startHour > 24) {
+        //     return;
+        // }
+        console.log("Have an Event with End " + startHour + "for selected" + selectedEndHour);
+        // Filter reservations that fall outside the selected time window
+        if (endHour < selectedStartHour || startHour >= selectedEndHour) {
+            reservationBlock.style.display = "none";
             return;
-        }
+        } 
 
+        console.log("Still Have an Event with End " + startHour + "for selected" + selectedEndHour);
         let durationString = get_duration_string(start, end)
         reservationBlock.setAttribute('data-hover-info', `${name} - ${durationString}`)
 
         // Adjust the start and duration for the 12:00-24:00 time window
-        let adjustedStartHour = startHour - 12;
-        let adjustedEndHour = Math.min(12, (endHour > 24 ? 24 : endHour) - 12);
+        // let adjustedStartHour = startHour - 12;
+        // let adjustedEndHour = Math.min(12, (endHour = 24 ? 24 : endHour) - 12);
+
+        // Adjust start and duration based on the selected time window
+        let adjustedStartHour = startHour - selectedStartHour;
+        let adjustedEndHour = Math.min(visibleHours, (endHour > selectedEndHour ? selectedEndHour : endHour) - selectedStartHour); // TODO check for past 00
 
         let has_openStart = false
         if (adjustedStartHour < 0) {
             adjustedStartHour = 0;
             has_openStart = true;
+        }
+
+        let has_openEnd = false
+        if (adjustedEndHour > 8) {
+            adjustedEndHour = visibleHours;
+            has_openEnd = true;
         }
 
         // Calculate start position and height based on both hours and minutes
@@ -361,8 +389,8 @@ function set_up_reservations() {
         const duration = endOffset - startOffset;
 
         // Position the block within the day timeline
-        reservationBlock.style.left = `${(startOffset / 12) * 100}%`;
-        reservationBlock.style.width = `${(duration / 12) * 100}%`;
+        reservationBlock.style.left = `${(startOffset / visibleHours) * 100}%`;
+        reservationBlock.style.width = `${(duration / visibleHours) * 100}%`;
         let reservation_time_string = `${startHour}:${startMinutes.toString().padStart(2, '0')} bis ${endHour}:${endMinutes.toString().padStart(2, '0')}`
 
         // add time info
@@ -374,6 +402,30 @@ function set_up_reservations() {
             reservationBlock.style.borderLeft = "none";
         }
 
+        if (has_openEnd) { // Make borders look open to left side for earlier beginning reservations.
+            reservationBlock.style.borderRadius = "10px 0px 0px 10px"; 
+            reservationBlock.style.borderRight = "none";
+        }
+
+    });
+}
+
+function update_time_labels() {
+    const selectedStartHour = parseInt(document.getElementById('hourSelect').value, 10);
+    const selectedEndHour = selectedStartHour + visibleHours;
+    const totalHours = selectedEndHour - selectedStartHour; 
+
+    document.querySelectorAll('.time-label').forEach(label => {
+        const hour = parseInt(label.getAttribute('data-hour'), 10);
+        if (hour < selectedStartHour || hour > selectedEndHour) {
+            label.style.display = "none"; // Hide labels outside range
+        } else {
+            label.style.display = ""; // Show labels inside range
+
+            // Dynamically calculate percentage position
+            const positionPercentage = ((hour - selectedStartHour) / totalHours) * 100;
+            label.style.left = `${positionPercentage}%`;
+        }
     });
 }
 
@@ -427,7 +479,7 @@ function combine_reservations(calendar) {
 
 function get_hover_event_time(timeOffset) {
     const timePercentage = timeOffset / calendar.clientWidth;
-    const hours = 12 + timePercentage * 12;
+    const hours = selectedStartHour + timePercentage * visibleHours;
     let roundedHours = Math.floor(hours);
     let minutes = Math.round((hours - roundedHours) * 60);
 

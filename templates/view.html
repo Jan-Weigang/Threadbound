@@ -28,7 +28,7 @@
         <form id="viewTypeForm"
                 hx-get="{{ url_for('cal_bp.fetch_day')}}"
                 hx-target=".calendar-container"
-                hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect"
+                hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect, change from:#hourSelect"
                 class="layout-header">
 
                 {% include 'std_elements/header.html' %}

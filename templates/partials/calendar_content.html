@@ -22,7 +22,7 @@
         <div class="table-header" 
              style="grid-row: {{ loop.index  }} / {{ loop.index + 1 }};
                 {% if table.type == 'RPG' %}
-                    background-color: {{ 'var(--accent-color-light)' if not is_weekend else 'blue' }}
+                    background-color: {{ 'var(--accent-color-light)' if not is_weekend else '#cdf' }}
                 {% endif %}"
              data-table-id="{{ table.id }}"
              data-table-name="{{ table.name }}"

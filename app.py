@@ -224,9 +224,6 @@ def list_events():
     return render_template('events/list.html', events=events)
 
 
-
-
-
 # ======================================
 # ============ Dev Server ==============
 # ======================================

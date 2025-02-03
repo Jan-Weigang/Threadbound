@@ -100,13 +100,13 @@ body {
     font-size: 0.8em;
     border-left: 1px dotted #ccc;
 }
-.time-label[data-hour='12'] { left: 0%; }
+/* .time-label[data-hour='12'] { left: 0%; }
 .time-label[data-hour='14'] { left: 16.66%; }
 .time-label[data-hour='16'] { left: 33.33%; }
 .time-label[data-hour='18'] { left: 50%; }
 .time-label[data-hour='20'] { left: 66.66%; }
 .time-label[data-hour='22'] { left: 83.33%; }
-.time-label[data-hour='24'] { left: 100%; }
+.time-label[data-hour='24'] { left: 100%; } */
 
 .calendar-header {
     display: grid;
