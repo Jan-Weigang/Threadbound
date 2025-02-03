@@ -33,7 +33,7 @@ def create_event():
         new_event = event_manager.create_event_in_db(user, form_data)
 
         event_date = form_data['start_datetime'].date().strftime('%Y-%m-%d')
-        return redirect(url_for('cal_bp.day', date=event_date))
+        return redirect(url_for('cal_bp.view', date=event_date))
 
 
     # Get optional arguments from request
@@ -70,7 +70,7 @@ def edit_event(event_id):
     # Ensure the user is the creator of the event
     if event.user_id != user.id: # type:ignore
         flash('You are not authorized to edit this event.', 'error')
-        return redirect(url_for('cal_bp.day'))  # Redirect to the event listing or another page
+        return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
     print(f"event is {event} with date: {event.start_time}")
     tables = Table.query.all()
@@ -100,7 +100,7 @@ def edit_event(event_id):
             return redirect(url_for('event_bp.edit_event', event_id=event.id))
 
         event_date = form_data['start_datetime'].date().strftime('%Y-%m-%d')
-        return redirect(url_for('cal_bp.day', date=event_date))
+        return redirect(url_for('cal_bp.view', date=event_date))
 
 
     game_categories = GameCategory.query.all()
@@ -134,7 +134,7 @@ def delete_event(event_id):
     # Ensure the user is the creator of the event
     if event.user_id != user.id: # type:ignore
         flash('You are not authorized to edit this event.', 'error')
-        return redirect(url_for('cal_bp.day'))  # Redirect to the event listing or another page
+        return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
     try:
         discord_handler = current_app.config['discord_handler']
@@ -142,7 +142,7 @@ def delete_event(event_id):
         # Delete the event
         db.session.delete(event)
         db.session.commit()  # Commit the deletion to the database
-        return redirect(url_for('cal_bp.day', date=event_date))
+        return redirect(url_for('cal_bp.view', date=event_date))
     except Exception as e:
         # If there is an error, roll back the transaction
         db.session.rollback()

@@ -126,14 +126,18 @@ document.addEventListener('htmx:afterSwap', function(event) {
     const prevDay = document.querySelector('.prev-day');
     const nextDay = document.querySelector('.next-day');
 
-    prevDay.addEventListener('click', () => {
-        change_dateInput_by(-1);
-    });
+    if (prevDay) {
+        prevDay.addEventListener('click', () => {
+            change_dateInput_by(-1);
+        });
+    }
 
-    nextDay.addEventListener('click', () => {
-        change_dateInput_by(1);
-    });
-})
+    if (nextDay) {
+        nextDay.addEventListener('click', () => {
+            change_dateInput_by(1);
+        });
+    }
+});
 
 function change_dateInput_by(dayAmount) {
     const dateInput = document.getElementById('dateInput');
@@ -161,7 +165,6 @@ function calculateSteppedHoverPosition(clientX, calendar) {
     const safePosition = Math.max(leftPosition, 0);
     return Math.min(safePosition, calendar.clientWidth * (11 / 12));
 }
-
 
 function set_up_tableHeaders() {
     const tableHeaders = document.querySelectorAll('.table-header');
@@ -320,7 +323,6 @@ function set_up_tableHeaders() {
     });
 }
 
-
 function set_up_reservations() {
     const reservations = document.querySelectorAll('.reservation');
 
@@ -375,7 +377,6 @@ function set_up_reservations() {
     });
 }
 
-
 // Function to combine reservations on consequtive tables with same event id
 function combine_reservations(calendar) {
     const reservationBlocks = Array.from(calendar.children).filter(child => child.classList.contains('reservation'));
@@ -424,7 +425,6 @@ function combine_reservations(calendar) {
 
 }
 
-
 function get_hover_event_time(timeOffset) {
     const timePercentage = timeOffset / calendar.clientWidth;
     const hours = 12 + timePercentage * 12;
@@ -446,7 +446,6 @@ function get_hover_event_time(timeOffset) {
     const time = `${roundedHours}:${minutes.toString().padStart(2, '0')}`;
     return time;
 }
-
 
 function shortenLinksInPopup(popup) {
     const popupDivs = popup.querySelectorAll('.popup-value');
@@ -480,7 +479,6 @@ function shortenLinksInPopup(popup) {
     });
 }
 
-
 function get_duration_string(start, end) {
     // Calculate the difference in milliseconds
     let durationMs = end - start;
@@ -497,7 +495,6 @@ function get_duration_string(start, end) {
     }
     
 }
-
 
 function is_inside_header(header, e) {
     // Get the current touch position
@@ -518,37 +515,6 @@ function is_inside_header(header, e) {
 
     return isInsideHeader;
 }
-
-// Month view on dateInput
-// document.addEventListener('DOMContentLoaded', function() {
-//     document.querySelector('.calendar-container').addEventListener('click', (e) => {
-        
-//         const container = e.currentTarget;
-//         const dateInput = document.getElementById('dateInput');
-//         const currentDate = dateInput.value;
-
-//         // Determine direction based on clicked element
-//         if (e.target === container.querySelector('::before')) {
-//             // Previous day
-//             currentDate.setDate(currentDate.getDate() - 1);
-//             // Format date to yyyy-mm-dd
-//             const formattedDate = currentDate.toISOString().split('T')[0];
-            
-//             // Redirect to the new date
-//             window.location.href = `/day/${formattedDate}`;
-//         } else if (e.target === container.querySelector('::after')) {
-//             // Format date to yyyy-mm-dd
-//             const formattedDate = currentDate.toISOString().split('T')[0];
-            
-//             // Redirect to the new date
-//             window.location.href = `/day/${formattedDate}`;
-//         }
-
-        
-//     });
-// });
-
-
 
 function updateCalendarClasses(date) {
     const weekStart = new Date(date);
@@ -614,8 +580,6 @@ function renewCalendarGridEventListeners() {
         });
     });
 }
-
-
 
 function set_layout_buttons(attribute_string) {
     const wrapper = document.getElementById('layoutWrapper');

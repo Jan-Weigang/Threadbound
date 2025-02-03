@@ -46,7 +46,7 @@ def get_embed_color_from_event(event):
 
 
 def generate_event_embed(event, channel_id, action):
-    calendar_url = url_for('cal_bp.day', view_type='regular', _external=True, date=event.start_time.strftime('%Y-%m-%d'))
+    calendar_url = url_for('cal_bp.view', view_type='regular', _external=True, date=event.start_time.strftime('%Y-%m-%d'))
     if action == 'cancel':
         embed = discord.Embed(
             title=f"Abgesagt: {event.name}",

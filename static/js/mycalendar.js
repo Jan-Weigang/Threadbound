@@ -558,11 +558,11 @@ const dateInput = document.getElementById('dateInput');
 // Add event listeners to both the viewTypeSelect and dateInput
 viewTypeSelect.addEventListener('change', updateCalendarView);
 // dateInput.addEventListener('change', updateCalendarView); // TODO Month View instead of selecting cate here
-dateInput.addEventListener('click', function(e) {
-    e.preventDefault();
-    const url = this.getAttribute('data-url-month');
-    window.location.href = url;
-})
+// dateInput.addEventListener('click', function(e) {        // TODO I removed this, probably not needed.
+//     e.preventDefault();
+//     const url = this.getAttribute('data-url-month');
+//     window.location.href = url;
+// })
 
 // Function to handle the redirection based on view type and date
 function updateCalendarView() {

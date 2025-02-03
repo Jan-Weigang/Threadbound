@@ -5,6 +5,10 @@
     {% set _ = eventTypeColorMap.update({ event_type.id: event_type.color }) %}
 {% endfor %}
 
+{% set is_weekend = date.weekday() in [5, 6] %}  {# 5 is Saturday, 6 is Sunday #}
+
+
+
 <div class="side-nav prev-day"></div>
 
 {% include 'partials/calendar_scale.html' %}
@@ -18,7 +22,7 @@
         <div class="table-header" 
              style="grid-row: {{ loop.index  }} / {{ loop.index + 1 }};
                 {% if table.type == 'RPG' %}
-                    background-color: var(--accent-color-light);
+                    background-color: {{ 'var(--accent-color-light)' if not is_weekend else 'blue' }}
                 {% endif %}"
              data-table-id="{{ table.id }}"
              data-table-name="{{ table.name }}"

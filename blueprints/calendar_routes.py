@@ -18,29 +18,29 @@ cal = Blueprint('cal_bp', __name__)
 
 
 
-@cal.route('/month', methods=['GET'])
-def month():
-    return render_template('month.html')
+# @cal.route('/month', methods=['GET'])
+# def month():
+#     return render_template('month.html')
 
 
-@cal.route('/day', defaults={'view_type': 'regular'}, methods=['GET'])
-@cal.route('/day/<string:view_type>', methods=['GET'])
-def day(view_type):
-    if view_type not in ['public', 'regular', 'template']:
-        abort(404)
+# @cal.route('/day', defaults={'view_type': 'regular'}, methods=['GET'])
+# @cal.route('/day/<string:view_type>', methods=['GET'])
+# def day(view_type):
+#     if view_type not in ['public', 'regular', 'template']:
+#         abort(404)
 
-    date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
-    date = datetime.strptime(date_str, '%Y-%m-%d').date()
+#     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
+#     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    if view_type != 'public':
-        if not discord.authorized:
-            return redirect(url_for('cal_bp.day', view_type='public'))
-    return render_template('mycalendar.html', view_type=view_type, date=date)
+#     if view_type != 'public':
+#         if not discord.authorized:
+#             return redirect(url_for('cal_bp.day', view_type='public'))
+#     return render_template('mycalendar.html', view_type=view_type, date=date)
 
 
 @cal.route('/', defaults={'view_type': 'regular'}, methods=['GET'])
 @cal.route('/<string:view_type>', methods=['GET'])
-def day2(view_type):
+def view(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
@@ -50,7 +50,7 @@ def day2(view_type):
     # if view_type != 'public':
     #     if not discord.authorized:
     #         return redirect(url_for('cal_bp.day', view_type='public'))
-    return render_template('day.html', view_type=view_type, date=date)
+    return render_template('view.html', view_type=view_type, date=date)
 
 
 

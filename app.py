@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO setupreservations in dynamic-view.js an hourSelect anpassen
+
 # TODO Month view has only public events and they are not combined.Other js needs to still happen.
 
 # TODO "1Personen" statt Namen in Popup. Check login requirements.
@@ -101,6 +103,16 @@ load_dotenv()
 
 # TODO Popup QR for ics
 
+# TODO Konflikte als Channels in Discord, Konfliktmarker als Merker für Änderungen
+
+# TODO Stammtischleiter in DB / Beiräte
+
+
+# TODO Mermain/UML Sketch von Stammtischen, Events, Reservierungen, Vereinsevents, konflikten etc.
+
+# TODO Löschantrag für eigene ID zu löschen.
+# TODO DSGVO Datenabfrage?
+
 
 # ======================================
 # ============= APP SETUP ==============
@@ -174,7 +186,7 @@ def index():
 
     if not session['is_member']:
         flash('You are not a member and cannot be given access', 'failure')
-    return redirect(url_for('cal_bp.day'))  # Redirect to a member-specific area
+    return redirect(url_for('cal_bp.view'))  # Redirect to a member-specific area
 
 
 @app.route('/settings', methods=['GET', 'POST'])

@@ -11,10 +11,8 @@
     </button>
     <input style="width: auto; display:none;"
         type="date" name="date" id="dateInput" 
-        value="{{ date.strftime('%Y-%m-%d') }}"
-        data-url-month="{{ url_for('cal_bp.month') }}"
-        data-url-day="{{ url_for('cal_bp.day') }}">
-        
+        value="{{ date.strftime('%Y-%m-%d') }}">
+
     <button type="button" class="date-changer" data-amount="1" data-mode="day">
         <i class="fa-solid fa-angle-right"></i>
     </button>
@@ -28,6 +26,11 @@
 </div>
 
 <div class="header-right">
+    <select id="hourSelect" name="hour" style="width: 4rem;">
+        <option value="8">08</option>
+        <option value="12">12</option>
+        <option value="16">16</option>
+    </select>
     <select id="viewTypeSelect" name="view_type" data-disable-scroll>
         {% if view_type == "regular" %}
             <option value="regular" selected>Mitglied / Normal</option>
