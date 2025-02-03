@@ -21,17 +21,14 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO setupreservations in dynamic-view.js an hourSelect anpassen
-
-# TODO Month view has only public events and they are not combined.Other js needs to still happen.
-
-# TODO "1Personen" statt Namen in Popup. Check login requirements.
-
 # TODO Remove the DB logic from the api Calls and put them in their own module
 
 # TODO 3 Views: Day, Day with week and month. Selector in footer. All one dynamic site.
 
-
+# TODO Possibly add other hovering buttons for time scale movements (left right)
+# TODO Adjust Editing Termine so check does not always say "12:00".
+# TODO Adjust Editing Termine: Button should be grey, not invis. 
+# Also add a button for "ask to overlap" --> Stammtisch
 
 
 # TODO ICS Button in Discord view
@@ -133,7 +130,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DISCORD_OAUTH_CLIENT_ID'] = os.getenv('CLIENT_ID') 
 app.config['DISCORD_OAUTH_CLIENT_SECRET'] = os.getenv('CLIENT_SECRET') 
 redirect_uri=os.getenv('REDIRECT_URI')
-discord_blueprint = make_discord_blueprint(scope=['identify', 'email', 'guilds'])  # Adjust scopes based on your needs
+discord_blueprint = make_discord_blueprint(
+    scope=['identify', 'email', 'guilds'],
+    redirect_to="login")  # Adjust scopes based on your needs
 app.register_blueprint(discord_blueprint, url_prefix='/login')
 
 
@@ -171,9 +170,8 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-
-@app.route('/')
-def index():
+@app.route('/login')
+def login():
     if not discord.authorized:
             return redirect(url_for('discord.login'))
 
@@ -186,6 +184,11 @@ def index():
 
     if not session['is_member']:
         flash('You are not a member and cannot be given access', 'failure')
+    return redirect(url_for('index'))  
+
+
+@app.route('/')
+def index():
     return redirect(url_for('cal_bp.view'))  # Redirect to a member-specific area
 
 

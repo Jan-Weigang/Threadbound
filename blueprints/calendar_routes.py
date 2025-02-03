@@ -22,10 +22,13 @@ def view(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
+    is_authenticated = session.get('is_member', False)
+    print(f"Triggered route with auth: {is_authenticated}")
+
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    return render_template('view.html', view_type=view_type, date=date)
+    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated)
 
 
 

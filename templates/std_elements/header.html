@@ -32,16 +32,18 @@
         <option value="16" selected>16</option>
     </select>
     <select id="viewTypeSelect" name="view_type" data-disable-scroll>
-        {% if view_type == "regular" %}
-            <option value="regular" selected>Mitglied / Normal</option>
-        {% else %}
-            <option value="regular" >Mitglied / Normal</option>
-        {% endif %}
+        {% if is_authenticated %}
+            {% if view_type == "regular" %}
+                <option value="regular" selected>Mitglied / Normal</option>
+            {% else %}
+                <option value="regular" >Mitglied / Normal</option>
+            {% endif %}
 
-        {% if view_type == "template" %}
-            <option value="template" selected>Stammtischkalender</option>
-        {% else %}
-            <option value="template" >Stammtischkalender</option>
+            {% if view_type == "template" %}
+                <option value="template" selected>Stammtischkalender</option>
+            {% else %}
+                <option value="template" >Stammtischkalender</option>
+            {% endif %}
         {% endif %}
 
         {% if view_type == "public" %}

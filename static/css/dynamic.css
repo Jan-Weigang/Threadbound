@@ -7,7 +7,7 @@ body {
 .layout-wrapper {
     display: grid;
     grid-template-rows: 5rem 1fr 5rem;
-    height: 100vh;
+    height: calc(100vh - 0.5rem);
     padding-right: 3rem;
     padding-left: 3rem;
     grid-gap: 1rem;
@@ -29,6 +29,7 @@ body {
 
 .calendar-container {
     position: relative;
+    overflow: hidden;
 }
 
 .side-nav {
