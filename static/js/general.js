@@ -37,6 +37,8 @@ document.querySelectorAll('select').forEach(function(select) {
             const iconPreview = document.getElementById('icon-preview');
             updateSelectIcon(select, iconPreview);
         }
+
+        select.dispatchEvent(new Event("change"));
     });
 });
 

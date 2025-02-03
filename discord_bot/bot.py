@@ -34,6 +34,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    print("I am running on_message")
     # Check if the message author is the bot itself; if so, return early
     if message.author != bot.user:
         return  # Skip processing if the message is from the bot itself
@@ -104,13 +105,9 @@ async def on_message(message):
 
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
+    print("I am running on_interaction")
     await interaction.response.defer(ephemeral=True)
     
-    # assert interaction
-    # assert interaction.guild
-    # assert interaction.message
-    # assert interaction.data
-
     # Check if the interaction is from a button
     if not interaction.type == discord.InteractionType.component:
         return
@@ -132,9 +129,10 @@ async def on_interaction(interaction: discord.Interaction):
 
 
 async def interact_with_event(interaction, action):
+    print("test")
     from .utils import get_nickname
     # Prepare data for the Flask API request
-    
+
     nickname = await get_nickname(interaction.user.id)
 
     data = {
@@ -150,16 +148,16 @@ async def interact_with_event(interaction, action):
         response = requests.post(f"https://{server_name}/api/attendance", json=data)
         result = response.json()
 
+        print("json result:")
+        print(result)
+
         # Process the API response
         if response.status_code == 200:
-            # await interaction.followup.send(result["message"], ephemeral=True)
             pass
 
         else:
             message = result.get('message', 'No message provided')
             print(f"Error from API: {message}")
-            await interaction.followup.send(f"Failed to process your request: {message}", ephemeral=True)
-            
 
     except Exception as e:
         await interaction.followup.send("An error occurred while processing your request.", ephemeral=True)

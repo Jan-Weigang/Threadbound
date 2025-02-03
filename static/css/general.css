@@ -107,9 +107,6 @@ button:is(.set) {
     justify-content: right;
 }
 @container body (width < 600px) {
-    body .layout-wrapper {
-        grid-template-rows: 10rem 1fr 10rem;
-    }
     .layout-header {
         flex-direction: column;
     }
@@ -141,7 +138,10 @@ button:is(.set) {
     align-items: center;
 }
 .footer-center {
+    display: flex;
+    gap: 0.5rem;
     text-align: center;
+    justify-content: center;
 }
 .footer-right {
     text-align: right;

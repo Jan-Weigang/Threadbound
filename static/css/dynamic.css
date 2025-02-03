@@ -11,6 +11,7 @@ body {
     padding-right: 3rem;
     padding-left: 3rem;
     grid-gap: 1rem;
+    overflow: hidden;
     /* max-height: 45rem; */
 }
 .layout-wrapper > * {
@@ -29,7 +30,6 @@ body {
 
 .calendar-container {
     position: relative;
-    overflow: hidden;
 }
 
 .side-nav {
@@ -658,6 +658,8 @@ body {
     }
 }
 
+
+
 [data-layout="day"] {
     grid-template-rows: 4rem 1fr 3rem;
 }
@@ -680,4 +682,30 @@ body {
 
 [data-layout="month"] .calendar-container {
     display: none;
+}
+
+[data-layout="week"] {
+    grid-template-rows: 4rem 1fr 3rem;
+}
+
+[data-layout="week"] .calendar-container, [data-layout="week"] .not-active-week {
+    display: none;
+}
+
+@container body (width < 600px) {
+    [data-layout="day"] {
+        grid-template-rows: 9rem 1fr 3rem;
+    }
+    
+    [data-layout="mixed"] {
+        grid-template-rows: 9rem 5rem 1fr 3rem;
+    }
+
+    [data-layout="month"] {
+        grid-template-rows: 9rem 1fr 3rem;
+    }
+
+    [data-layout="week"] {
+        grid-template-rows: 9rem 1fr 3rem;
+    }
 }

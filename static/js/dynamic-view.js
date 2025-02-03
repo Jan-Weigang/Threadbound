@@ -44,7 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const datePickerButton = document.getElementById('datePickerButton');
 
     datePickerButton.addEventListener('click', function () {
-        set_layout_buttons('month');
+        const wrapper = document.getElementById('layoutWrapper');
+        layout = wrapper.getAttribute('data-layout');
+        if (layout == 'month') {
+            change_dateInput_to(getTodayDate());
+        } else {
+            set_layout_buttons('month');
+        }
+        
     });
 
     
@@ -343,10 +350,10 @@ function set_up_reservations() {
         const end = new Date(reservationBlock.getAttribute('data-reservation-end'));
         const name = reservationBlock.querySelector('.reservation-info-name').textContent;
 
-        const startHour = start.getHours();
-        const startMinutes = start.getMinutes();
-        const endHour = end.getHours();
-        const endMinutes = end.getMinutes();
+        let startHour = start.getHours();
+        let startMinutes = start.getMinutes();
+        let endHour = end.getHours();
+        let endMinutes = end.getMinutes();
 
         // Filter reservations that fall outside the selected time window
         if (endHour < selectedStartHour || startHour >= selectedEndHour) {
@@ -363,6 +370,7 @@ function set_up_reservations() {
         let has_openStart = false
         if (adjustedStartHour < 0) {
             adjustedStartHour = 0;
+            startMinutes = 0;
             has_openStart = true;
         }
 
@@ -400,8 +408,8 @@ function set_up_reservations() {
 }
 
 function update_time_labels() {
-    const selectedStartHour = parseInt(document.getElementById('hourSelect').value, 10);
-    const selectedEndHour = selectedStartHour + visibleHours;
+    selectedStartHour = parseInt(document.getElementById('hourSelect').value, 10);
+    selectedEndHour = selectedStartHour + visibleHours;
     const totalHours = selectedEndHour - selectedStartHour; 
 
     document.querySelectorAll('.time-label').forEach(label => {
@@ -613,8 +621,7 @@ function renewCalendarGridEventListeners() {
             dateInput.dispatchEvent(new Event('change'));
             const wrapper = document.getElementById('layoutWrapper');
             const layout = wrapper.getAttribute('data-layout')
-            const is_grid = 'month';
-            if (layout == is_grid) {
+            if (layout == 'week' || layout == 'month') {
                 wrapper.setAttribute('data-layout', 'mixed');
                 set_layout_buttons('mixed');
             }
@@ -730,9 +737,22 @@ function get_new_date_for_weekday(amount) {
     return `${year}-${month}-${newDay}`;
 }
 
+function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(today.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
+
 function updateDayElements() {
     const daysContainer = document.getElementById('calendar-grid');
     const dayElements = daysContainer.querySelectorAll('.day');
+
+    const startHour = 8
+    const endHour = 23
+    const totalHours = endHour - startHour;
     
     for (let i = 0; i < dayElements.length; i++) {
         const dayElement = dayElements[i];
@@ -743,9 +763,9 @@ function updateDayElements() {
         const occupancyThisDay = occupancyByDay[eventDateKey] || Array(24).fill(0); // Fallback to an empty array with 13 zeroes
 
         // Calculate the gradient stops based on booked capacity vs total capacity with abrupt transitions
-        const gradientStops = occupancyThisDay.map((percentageBooked, index) => {
-            const start = (index / 24) * 100;
-            const end = ((index + .3) / 24) * 100;
+        const gradientStops = occupancyThisDay.slice(startHour, endHour).map((percentageBooked, index) => {
+            const start = (index / totalHours) * 100;
+            const end = ((index + .3) / totalHours) * 100;
             const color = getHeatColor(percentageBooked);
 
             return `${color} ${start}%, ${color} ${end}%`; // Set abrupt color change between start and end

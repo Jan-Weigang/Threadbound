@@ -262,18 +262,28 @@ def get_occupancy_by_day(reservation_data, tables):
     return occupancy_by_day
 
 
-def create_gradient_list(date_range, occupancy_by_day):
-    gradient_list = []
-    for day in date_range:
-        day_key = day.strftime('%Y-%m-%d')
-        occupancy = occupancy_by_day.get(day_key, [0] * 24)
-        
-        gradient_stops = []
-        for index, percentage_booked in enumerate(occupancy):
-            start = (index / 24) * 100
-            end = ((index + 0.3) / 24) * 100
-            color = get_heat_color(percentage_booked)
-            gradient_stops.append(f"{color} {start:.1f}%, {color} {end:.1f}%")
+# def create_gradient_list(date_range, occupancy_by_day, startHour, endHour):
+#     gradient_list = []
+#     total_hours = endHour - startHour
 
-        gradient_list.append(','.join(gradient_stops))
-    return gradient_list
+#     for day in date_range:
+#         day_key = day.strftime('%Y-%m-%d')
+#         occupancy = occupancy_by_day.get(day_key, [0] * 24)
+        
+#         # gradient_stops = []
+#         # for index, percentage_booked in enumerate(occupancy):
+#         #     start = (index / 24) * 100
+#         #     end = ((index + 0.3) / 24) * 100
+#         #     color = get_heat_color(percentage_booked)
+#         #     gradient_stops.append(f"{color} {start:.1f}%, {color} {end:.1f}%")
+
+#         gradient_stops = []
+#         for hour in range(startHour, endHour):
+#             percentage_booked = occupancy[hour]
+#             start = ((hour - startHour) / total_hours) * 100
+#             end = ((hour - startHour + 0.3) / total_hours) * 100
+#             color = get_heat_color(percentage_booked)
+#             gradient_stops.append(f"{color} {start:.1f}%, {color} {end:.1f}%")
+
+#         gradient_list.append(','.join(gradient_stops))
+#     return gradient_list

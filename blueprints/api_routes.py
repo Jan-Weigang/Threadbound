@@ -190,6 +190,8 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         except ValueError:
             return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
         
+    # **Sort by date and start_time**
+    reservations.sort(key=lambda r: r.associated_event.start_time)
     
     reservation_data = [{
         'id': reservation.id,

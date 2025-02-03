@@ -108,8 +108,7 @@ class DiscordHandler:
 📢 Reminder:
 
 Deine Reservierung **{event.name}** *({tablesInfo})* beginnt heute um **{event.start_time.strftime('%H:%M')}**! 🎉
-Eingetragen sind {len(event.attendees)} Personen: 
-{attendees}
+Eingetragen sind {len(event.attendees)} Personen: {attendees}
 
 
 {creator_mention} bitte denke dran, das Event zu löschen und die Tische freizugebeben, sollte es ausfallen!"""
@@ -122,4 +121,34 @@ Eingetragen sind {len(event.attendees)} Personen:
                 future.result(timeout=2)
             except Exception as e:
                 print(f"❌ Failed to send reminder for event {event.id}: {e}")
+
+
+    def send_deletion_notice(self, event):
+        """
+        Sends a deletion notice event's discussion thread by using its `discord_post_id`.
+        """
+        message_id = event.discord_post_id
+        creator_mention = f"<@{event.user.discord_id}>"  # Tag event creator
+        
+        if not message_id:
+            print(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
+            return
+
+        channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
+        if not channel_id:
+            print(f"⚠️ No Discord channel found for event {event.id}")
+            return
+        
+        
+        print(f"Text: {creator_mention}, dein Event **{event.name}** wird gecancelt")
+        reminder_text = f"""@everyone Die Reservierung **{event.name}** wurde **abgesagt**! 🎉"""
+
+        # Get the thread from the original event message
+        coroutine = discord_bot.send_message_in_event_thread(channel_id, message_id, reminder_text)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
+
+        try:
+            future.result(timeout=2)
+        except Exception as e:
+            print(f"❌ Failed to send reminder for event {event.id}: {e}")
 

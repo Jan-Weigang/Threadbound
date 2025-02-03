@@ -139,6 +139,7 @@ def delete_event(event_id):
     try:
         discord_handler = current_app.config['discord_handler']
         discord_handler.post_to_discord(event, action)
+        discord_handler.send_deletion_notice(event)
         # Delete the event
         db.session.delete(event)
         db.session.commit()  # Commit the deletion to the database
