@@ -375,8 +375,9 @@ function set_up_reservations() {
         }
 
         let has_openEnd = false
-        if (adjustedEndHour > 8) {
+        if (adjustedEndHour >= visibleHours) {
             adjustedEndHour = visibleHours;
+            endMinutes = 0;
             has_openEnd = true;
         }
 
