@@ -24,6 +24,29 @@ load_dotenv()
 # TODO make Discord Chat functions
 # TODO make non-published and templates visible in calendar.
 
+# TODO 8QugpIzfYAge Published aber Requested. Nach Published wieder durch Änerung überlappt.
+# Editieren müsste publish zurücknehmen.
+# Beim posten testen ob es schon nen Post gab und nur aktualisieren.
+# Unpublish und in Discord "Muss bestätigt werden" schriben.
+
+# TODO Gradien downward when Days in vertical mode.
+
+# TODO in half view (under 760px) in fractions 1 zu 3?
+# grid-template-rows: 4rem 1fr 2fr 3rem;
+
+# TODO Hover Buttons links und rechts funktional als + - Zeit nutzen
+# TODO weitere Hover Buttons ergänzen oben neben den Tagen, die für + - Tage nutzen.
+
+# TODO Buttons für Ansichten tauschen.
+
+# TODO von bis 18:00 in den Buttens könnte übersichtlicher
+# TODO Zurückbutton von Event Form
+# TODO Time Scale each hour? Then only show every 2nd in nmobile
+
+# TODO Update bei aktualisierung des Projekts
+
+# TODO non member haben zwar ne Session aber keinen Member Status. Damit in einem Nirvana.
+
 # TODO Event form extra Button der "knows_overlap" oder sowas hat, damit Check in Create umgangen wird für event state handler dann.
 
 
@@ -115,7 +138,7 @@ def create_app():
     redirect_uri=os.getenv('REDIRECT_URI')
     discord_blueprint = make_discord_blueprint(
         scope=['identify', 'email', 'guilds'],
-        redirect_to="login")  # Adjust scopes based on your needs
+        redirect_to="main.login")  # Adjust scopes based on your needs
     app.register_blueprint(discord_blueprint, url_prefix='/login')
 
 

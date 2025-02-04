@@ -15,8 +15,6 @@ def create_event():
 
     if request.method == 'POST':
         
-
-
         form_data = utils.extract_form_data(request)
         if not form_data:
             return redirect(url_for('event_bp.create_event'))
@@ -85,16 +83,17 @@ def edit_event(event_id):
         if not form_data:
             return redirect(url_for('event_bp.edit_event', event_id=event_id))
         
+        if request.form['collision'] != "true":
         # Check table availability except for already reserved by this event
-        available, conflicting_table = utils.check_availability(
-            form_data['start_datetime'],
-            form_data['end_datetime'],
-            form_data['table_ids'],
-            exclude_event_id=event_id
-        )
-        if not available:
-            flash(f'Table {conflicting_table} is already reserved for the selected time.', 'error')
-            return redirect(url_for('event_bp.edit_event', event_id=event_id))
+            available, conflicting_table = utils.check_availability(
+                form_data['start_datetime'],
+                form_data['end_datetime'],
+                form_data['table_ids'],
+                exclude_event_id=event_id
+            )
+            if not available:
+                flash(f'Table {conflicting_table} is already reserved for the selected time.', 'error')
+                return redirect(url_for('event_bp.edit_event', event_id=event_id))
         
         try:
             event_manager = current_app.config['event_manager']

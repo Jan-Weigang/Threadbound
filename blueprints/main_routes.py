@@ -4,12 +4,14 @@ from flask_dance.contrib.discord import discord
 from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservation
 from tt_calendar import decorators
 from tt_calendar import utils
-from services import discord_handler
 
 main = Blueprint('main', __name__)
 
 def get_user_manager():
     return current_app.config['user_manager']
+
+def get_discord_handler():
+    return current_app.config['discord_handler']
 
 
 @main.route('/logout')
@@ -22,7 +24,9 @@ def login():
     if not discord.authorized:
             return redirect(url_for('discord.login'))
 
-    user = get_user_manager()
+    user_manager = get_user_manager()
+    user = user_manager.get_or_create_user()
+    discord_handler = get_discord_handler()
     session['is_member'] = discord_handler.is_role(user.discord_id, "member") # type: ignore
     session['is_mod'] = discord_handler.is_role(user.discord_id, "mod") # type: ignore
     session['is_admin'] = discord_handler.is_role(user.discord_id, "admin") # type: ignore

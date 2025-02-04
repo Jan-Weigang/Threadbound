@@ -69,3 +69,26 @@ async def send_message_in_event_thread(channel_id, message_id, message: str):
         print(f"❌ HTTP error while fetching message {message_id}: {e}")
 
 
+    # async def create_private_channel(category_id, channel_name, permissions):
+    #     guild = bot.get_guild(guild_id)
+    #     assert guild
+    #     category = guild.get_channel(category_id)
+    #     assert category
+
+    #     if not category:
+    #         print(f"Category {category_id} not found.")
+    #         return None
+
+    #     # Create the channel
+    #     overwrites = {
+    #         guild.default_role: discord.PermissionOverwrite(view_channel=False)  # Hide from everyone
+    #     }
+        
+    #     for user_id, perms in permissions.items():
+    #         overwrites[guild.get_member(user_id)] = discord.PermissionOverwrite(
+    #             **{perm: True for perm in perms}
+    #         )
+
+    #     channel = await guild.create_text_channel(name=channel_name, category=category, overwrites=overwrites)
+    #     return channel.id  # Return the channel ID
+
