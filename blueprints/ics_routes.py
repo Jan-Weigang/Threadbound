@@ -15,17 +15,30 @@ def get_event_ics(event_id):
         abort(404, description="Event not found")
 
     calendar = Calendar()
+
+    # Determine if the event is part of a recurring series
+    if event.template_id:
+        # Fetch all future events linked to the same template_id
+        instances = Event.query.filter(
+            Event.template_id == event.template_id
+        ).order_by(Event.start_time).all()
+    else:
+        # Single event, not part of a recurring series
+        instances = [event]
+
+
     ics_event = ICSEvent()
     
-    ics_event.name = event.name
-    ics_event.begin = event.start_time.isoformat()
-    ics_event.end = event.end_time.isoformat()
-    ics_event.uid = f"{event_id}@3TH"
-    ics_event.description = event.description
-    ics_event.location = f"https://{event.get_discord_message_url()}"  # Optional: Discord URL as location if relevant
-    ics_event.created = datetime.now(pytz.utc)
+    for instance in instances:
+        ics_event.name = instance.name
+        ics_event.begin = instance.start_time.isoformat()
+        ics_event.end = instance.end_time.isoformat()
+        ics_event.uid = f"{instance.id}@3TH"
+        ics_event.description = instance.description
+        ics_event.location = f"https://{instance.get_discord_message_url()}"  # Optional: Discord URL as location if relevant
+        ics_event.created = instance.time_created.isoformat()
 
-    calendar.events.add(ics_event)
+        calendar.events.add(ics_event)
     calendar_bytes = BytesIO(calendar.serialize().encode('utf-8'))
 
     response = send_file(calendar_bytes, as_attachment=True, download_name=f"{event.name}.ics", mimetype='text/calendar')

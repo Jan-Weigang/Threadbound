@@ -111,9 +111,15 @@ class Event(db.Model):
     discord_post_id = db.Column(db.String(255), nullable=True)
 
     # Templating
-    is_template = db.Column(db.Boolean, nullable=False, default=False) 
-    recurring_cycle = db.Column(db.String(10), nullable=True)  # 'day', 'week', or 'month'
-    recurring_interval = db.Column(db.Integer, nullable=True)
+    is_template = db.Column(db.Boolean, nullable=False, default=False)
+    template_id = db.Column(db.String(21), db.ForeignKey('event.id'), nullable=True)  # Self-referential FK
+    template = db.relationship('Event', remote_side=[id], backref='instances')
+
+    # Recurring Events
+    is_stammtisch = db.Column(db.Boolean, nullable=False, default=False)  # Marks Stammtisch
+    recurrence_rule = db.Column(db.Text, nullable=True)  # Store RRULE string for ICS compatibility
+
+
     
     # Datetime
     time_created = db.Column(AwareDateTime(), nullable=False, default=lambda: datetime.now(pytz.utc))
