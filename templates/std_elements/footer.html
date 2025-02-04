@@ -1,11 +1,11 @@
 <div class="layout-footer">
     <div class="footer-left">
         {% if is_authenticated %}
-            <form action="{{ url_for('logout') }}" method="GET">
+            <form action="{{ url_for('main.logout') }}" method="GET">
                 <button id="logoutButton" type="submit">Logout</button>
             </form>
         {% else %}
-            <form action="{{ url_for('login') }}" method="GET">
+            <form action="{{ url_for('main.login') }}" method="GET">
                 <button id="loginButton" type="submit">Login</button>
             </form>
         {% endif %}
