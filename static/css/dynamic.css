@@ -195,6 +195,30 @@ body {
     line-height: 1.5em;
     box-shadow: 1px 1px 4px gray;
 }
+.reservation[data-is-marked="True"] {
+    position: absolute;
+    filter: saturate(10%);
+    background-color: #1e2d3d;
+    opacity: 50%;
+    color: black;
+    padding: 0.5rem;
+    border: solid grey 0px !important;
+    border-radius: 0rem !important;
+    font-size: 0.7rem;
+    min-height: 0;
+    box-sizing: border-box;
+    height: calc(100% - 1px);
+    display: flex;
+    align-items: center;
+    line-height: 1.5em;
+    box-shadow: 1px 1px 4px gray;
+}
+.reservation[data-is-marked="True"] > div * {
+    display: none;
+}
+.reservation[data-is-marked="True"] > div b {
+    display: block;
+}
 .reservation:hover {
     cursor: pointer;
     filter: drop-shadow(3px 3px 8px gray) brightness(110%);

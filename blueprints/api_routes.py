@@ -171,8 +171,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         if view_type == 'template':
             reservations = Reservation.get_template_reservations().all()
         elif view_type == 'regular':
-            reservations = Reservation.get_regular_reservations().filter(
-                Reservation.associated_event.has(is_published=True)).all()      # type:ignore
+            reservations = Reservation.get_regular_reservations().all()      # type:ignore
         elif view_type == 'public':
             reservations = Reservation.get_regular_reservations().filter(
                 Reservation.associated_event.has(publicity_id=3, is_published=True)).all()         # type:ignore
@@ -215,7 +214,8 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         'time_updated': reservation.associated_event.time_updated.strftime('%d.%m.%Y %H:%M') if reservation.associated_event.time_updated else None,
         'publicity': reservation.associated_event.publicity.name,
         'discord_link': reservation.associated_event.get_discord_message_url(),
-        'is_template': reservation.associated_event.is_template
+        'is_template': reservation.associated_event.is_template,
+        'is_marked': not reservation.associated_event.is_published or reservation.associated_event.is_template
     } for reservation in reservations]
 
     if not discord.authorized or not session.get('is_member', False):
@@ -287,7 +287,7 @@ def check_table_availability():
             )
         ).all()
 
-        earliest_available_start = datetime.combine(start_datetime.date(), time(hour=12, minute=0))
+        earliest_available_start = datetime.combine(start_datetime.date(), time(hour=8, minute=0))
         latest_possible_end = datetime.combine(start_datetime.date(), time(hour=23, minute=59))
         
         if reservations:

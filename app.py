@@ -21,7 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-
+# TODO make Discord Chat functions
+# TODO make non-published and templates visible in calendar.
 
 # TODO Event form extra Button der "knows_overlap" oder sowas hat, damit Check in Create umgangen wird für event state handler dann.
 
