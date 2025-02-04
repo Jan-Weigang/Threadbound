@@ -163,11 +163,11 @@ class Event(db.Model):
 
     @classmethod
     def get_regular_events(cls):
-        return cls.query.filter_by(is_template=False).all()
+        return cls.query.filter_by(is_template=False)
     
     @classmethod
     def get_template_events(cls):
-        return cls.query.filter_by(is_template=True).all()
+        return cls.query.filter_by(is_template=True)
     
     def get_discord_message_url(self):
         if self.discord_post_id and self.game_category and self.game_category.channel: # type: ignore
