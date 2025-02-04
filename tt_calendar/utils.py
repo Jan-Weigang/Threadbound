@@ -7,29 +7,6 @@ from datetime import datetime, timedelta
 import pytz
 
 
-# def check_availability(start_datetime, end_datetime, table_ids):
-#     """
-#     Check if the specified tables are available between the given start and end time.
-
-#     Args:
-#     - start_datetime (datetime): The start time of the reservation.
-#     - end_datetime (datetime): The end time of the reservation.
-#     - table_ids (list): List of table IDs to check for availability.
-
-#     Returns:
-#     - (bool, int/None): Returns a tuple where the first element is True if available, False otherwise,
-#       and the second element is the conflicting table ID (or None if no conflict).
-#     """
-#     for table_id in table_ids:
-#         reservation_check = Event.query.filter(
-#             Event.start_time < end_datetime,
-#             Event.end_time > start_datetime,
-#             Event.reservations.any(Reservation.table_id == table_id)
-#         ).first()
-#         if reservation_check:
-#             return False, table_id
-#     return True, None
-
 def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id=None):
     """
     Check if the specified tables are available between the given start and end times, optionally excluding a specific event.

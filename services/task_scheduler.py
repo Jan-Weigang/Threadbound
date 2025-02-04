@@ -20,8 +20,7 @@ def run_daily_reminder():
     print(f"Running Event Remeinder for today: {start_of_day} to {end_of_day}")
 
     with current_app.app_context():
-        events = Event.query.filter(
-            Event.is_template == False,  # Only real events
+        events = Event.get_regular_events().filter(
             Event.start_time >= start_of_day.astimezone(pytz.utc),  # Convert to UTC for DB
             Event.start_time <= end_of_day.astimezone(pytz.utc)  # Convert to UTC for DB
         ).all()

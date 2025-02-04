@@ -9,18 +9,42 @@ from enum import Enum
 from sqlalchemy import Enum as SQLAEnum
 from sqlalchemy.exc import IntegrityError
 
-# ======================================
-# ========= Database Structure =========
-# ======================================
+# ============================================================================
+#                            Database Structure 
+# ============================================================================
     
+
+# ===================================================
+#                       Init
+# ===================================================
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
+
+# ===================================================
+#              Query &  Helper Classes
+# ===================================================
+
+
+class EventState(Enum):
+    NOT_SET = "Not Set"
+    REQUESTED = "Requested"
+    APPROVED = "Approved"
+    DENIED = "Denied"
+
 
 event_attendees = db.Table('event_attendees',
     db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
 )
+
+
+event_overlaps = db.Table(
+    "event_overlaps",
+    db.Column("event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True),  # The "owner" of the overlap
+    db.Column("overlapping_event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True)  # The allowed overlap
+)
+
 
 class AwareDateTime(TypeDecorator):
     """Results returned as aware datetimes, not naive ones."""
@@ -44,6 +68,25 @@ class AwareDateTime(TypeDecorator):
         return value
 
 
+# ===================================================
+#                      Mixins
+# ===================================================
+
+
+from sqlalchemy import Boolean, select, false
+
+class SoftDeleteMixin:
+    """Mixin to add soft delete functionality."""
+    deleted = db.Column(Boolean, default=False, nullable=False)
+
+    @classmethod
+    def active(cls):
+        """Return only non-deleted records using SQLAlchemy 2.0 syntax."""
+        return db.session.query(cls).filter(cls.deleted == false())
+
+# ===================================================
+#                        Models
+# ===================================================
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -102,23 +145,14 @@ class Server(db.Model):
     channels = db.relationship('DiscordChannel', back_populates='server', lazy=True)
 
 
-
-class EventState(Enum):
-    NOT_SET = "Not Set"
-    REQUESTED = "Requested"
-    APPROVED = "Approved"
-    DENIED = "Denied"
-
-event_overlaps = db.Table(
-    "event_overlaps",
-    db.Column("event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True),  # The "owner" of the overlap
-    db.Column("overlapping_event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True)  # The allowed overlap
-)
-
-
 # Event Model
-class Event(db.Model):
+class Event(db.Model, SoftDeleteMixin):
+    __tablename__ = "event"
+    # query = db.session.query_property() # type: ignore
+    # query_class = SoftDeleteQuery # type: ignore
+
     id = Column(String(21), primary_key=True, default=lambda: generate(size=12))
+    # deleted = db.Column(db.Boolean, default=False, nullable=False)
 
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
@@ -157,11 +191,11 @@ class Event(db.Model):
 
     @classmethod
     def get_regular_events(cls):
-        return cls.query.filter_by(is_template=False)
+        return cls.query.filter_by(is_template=False, deleted=False)
     
     @classmethod
     def get_template_events(cls):
-        return cls.query.filter_by(is_template=True)
+        return cls.query.filter_by(is_template=True, deleted=False)
     
     def get_discord_message_url(self):
         if self.discord_post_id and self.game_category and self.game_category.channel: # type: ignore
@@ -241,11 +275,11 @@ class Reservation(db.Model):
 
     @classmethod
     def get_regular_reservations(cls):
-        return cls.query.filter_by(is_template=False)
+        return cls.query.join(Event).filter(cls.is_template==False, Event.deleted==False)
     
     @classmethod
     def get_template_reservations(cls):
-        return cls.query.filter_by(is_template=True)
+        return cls.query.join(Event).filter(cls.is_template==True, Event.deleted==False)
     
 
 

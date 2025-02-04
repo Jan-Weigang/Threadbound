@@ -280,7 +280,7 @@ def check_table_availability():
             # print(f"Excluding event with id {exclude_event_id}")
 
         # Filter reservations based on the conditions
-        reservations = Reservation.query.filter(
+        reservations = Reservation.get_regular_reservations().filter(
             Reservation.table_id == table.id,
             Reservation.associated_event.has( # type: ignore
                 and_(*conditions)  # Unpack the conditions list into the and_ function

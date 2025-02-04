@@ -34,8 +34,8 @@ class EventView(ModelView):
 #     column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id')
 #     form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id')
 
-    column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'allowed_overlaps', 'is_published')
-    form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'allowed_overlaps', 'is_published')
+    column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'requested_overlaps', 'is_published', 'deleted')
+    form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'requested_overlaps', 'is_published', 'deleted')
     
     # Custom column formatting for attendees to display usernames instead of raw user objects
     column_formatters = {

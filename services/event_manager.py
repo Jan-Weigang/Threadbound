@@ -25,7 +25,7 @@ class EventManager:
         db.session.add(new_event)
 
         try:
-            Reservation.query.filter_by(event_id=new_event.id).delete()
+            Reservation.query.filter_by(event_id=new_event.id).delete() # uneecessary?
             self.create_reservations(user, new_event, form_data['table_ids'])
 
             message_id = self.discord_handler.post_to_discord(new_event, action="update")
@@ -33,6 +33,8 @@ class EventManager:
                 new_event.discord_post_id = message_id
 
             db.session.commit()
+
+            self.event_state_handler(new_event)
 
         except Exception as e:
             db.session.rollback()
@@ -64,6 +66,8 @@ class EventManager:
 
             db.session.commit()
 
+            self.event_state_handler(event)
+
         except Exception as e:
             db.session.rollback()
             print(f"Error during event update: {e}")
@@ -82,6 +86,22 @@ class EventManager:
         db.session.commit()
 
 
+    def delete_event(self, event):
+        """
+        Delete the event from the database.
+        """
+        try:
+            event.deleted = True
+            db.session.commit()
+            print(f"Event {event.id} successfully deleted.")
+            self.event_state_handler(event)
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error deleting event {event.id}: {e}")
+            raise
+
+
     # =====================================
     #      Event State Checker Routine
     # =====================================
@@ -93,10 +113,14 @@ class EventManager:
         This get's triggered by creating, editing, deleting and event or a discord interaction.
         """
         try:
+            print("Running the event state handler")
+            print("Trying to update event state size")
             self.update_event_state_size(event)
+            print("Trying to update event state overlap")
             self.update_event_state_overlap(event)
-
+            print("Trying to handle event states and resolve")
             self.handle_event_states(event)
+
         except Exception as e:
             print(f"Error in eventstatechecker: {e}")
             raise
@@ -163,7 +187,7 @@ class EventManager:
     def handle_event_states(self, event):
         # First check for Denial
         if event.state_size == EventState.DENIED or event.state_overlap == EventState.DENIED:
-            db.session.delete(event)
+            event.deleted = True
             # TODO self.discord_handler.cancel_size_request(event)
             # TODO self.discord_handler.cancel_overlap_requests(event)
             db.session.commit()
@@ -188,24 +212,11 @@ class EventManager:
         db.session.commit()
 
 
-    def delete_event(self, event):
-        """
-        Delete the event from the database.
-        """
-        try:
-            db.session.delete(event)
-            db.session.commit()
-            print(f"Event {event.id} successfully deleted.")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error deleting event {event.id}: {e}")
-            raise
-
     def get_overlapping_events(self, event):
         """
         Find overlapping events based on time and table reservations.
         """
-        overlapping_events = Event.query.filter(
+        overlapping_events = Event.get_regular_events().filter(
             Event.id != event.id,
             Event.start_time < event.end_time,
             Event.end_time > event.start_time,

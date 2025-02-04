@@ -124,6 +124,7 @@ def edit_event(event_id):
 @decorators.login_required
 def delete_event(event_id):
     user_manager = current_app.config['user_manager']
+    event_manager = current_app.config['event_manager']
     user = user_manager.get_or_create_user()
     event = Event.query.get_or_404(event_id)
     event_date = event.start_time.date().strftime('%Y-%m-%d')
@@ -141,8 +142,7 @@ def delete_event(event_id):
         discord_handler.post_to_discord(event, action)
         discord_handler.send_deletion_notice(event)
         # Delete the event
-        db.session.delete(event)
-        db.session.commit()  # Commit the deletion to the database
+        event_manager.delete_event(event)
         return redirect(url_for('cal_bp.view', date=event_date))
     except Exception as e:
         # If there is an error, roll back the transaction

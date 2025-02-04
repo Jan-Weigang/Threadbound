@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, session, render_template, request, flash, send_from_directory, current_app
 from flask_dance.contrib.discord import discord
 
-from tt_calendar.models import db, Event, GameCategory, DiscordChannel
+from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservation
 from tt_calendar import decorators
 from tt_calendar import utils
 from services import discord_handler
@@ -68,6 +68,21 @@ def remind():
     services.task_scheduler.run_daily_reminder()
     return "Done"
 
+@main.route('/query')
+def myquery():
+    tests = Event.get_regular_events() # type: ignore
+    print("Getting events by query")
+    for test in tests:
+        print(test)
+
+    print("getting events with filter")
+
+    tests = Event.query.filter(Event.deleted==False).all()
+    for test in tests:
+        print(test)
+
+    
+    return "Done"
 
 
 # ======================================
