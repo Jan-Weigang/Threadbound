@@ -5,7 +5,9 @@ from nanoid import generate
 from sqlalchemy import Column, String
 import pytz
 
-from sqlalchemy.orm import class_mapper
+from enum import Enum
+from sqlalchemy import Enum as SQLAEnum
+from sqlalchemy.exc import IntegrityError
 
 # ======================================
 # ========= Database Structure =========
@@ -101,6 +103,18 @@ class Server(db.Model):
 
 
 
+class EventState(Enum):
+    NOT_SET = "Not Set"
+    REQUESTED = "Requested"
+    APPROVED = "Approved"
+    DENIED = "Denied"
+
+event_overlaps = db.Table(
+    "event_overlaps",
+    db.Column("event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True),  # The "owner" of the overlap
+    db.Column("overlapping_event_id", db.String(21), db.ForeignKey("event.id"), primary_key=True)  # The allowed overlap
+)
+
 
 # Event Model
 class Event(db.Model):
@@ -116,10 +130,7 @@ class Event(db.Model):
     template = db.relationship('Event', remote_side=[id], backref='instances')
 
     # Recurring Events
-    is_stammtisch = db.Column(db.Boolean, nullable=False, default=False)  # Marks Stammtisch
     recurrence_rule = db.Column(db.Text, nullable=True)  # Store RRULE string for ICS compatibility
-
-
     
     # Datetime
     time_created = db.Column(AwareDateTime(), nullable=False, default=lambda: datetime.now(pytz.utc))
@@ -138,13 +149,25 @@ class Event(db.Model):
     user = db.relationship('User', backref='events')
     attendees = db.relationship('User', secondary=event_attendees, backref='attending_events')
 
+    # States
+    state_size = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET.value)
+    state_overlap = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET.value)
+    allowed_overlaps = db.relationship(
+        "Event",
+        secondary=event_overlaps,
+        primaryjoin=id == event_overlaps.c.event_id,
+        secondaryjoin=id == event_overlaps.c.overlapping_event_id,
+        backref="overlapping_events",
+        lazy="subquery"
+    )
+
     @classmethod
     def get_regular_events(cls):
-        return cls.query.filter_by(is_template=False)
+        return cls.query.filter_by(is_template=False).all()
     
     @classmethod
     def get_template_events(cls):
-        return cls.query.filter_by(is_template=True)
+        return cls.query.filter_by(is_template=True).all()
     
     def get_discord_message_url(self):
         if self.discord_post_id and self.game_category and self.game_category.channel: # type: ignore
@@ -152,6 +175,36 @@ class Event(db.Model):
             channel_id = self.game_category.channel.discord_channel_id # type: ignore
             return f"discord.com/channels/{server_id}/{channel_id}/{self.discord_post_id}"
         return None
+    
+    def add_overlap(self, event):
+        try:
+            if event.id == self.id:
+                raise ValueError("An event cannot overlap with itself.")
+            if event in self.allowed_overlaps:
+                return
+            
+            self.allowed_overlaps.append(event)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            raise
+
+    def remove_overlap(self, event):
+        try:
+            if event in self.allowed_overlaps:
+                self.allowed_overlaps.remove(event)
+                db.session.commit()
+            else:
+                raise ValueError(f"{event.name} is not in {self.name}'s allowed overlaps.")
+        except IntegrityError:
+            db.session.rollback()
+            raise
+
+    def can_overlap_with(self, event):
+        """Check if this event is allowed to overlap with another event."""
+        return event in self.allowed_overlaps
+    
+
 
 # Reservation Model
 class Reservation(db.Model):
