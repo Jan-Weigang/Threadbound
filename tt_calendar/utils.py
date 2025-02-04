@@ -68,21 +68,6 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
     return True, None
 
 
-# def generate_event_message(event) -> str:
-#     message = (
-#         f"📅 **Event:** {event.name}\n"
-#         f"📝 **Description:** {event.description or 'No description provided'}\n"
-#         f"🎮 **Category:** {event.game_category.name}\n"
-#         f"🔖 **Type:** {event.event_type.name}\n"
-#         f"🕒 **Starts:** {event.start_time.strftime('%Y-%m-%d %H:%M')}\n"
-#         f"🕓 **Ends:** {event.end_time.strftime('%Y-%m-%d %H:%M')}\n"
-#         f"👤 **Organized by:** {event.user.username}\n"
-#         f"💬 **Publicity:** {event.publicity.name}\n"
-#         f"💺 **Reservations:** {', '.join([reservation.table.name for reservation in event.reservations]) or 'No tables reserved yet.'}\n"
-#     )
-#     return message
-
-
 
 def extract_form_data(request) -> dict | None:
     # Gather form data

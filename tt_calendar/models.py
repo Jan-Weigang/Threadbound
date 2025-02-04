@@ -150,8 +150,9 @@ class Event(db.Model):
     attendees = db.relationship('User', secondary=event_attendees, backref='attending_events')
 
     # States
-    state_size = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET.value)
-    state_overlap = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET.value)
+    is_published = db.Column(db.Boolean, nullable=False, default=False)
+    state_size = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
+    state_overlap = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
     allowed_overlaps = db.relationship(
         "Event",
         secondary=event_overlaps,
@@ -203,6 +204,17 @@ class Event(db.Model):
     def can_overlap_with(self, event):
         """Check if this event is allowed to overlap with another event."""
         return event in self.allowed_overlaps
+    
+    # Update the method for publication
+    def set_publish_state(self):
+        """Set the event as published if approved."""
+        if (self.state_size == EventState.APPROVED or self.state_size == EventState.NOT_SET) and \
+           (self.state_overlap == EventState.APPROVED or self.state_overlap == EventState.NOT_SET):
+            self.is_published = True
+            db.session.commit()
+        else:
+            self.is_published = False
+            db.session.commit()
     
 
 
