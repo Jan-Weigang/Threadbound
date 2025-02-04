@@ -91,11 +91,11 @@
         <label for="date">Datum:</label>
         <input type="date" name="date" id="date" required value="{{ event.date if event else '' }}">
 
-        <label for="start_time">Startzeit:</label>
-        <input type="time" name="start_time" id="start_time" required value="{{ start_time }}">
+        <label for="startTime">Startzeit:</label>
+        <input type="time" name="start_time" id="startTime" required value="{{ start_time }}">
 
-        <label for="end_time">Endzeit:</label>
-        <input type="time" name="end_time" id="end_time" required value="{{ end_time }}">
+        <label for="endTime">Endzeit:</label>
+        <input type="time" name="end_time" id="endTime" required value="{{ end_time }}">
 
         <label for="table_ids">Verfügbare Tische:</label>
         <div id="tisch-container" class="tisch-container">
@@ -118,8 +118,20 @@
 
         <input type="hidden" id="is-edit-mode" value="{{ 'true' if event else 'false' }}">
 
+        <!-- Hidden input to track collision state -->
+        <input type="hidden" name="collision" id="collision" value="false">
 
-        <button type="submit" id="submitButton" style="display:none"></button>
+        <button type="submit" id="submitButton" style="display:block" data-availability-checked="false" data-tables="true" data-collision="false"></button>
+        <button type="submit" id="requestButton" style="display:none; background: rgb(84, 199, 189);">
+            Kollidierende Reservierung anfragen
+        </button>
+
+        <script>
+            document.getElementById('requestButton').addEventListener('click', function() {
+                // Set the collision flag to true
+                document.getElementById('collision').value = "true";
+            });
+        </script>
 
     </form>
 
@@ -145,8 +157,8 @@
                 document.getElementById('name').value = eventData.getAttribute('data-name');
                 document.getElementById('description').value = eventData.getAttribute('data-description');
                 document.getElementById('date').value = eventData.getAttribute('data-date');
-                document.getElementById('start_time').value = eventData.getAttribute('data-start-time');
-                document.getElementById('end_time').value = eventData.getAttribute('data-end-time');
+                document.getElementById('startTime').value = eventData.getAttribute('data-start-time');
+                document.getElementById('endTime').value = eventData.getAttribute('data-end-time');
         
                 
                 // Set selected game category

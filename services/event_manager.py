@@ -28,10 +28,6 @@ class EventManager:
             Reservation.query.filter_by(event_id=new_event.id).delete() # uneecessary?
             self.create_reservations(user, new_event, form_data['table_ids'])
 
-            message_id = self.discord_handler.post_to_discord(new_event, action="update")
-            if message_id:
-                new_event.discord_post_id = message_id
-
             db.session.commit()
 
             self.event_state_handler(new_event)
@@ -59,10 +55,6 @@ class EventManager:
         try:
             Reservation.query.filter_by(event_id=event.id).delete()
             self.create_reservations(user, event, form_data['table_ids'])
-
-            message_id = self.discord_handler.post_to_discord(event, action="update")
-            if message_id:
-                event.discord_post_id = message_id
 
             db.session.commit()
 
@@ -113,6 +105,8 @@ class EventManager:
         This get's triggered by creating, editing, deleting and event or a discord interaction.
         """
         try:
+            followup_events = event.get_all_overlapping_events()
+
             print("Running the event state handler")
             print("Trying to update event state size")
             self.update_event_state_size(event)
@@ -120,6 +114,16 @@ class EventManager:
             self.update_event_state_overlap(event)
             print("Trying to handle event states and resolve")
             self.handle_event_states(event)
+
+
+            for evt in followup_events:
+                print("Running the event state handler")
+                print("Trying to update event state size")
+                self.update_event_state_size(evt)
+                print("Trying to update event state overlap")
+                self.update_event_state_overlap(evt)
+                print("Trying to handle event states and resolve")
+                self.handle_event_states(evt)
 
         except Exception as e:
             print(f"Error in eventstatechecker: {e}")
@@ -151,12 +155,16 @@ class EventManager:
         """
         Check Overlaps. Opens Chat in Discord
         """
-        current_overlaps = {o.existing_event_id: o for o in Overlap.query.filter_by(requesting_event_id=event.id).all()}
-        overlapping_events = self.get_overlapping_events(event)
-        overlapping_event_ids = {oevent.id for oevent in overlapping_events}
+        current_overlapped_events = Overlap.query.filter_by(requesting_event_id=event.id).all()
+        current_overlaps = {o.existing_event_id: o for o in current_overlapped_events}
+
+        all_overlapping_events = self.get_overlapping_events(event)
+        all_overlapping_event_ids = {oevent.id for oevent in all_overlapping_events}
+
+        
 
         # Add new overlaps
-        for oevent in overlapping_events:
+        for oevent in all_overlapping_events:
             if oevent.id not in current_overlaps:
                 # New overlap detected, add to database and request approval
                 event.add_overlap(oevent)
@@ -165,7 +173,7 @@ class EventManager:
 
         # Remove overlaps that no longer exist
         for overlap_id, overlap in current_overlaps.items():
-            if overlap_id not in overlapping_event_ids:
+            if overlap_id not in all_overlapping_event_ids:
                 # The overlap is no longer valid, remove it
                 db.session.delete(overlap)
                 # TODO self.discord_handler.cancel_overlap_chat(event, overlap.existing_event)  # New method to cancel chat
@@ -178,7 +186,7 @@ class EventManager:
             if denied_overlaps:
                 event.state_overlap = EventState.DENIED     # At least one was denied
             else:
-                event.state_overlap = EventState.APPROVED   # All overlaps are resolved
+                event.state_overlap = EventState.NOT_SET    # All overlaps have been taken back.
         else:
             event.state_overlap = EventState.REQUESTED      # Needs resolution
         db.session.commit()
@@ -199,8 +207,16 @@ class EventManager:
             return
 
         # If this is reached, it must be Not Set and Approved only!
+        if event.is_published:
+            return
+        
         event.set_publish_state()       # Sets to published
+        message_id = self.discord_handler.post_to_discord(event, action="update")
+        if message_id:
+            event.discord_post_id = message_id
+        
 
+        # Delete those that the new event overlaps.
         approved_overlaps = Overlap.query.filter_by(existing_event_id=event.id, state=EventState.APPROVED).all()
 
         for overlap in approved_overlaps:

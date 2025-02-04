@@ -243,6 +243,23 @@ class Event(db.Model, SoftDeleteMixin):
         ).all()
     
 
+    def get_all_overlapping_events(self):
+        """
+        Retrieve all events that overlap with this one, both as requester and as existing event.
+        """
+        # Events that this event is overlapping (outgoing overlaps)
+        outgoing_overlaps = Overlap.query.filter_by(requesting_event_id=self.id).all()
+        outgoing_events = [overlap.existing_event for overlap in outgoing_overlaps]
+
+        # Events that are overlapping this event (incoming overlaps)
+        incoming_overlaps = Overlap.query.filter_by(existing_event_id=self.id).all()
+        incoming_events = [overlap.requesting_event for overlap in incoming_overlaps]
+
+        # Combine both lists (ensuring uniqueness)
+        return set(outgoing_events + incoming_events)
+
+    
+
     # Update the method for publication
     def set_publish_state(self):
         """Set the event as published if approved."""

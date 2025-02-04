@@ -1,10 +1,10 @@
 // Initialize the time pickers
-$('#start_time').mdtimepicker({
+$('#startTime').mdtimepicker({
     theme: 'blue', 
     default: '17:00',
     is24hour: true
 });
-$('#end_time').mdtimepicker({
+$('#endTime').mdtimepicker({
     theme: 'blue', 
     default: '19:00',
     is24hour: true
@@ -19,6 +19,31 @@ const eventData = document.getElementById('eventData');
 document.addEventListener('DOMContentLoaded', function() {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    // - - - - - - - - - - SubmitButton Stuff - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    // Reset the Checker when times are changed.
+    updateSubmitButton();
+
+    document.getElementById('date').addEventListener('change', function() {
+        console.log("test");
+        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        updateSubmitButton();
+    });
+
+    $('#startTime').on('timechanged', function(e) {
+        console.log("test");
+        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        updateSubmitButton();
+    });
+
+    $('#endTime').on('timechanged', function(e) {
+        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        updateSubmitButton();
+    });
+    
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     // - - - - - - - - - - Check Availability - - - - - - - - - - - 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -26,13 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkAvailabilityButton.addEventListener('click', function() {
         const date = document.getElementById('date').value;
-        const startTime = document.getElementById('start_time').value;
-        let endTime = document.getElementById('end_time').value;
+        const startTime = document.getElementById('startTime').value;
+        let endTime = document.getElementById('endTime').value;
 
         // Check if end time is set to 24:00 and adjust it to 23:59
         if (endTime === "00:00") {
             endTime = "23:59";
-            document.getElementById('end_time').value = endTime; // Update the input field value
+            document.getElementById('endTime').value = endTime; // Update the input field value
         }
 
         // Make an AJAX request to check availability
@@ -67,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const selectedEndTime = endTime;
 
                     if (!tableData.available) {
-                        button.disabled = true;
+                        // button.disabled = true;
                         button.select = false;
                         button.classList.remove('selected');
                         button.classList.add('unavailable');
@@ -96,8 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
 
-                const submitButton = document.querySelector('button[type="submit"]');
-                submitButton.style.display = 'block';
+                document.getElementById('submitButton').setAttribute('data-availability-checked', 'true');
+                document.getElementById('submitButton').setAttribute('data-collision', 'false');
+                updateSubmitButton();
                 updateSelectedTables();
             });
         });
@@ -114,6 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle the selected class
             button.classList.toggle('selected');
 
+            let hasUnavailableSelected = document.querySelector('.table-button.unavailable.selected') !== null;
+            // Update submitButton data attribute
+            let submitButton = document.getElementById('submitButton');
+            if (hasUnavailableSelected) {
+                submitButton.setAttribute('data-collision', 'true');
+                submitButton.setAttribute('data-availability-checked', 'false');
+            }
+            
+            
             // Update the hidden input with selected table IDs
             updateSelectedTables();
         });
@@ -209,13 +244,13 @@ function updateSelectColor(selectElement) {
 
 // Form validation to ensure end time is after start time
 document.querySelector('form').addEventListener('submit', function(event) {
-    const startTime = document.getElementById('start_time').value;
-    let endTime = document.getElementById('end_time').value;
+    const startTime = document.getElementById('startTime').value;
+    let endTime = document.getElementById('endTime').value;
 
     // Check if end time is set to 24:00 and adjust it to 23:59
     if (endTime === "00:00") {
         endTime = "23:59";
-        document.getElementById('end_time').value = endTime; // Update the input field value
+        document.getElementById('endTime').value = endTime; // Update the input field value
     }
 
 
@@ -244,23 +279,42 @@ function updateSelectIcon(selectElement, iconElement) {
 }
 
 window.updateSelectedTables = function() {
+    console.log("updating selected tabels");
     let selectedTableIds = Array.from(document.querySelectorAll('.table-button.selected'))
         .map(button => button.getAttribute('data-table-id'));
     hiddenInput.value = selectedTableIds.join(',');
 
-    // Enable or disable the submit button based on whether any tables are selected
-    const submitButton = document.getElementById('submitButton');
+    // Set the data attribute on the submit button
+    let submitButton = document.getElementById('submitButton');
+    submitButton.setAttribute('data-tables', selectedTableIds.length > 0 ? 'true' : 'false');
 
-    if (selectedTableIds.length > 0) {
-        submitButton.removeAttribute('disabled'); // Explicitly remove the disabled attribute
-        submitButton.classList.remove('unavailable');
-        submitButton.textContent = "Tische buchen!";
-    } else {
-        submitButton.setAttribute('disabled', 'disabled'); // Set the disabled attribute when no tables are selected
-        submitButton.classList.add('unavailable');
-        submitButton.textContent = "Kein verfügbarer Tische ausgewählt!";
-    }
-
+    // Run the checker function
+    updateSubmitButton();
     
 }
 
+
+function updateSubmitButton() {
+    const submitButton = document.getElementById('submitButton');
+    const requestButton = document.getElementById('requestButton');
+    let tablesSelected = submitButton.getAttribute('data-tables') === 'true';
+    let availabilityChecked = submitButton.getAttribute('data-availability-checked') === 'true';
+    let collisionCheck = submitButton.getAttribute('data-collision') === 'true';
+
+    if (tablesSelected && availabilityChecked) {
+        submitButton.removeAttribute('disabled'); // Explicitly remove the disabled attribute
+        submitButton.classList.remove('unavailable');
+        submitButton.textContent = "Tische buchen!";
+
+    } else {
+        submitButton.setAttribute('disabled', 'disabled'); // Set the disabled attribute when no tables are selected
+        submitButton.classList.add('unavailable');
+        submitButton.textContent = "Prüfe, bevor du buchen kannst";
+    }
+
+    if (collisionCheck) {
+        requestButton.style.display = 'block';
+    } else {
+        requestButton.style.display = 'none';
+    }
+}

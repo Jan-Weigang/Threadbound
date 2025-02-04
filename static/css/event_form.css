@@ -97,15 +97,16 @@ label {
     position:relative;
 }
 
-.table-button.selected {
-    background-color: #3788d8;
-    color: white;
-    transform: scale(1.02);
-}
 .table-button.unavailable {
     background-color: #ddc7cc;
     color: gray;
     border: solid #bf8686 1px;
+}
+
+.table-button.selected {
+    background-color: #3788d8;
+    color: white;
+    transform: scale(1.02);
 }
 
 .table-button:hover {

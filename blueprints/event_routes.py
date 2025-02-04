@@ -14,19 +14,23 @@ def create_event():
     user = user_manager.get_or_create_user()
 
     if request.method == 'POST':
+        
+
+
         form_data = utils.extract_form_data(request)
         if not form_data:
             return redirect(url_for('event_bp.create_event'))
 
-        # Check table availability
-        available, conflicting_table = utils.check_availability(
-            form_data['start_datetime'],
-            form_data['end_datetime'],
-            form_data['table_ids']
-        )
-        if not available:
-            flash(f'Table {conflicting_table} is already reserved for the selected time.', 'error')
-            return redirect(url_for('event_bp.create_event'))
+        if request.form['collision'] != "true":
+            # Check table availability only for normal bookings
+            available, conflicting_table = utils.check_availability(
+                form_data['start_datetime'],
+                form_data['end_datetime'],
+                form_data['table_ids']
+            )
+            if not available:
+                flash(f'Table {conflicting_table} is already reserved for the selected time.', 'error')
+                return redirect(url_for('event_bp.create_event'))
 
         # Create the event and reservations
         event_manager = current_app.config['event_manager']
