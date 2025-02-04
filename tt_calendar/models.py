@@ -152,15 +152,8 @@ class Event(db.Model):
     # States
     is_published = db.Column(db.Boolean, nullable=False, default=False)
     state_size = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
+    size_request_discord_channel_id = db.Column(db.BigInteger, unique=True, nullable=True)
     state_overlap = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
-    allowed_overlaps = db.relationship(
-        "Event",
-        secondary=event_overlaps,
-        primaryjoin=id == event_overlaps.c.event_id,
-        secondaryjoin=id == event_overlaps.c.overlapping_event_id,
-        backref="overlapping_events",
-        lazy="subquery"
-    )
 
     @classmethod
     def get_regular_events(cls):
@@ -176,35 +169,46 @@ class Event(db.Model):
             channel_id = self.game_category.channel.discord_channel_id # type: ignore
             return f"discord.com/channels/{server_id}/{channel_id}/{self.discord_post_id}"
         return None
-    
-    def add_overlap(self, event):
-        try:
-            if event.id == self.id:
-                raise ValueError("An event cannot overlap with itself.")
-            if event in self.allowed_overlaps:
-                return
-            
-            self.allowed_overlaps.append(event)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            raise
 
-    def remove_overlap(self, event):
-        try:
-            if event in self.allowed_overlaps:
-                self.allowed_overlaps.remove(event)
-                db.session.commit()
-            else:
-                raise ValueError(f"{event.name} is not in {self.name}'s allowed overlaps.")
-        except IntegrityError:
-            db.session.rollback()
-            raise
+    def add_overlap(self, existing_event):
+        """Add an overlap request."""
+        overlap = Overlap(
+            requesting_event_id=self.id,            # type: ignore
+            existing_event_id=existing_event.id,    # type: ignore
+            state=EventState.REQUESTED              # type: ignore
+        )
+        db.session.add(overlap)
+        db.session.commit()
 
-    def can_overlap_with(self, event):
-        """Check if this event is allowed to overlap with another event."""
-        return event in self.allowed_overlaps
+
+    def resolve_overlap(self, existing_event, new_state):
+        """Update the state of a specific overlap."""
+        overlap = Overlap.query.filter_by(
+            requesting_event_id=self.id,
+            existing_event_id=existing_event.id
+        ).first()
+        if not overlap:
+            raise ValueError(f"No overlap exists with event {existing_event.id}.")
+        overlap.state = new_state
+        db.session.commit()
+
+
+    def get_pending_overlaps(self):
+        """Return all overlaps with a 'REQUESTED' state."""
+        return Overlap.query.filter_by(
+            requesting_event_id=self.id,
+            state=EventState.REQUESTED
+        ).all()
     
+
+    def get_denied_overlaps(self):
+        """Return all overlaps with a 'REQUESTED' state."""
+        return Overlap.query.filter_by(
+            requesting_event_id=self.id,
+            state=EventState.DENIED
+        ).all()
+    
+
     # Update the method for publication
     def set_publish_state(self):
         """Set the event as published if approved."""
@@ -244,3 +248,22 @@ class Reservation(db.Model):
         return cls.query.filter_by(is_template=True)
     
 
+
+class Overlap(db.Model):
+    id = Column(String(21), primary_key=True, default=lambda: generate(size=12))
+    request_discord_channel_id = db.Column(db.BigInteger, unique=True, nullable=True)
+    
+    # Foreign Keys for the events involved in the overlap
+    requesting_event_id = db.Column(db.String(21), db.ForeignKey('event.id'), nullable=False)
+    existing_event_id = db.Column(db.String(21), db.ForeignKey('event.id'), nullable=False)
+    
+    # Relationship to the Event model
+    requesting_event = db.relationship('Event', foreign_keys=[requesting_event_id], backref='requested_overlaps')
+    existing_event = db.relationship('Event', foreign_keys=[existing_event_id], backref='existing_overlaps')
+
+    # State of the overlap request
+    state = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
+
+    # Metadata
+    created_at = db.Column(AwareDateTime(), nullable=False, default=lambda: datetime.now(pytz.utc))
+    updated_at = db.Column(AwareDateTime(), nullable=True, onupdate=lambda: datetime.now(pytz.utc))

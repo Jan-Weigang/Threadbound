@@ -21,6 +21,11 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+
+
+# TODO Event form extra Button der "knows_overlap" oder sowas hat, damit Check in Create umgangen wird für event state handler dann.
+
+
 # TODO Remove the DB logic from the api Calls and put them in their own module
 
 # Possibly add other hovering buttons for time scale movements (left right)

@@ -1,7 +1,8 @@
 # services/event_manager.py
 
-from tt_calendar.models import Event, Reservation, db
+from tt_calendar.models import Event, Reservation, db, EventState, Overlap
 from tt_calendar import utils
+from sqlalchemy import false, true
 
 class EventManager:
     def __init__(self, discord_handler):
@@ -79,3 +80,137 @@ class EventManager:
             )
             db.session.add(reservation)
         db.session.commit()
+
+
+    # =====================================
+    #      Event State Checker Routine
+    # =====================================
+
+
+    def event_state_handler(self, event):
+        """
+        Check and update event states and determine necessary actions.
+        This get's triggered by creating, editing, deleting and event or a discord interaction.
+        """
+        try:
+            self.update_event_state_size(event)
+            self.update_event_state_overlap(event)
+
+            self.handle_event_states(event)
+        except Exception as e:
+            print(f"Error in eventstatechecker: {e}")
+            raise
+
+
+    def update_event_state_size(self, event):
+        """
+        Check size, if not checked before. Opens a chat in Discord
+        """
+        # Update state_size based on reservation size logic
+        match event.state_size:
+            case EventState.NOT_SET:                        # If not yet set, check for size
+                if len(event.reservations) >= 4:
+                    event.state_size = EventState.REQUESTED  # Needs approval by Vorstand
+                    # TODO self.discord_handler.create_size_request(event)
+                    db.session.commit()
+
+            case EventState.REQUESTED:                      # If requested, but now smaller, reset
+                if len(event.reservations) < 4:
+                    event.state_size = EventState.NOT_SET  # Needs approval by Vorstand
+                    # TODO self.discord_handler.cancel_size_request(event)
+                    db.session.commit()
+            case _:
+                pass
+
+
+    def update_event_state_overlap(self, event):
+        """
+        Check Overlaps. Opens Chat in Discord
+        """
+        current_overlaps = {o.existing_event_id: o for o in Overlap.query.filter_by(requesting_event_id=event.id).all()}
+        overlapping_events = self.get_overlapping_events(event)
+        overlapping_event_ids = {oevent.id for oevent in overlapping_events}
+
+        # Add new overlaps
+        for oevent in overlapping_events:
+            if oevent.id not in current_overlaps:
+                # New overlap detected, add to database and request approval
+                event.add_overlap(oevent)
+                # TODO self.discord_handler.create_overlap_request(event, oevent)
+                db.session.commit()
+
+        # Remove overlaps that no longer exist
+        for overlap_id, overlap in current_overlaps.items():
+            if overlap_id not in overlapping_event_ids:
+                # The overlap is no longer valid, remove it
+                db.session.delete(overlap)
+                # TODO self.discord_handler.cancel_overlap_chat(event, overlap.existing_event)  # New method to cancel chat
+                db.session.commit()
+
+        pending_overlaps = event.get_pending_overlaps()
+        denied_overlaps = event.get_denied_overlaps()
+
+        if not pending_overlaps:
+            if denied_overlaps:
+                event.state_overlap = EventState.DENIED     # At least one was denied
+            else:
+                event.state_overlap = EventState.APPROVED   # All overlaps are resolved
+        else:
+            event.state_overlap = EventState.REQUESTED      # Needs resolution
+        db.session.commit()
+
+
+    def handle_event_states(self, event):
+        # First check for Denial
+        if event.state_size == EventState.DENIED or event.state_overlap == EventState.DENIED:
+            db.session.delete(event)
+            # TODO self.discord_handler.cancel_size_request(event)
+            # TODO self.discord_handler.cancel_overlap_requests(event)
+            db.session.commit()
+            return
+
+        # Do nothing if still pending requests
+        if (event.state_size == EventState.REQUESTED or \
+            event.state_overlap == EventState.REQUESTED):   # If either is still in Request
+            return
+
+        # If this is reached, it must be Not Set and Approved only!
+        event.set_publish_state()       # Sets to published
+
+        approved_overlaps = Overlap.query.filter_by(existing_event_id=event.id, state=EventState.APPROVED).all()
+
+        for overlap in approved_overlaps:
+            requesting_event = overlap.requesting_event
+            db.session.delete(requesting_event)  # Delete other event
+            # TODO self.discord_handler.cancel_overlap_chat(event, requesting_event)  # Notify Discord
+            db.session.delete(overlap)  # Remove overlap record
+
+        db.session.commit()
+
+
+    def delete_event(self, event):
+        """
+        Delete the event from the database.
+        """
+        try:
+            db.session.delete(event)
+            db.session.commit()
+            print(f"Event {event.id} successfully deleted.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error deleting event {event.id}: {e}")
+            raise
+
+    def get_overlapping_events(self, event):
+        """
+        Find overlapping events based on time and table reservations.
+        """
+        overlapping_events = Event.query.filter(
+            Event.id != event.id,
+            Event.start_time < event.end_time,
+            Event.end_time > event.start_time,
+            Event.reservations.any(Reservation.table_id.in_(
+                [r.table_id for r in event.reservations]
+            ))
+        ).all()
+        return overlapping_events
