@@ -25,6 +25,12 @@ async def on_ready():
     assert guild
     print(f'{bot.user} has connected to Discord guild {guild.name}!')
 
+    if guild:
+        await guild.chunk()
+        print(f"✅ Chunked {guild.name} – {len(guild.members)} members cached.")
+    else:
+        print("❌ Guild not found. Check GUILD_ID.")
+
 
 
 # ==============================================================================

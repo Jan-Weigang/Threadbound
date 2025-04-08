@@ -169,6 +169,12 @@ class EventManager:
                 # New overlap detected, add to database and request approval
                 event.add_overlap(oevent)
                 # TODO self.discord_handler.create_overlap_request(event, oevent)
+
+                self.discord_handler.open_ticket_for_overlap(
+                    creator_id=event.user.discord_id,
+                    overlapped_user_id=oevent.user.discord_id
+                )
+                
                 db.session.commit()
 
         # Remove overlaps that no longer exist

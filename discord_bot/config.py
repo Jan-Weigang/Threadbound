@@ -33,8 +33,10 @@ guild_id = int(guild_id_str)
 
 
 raw_guild_roles = {
+    "bot": os.getenv('BOT_ROLE_ID'),
     "member": os.getenv('MEMBER_ROLE_ID'),
-    "mod": os.getenv('MOD_ROLE_ID'),
+    "beirat": os.getenv('BEIRAT_ROLE_ID'),
+    "vorstand": os.getenv('VORSTAND_ROLE_ID'),
     "admin": os.getenv('ADMIN_ROLE_ID')
 }
 guild_roles = {}
@@ -46,5 +48,6 @@ for role_name, role_id_str in raw_guild_roles.items():
     guild_roles[role_name] = int(role_id_str)
 
 
-
+ticket_category_id: int = int(os.getenv('TICKET_CATEGORY_ID')) # type: ignore
+ticket_log_id: int = int(os.getenv('TICKET_LOG_ID')) # type: ignore
 

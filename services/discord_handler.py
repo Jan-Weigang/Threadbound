@@ -1,6 +1,7 @@
 from tt_calendar.models import *
 from tt_calendar import utils
 import discord_bot
+from discord_bot.ticketing import create_ticket  # adjust path as needed
 
 import asyncio
 import datetime, pytz
@@ -153,39 +154,33 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             print(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
-    # def create_private_channel(self, category_id, user1, user2, channel_name=None):
-    #     """
-    #     Creates a private channel in the given category and adds two users to it.
+    def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int):
+        """
+        Creates a Discord ticket for overlapping events between two users.
+        """
+        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id, overlapped_member_id=overlapped_user_id)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
-    #     Args:
-    #         category_id (int): The ID of the Discord category where the channel will be created.
-    #         user1 (User): The first user (User object from DB).
-    #         user2 (User): The second user (User object from DB).
-    #         channel_name (str, optional): The name of the channel. Defaults to "private-chat-<user1>-<user2>".
+        try:
+            channel_id = future.result(timeout=5)
+            print(f"✅ Overlap ticket created in channel ID: {channel_id}")
+            return channel_id
+        except Exception as e:
+            print(f"❌ Failed to create overlap ticket: {e}")
+            return None
 
-    #     Returns:
-    #         int or None: The created channel ID, or None if an error occurred.
-    #     """
-    #     if not category_id or not user1 or not user2:
-    #         print("Invalid input: Category ID and both users are required.")
-    #         return None
 
-    #     channel_name = channel_name or f"private-{user1.username}-{user2.username}"
+    def open_ticket_for_table_request(self, creator_id: int):
+        """
+        Creates a Discord ticket when more than 3 tables are reserved.
+        """
+        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
-    #     # Define permissions (private channel for only these users)
-    #     permissions = {
-    #         int(user1.discord_id): ["view_channel", "send_messages", "read_message_history"],
-    #         int(user2.discord_id): ["view_channel", "send_messages", "read_message_history"]
-    #     }
-
-    #     # Call the bot function to create the channel
-    #     coroutine = discord_bot.utils.create_private_channel(category_id, channel_name, permissions)
-    #     future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
-
-    #     try:
-    #         channel_id = future.result(timeout=5)
-    #         print(f"✅ Created private channel {channel_name} (ID: {channel_id})")
-    #         return channel_id
-    #     except Exception as e:
-    #         print(f"❌ Failed to create private channel: {e}")
-    #         return None
+        try:
+            channel_id = future.result(timeout=5)
+            print(f"✅ Table reservation ticket created in channel ID: {channel_id}")
+            return channel_id
+        except Exception as e:
+            print(f"❌ Failed to create table reservation ticket: {e}")
+            return None
