@@ -213,5 +213,6 @@ if __name__ == '__main__':
     event_manager = EventManager(discord_handler=discord_handler)
     app.config['event_manager'] = event_manager
 
+    assert discord_bot
     main_event_loop.run_until_complete(discord_bot.run_discord_bot())
 

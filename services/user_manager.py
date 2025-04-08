@@ -1,5 +1,8 @@
 from tt_calendar.models import User, db
 
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+from flask import redirect, url_for
+
 
 class UserManager:
     def __init__(self, discord_handler, discord_api):
@@ -23,7 +26,12 @@ class UserManager:
 
 
     def get_or_create_user(self):
-        resp = self.discord_api.get('/api/users/@me')
+        try:
+            resp = self.discord_api.get('/api/users/@me')
+        except TokenExpiredError:
+            # Option 1: Redirect user to re-authenticate
+            return redirect(url_for("discord.login"))
+
         assert resp.ok, resp.text
         user_info = resp.json()
 
