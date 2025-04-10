@@ -2,6 +2,7 @@ from tt_calendar.models import User, db
 
 from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from flask import redirect, url_for
+import logging
 
 
 class UserManager:
@@ -16,12 +17,12 @@ class UserManager:
             if user.username != new_username:
                 user.username = new_username
                 db.session.commit()
-                print(f"Updated nickname for user {discord_id}: {new_username}")
+                logging.info(f"Updated nickname for user {discord_id}: {new_username}")
         else:
             user = User(discord_id=discord_id, username=new_username)  # type: ignore
             db.session.add(user)
             db.session.commit()
-            print(f"Added new user {discord_id} with username: {new_username}")
+            logging.info(f"Added new user {discord_id} with username: {new_username}")
         return user
 
 

@@ -5,6 +5,7 @@ from discord_bot.ticketing import create_ticket, change_resolved_ticket_view  # 
 
 import asyncio
 import datetime, pytz
+import logging
 
 # discord_handler.py
 class DiscordHandler:
@@ -31,7 +32,6 @@ class DiscordHandler:
         """
         Check if a user is a club member.
         """
-        print("- - - -CALLED ISROLE - - - -")
         # Run the `is_club_member` coroutine in the main event loop
         future = asyncio.run_coroutine_threadsafe(
             discord_bot.is_guild_role(discord_user_id, role_string), 
@@ -43,7 +43,7 @@ class DiscordHandler:
             return future.result(timeout=3)
         except Exception as e:
             import traceback
-            print(f"Error checking membership: {e}")
+            logging.error(f"Error checking membership: {e}")
             traceback.print_exc()
             return None
 
@@ -51,11 +51,10 @@ class DiscordHandler:
     def post_to_discord(self, event, action='update'):
         channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
         if not channel_id:
-            print("can't create post")
+            logging.info("can't create post")
             return
         
-        print(f"Trying to do discord handling with action {action}")
-
+        logging.info(f"discord handling with action {action}")
         if action == 'delete' and not utils.is_event_deletable(event):
                 action = 'cancel'
 
@@ -90,12 +89,12 @@ class DiscordHandler:
             creator_mention = f"<@{event.user.discord_id}>"  # Tag event creator
             
             if not message_id:
-                print(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
+                logging.info(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
                 continue
 
             channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
             if not channel_id:
-                print(f"⚠️ No Discord channel found for event {event.id}")
+                logging.info(f"⚠️ No Discord channel found for event {event.id}")
                 return
             
             attendees = '\n - '.join([attendee.username for attendee in event.attendees])
@@ -107,7 +106,6 @@ class DiscordHandler:
                                         .all()
             tablesInfo = ', '.join(table.name for table in tables)
             
-            print(f"Text: {creator_mention}, dein Event **{event.name}** beginnt heute um {event.start_time.strftime('%H:%M')}")
             reminder_text = f"""
 📢 Reminder:
 
@@ -124,7 +122,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             try:
                 future.result(timeout=2)
             except Exception as e:
-                print(f"❌ Failed to send reminder for event {event.id}: {e}")
+                logging.error(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
     def send_deletion_notice(self, event):
@@ -135,16 +133,14 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         creator_mention = f"<@{event.user.discord_id}>"  # Tag event creator
         
         if not message_id:
-            print(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
+            logging.info(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
             return
 
         channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
         if not channel_id:
-            print(f"⚠️ No Discord channel found for event {event.id}")
+            logging.info(f"⚠️ No Discord channel found for event {event.id}")
             return
         
-        
-        print(f"Text: {creator_mention}, dein Event **{event.name}** wird gecancelt")
         reminder_text = f"""@everyone Die Reservierung **{event.name}** wurde **abgesagt**! 🎉"""
 
         # Get the thread from the original event message
@@ -154,7 +150,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         try:
             future.result(timeout=2)
         except Exception as e:
-            print(f"❌ Failed to send reminder for event {event.id}: {e}")
+            logging.error(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
     def add_user_to_event_thread(self, event, user_discord_id: int):
@@ -165,11 +161,11 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
 
         if not message_id:
-            print(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
+            logging.info(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
             return
 
         if not channel_id:
-            print(f"⚠️ No Discord channel found for event {event.id}")
+            logging.info(f"⚠️ No Discord channel found for event {event.id}")
             return
 
         coroutine = discord_bot.add_user_to_event_thread(channel_id, message_id, user_discord_id)
@@ -178,7 +174,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         try:
             future.result(timeout=2)
         except Exception as e:
-            print(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
+            logging.error(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
 
 
     def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int):
@@ -189,11 +185,10 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:
-            channel_id = future.result(timeout=5)
-            print(f"✅ Overlap ticket created in channel ID: {channel_id}")
+            channel_id = future.result(timeout=3)
             return channel_id
         except Exception as e:
-            print(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
+            logging.error(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
             return None
 
 
@@ -205,11 +200,10 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:
-            channel_id = future.result(timeout=5)
-            print(f"✅ Overlap ticket created in channel ID: {channel_id}")
+            channel_id = future.result(timeout=3)
             return channel_id
         except Exception as e:
-            print(f"❌ Failed to create overlap ticket for {creator_id=}: {e}")
+            logging.error(f"❌ Failed to create overlap ticket for {creator_id=}: {e}")
             return None
         
 
@@ -222,11 +216,10 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:
-            future.result(timeout=5)
-            print(f"✅ Replaced view with CloseOnly in channel {channel_id}")
+            future.result(timeout=3)
         except Exception as e:
             import traceback
-            print(f"❌ Failed to replace view in channel {channel_id}: {e}")
+            logging.error(f"❌ Failed to replace view in channel {channel_id}: {e}")
             traceback.print_exc()
 
 
@@ -240,23 +233,5 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
 
         try:
             future.result(timeout=5)
-            print(f"✅ Replaced view with CloseOnly in channel {channel_id}")
         except Exception as e:
-            print(f"❌ Failed to replace view in channel {channel_id}: {e}")
-
-
-
-    # def open_ticket_for_table_request(self, creator_id: int):
-    #     """
-    #     Creates a Discord ticket when more than 3 tables are reserved.
-    #     """
-    #     coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
-    #     future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
-
-    #     try:
-    #         channel_id = future.result(timeout=5)
-    #         print(f"✅ Table reservation ticket created in channel ID: {channel_id}")
-    #         return channel_id
-    #     except Exception as e:
-    #         print(f"❌ Failed to create table reservation ticket: {e}")
-    #         return None
+            logging.error(f"❌ Failed to replace view in channel {channel_id}: {e}")
