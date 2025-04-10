@@ -91,7 +91,7 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
     vorstand_role = guild.get_role(guild_roles["vorstand"])
     beirat_role = guild.get_role(guild_roles["beirat"])
 
-    timestamp = datetime.now().strftime("%d%m-%H%M")
+    timestamp = datetime.now().strftime("%d%m%y-%H:%M")
 
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -146,17 +146,14 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
 # ==============================================================================
 
 async def sudoclose(bot, interaction):
-    if 'ticket-' in interaction.channel.name:
-        await interaction.response.send_message('Closing this ticket in 5 seconds...')
-        await asyncio.sleep(5)
-        try:
-            await close_ticket_channel(bot, interaction.channel)
-        except discord.Forbidden:
-            await interaction.response.send_message("*Fehler: Fehlende Berechtigungen. Bitte dem Vorstand melden.*", ephemeral=True)
-        except discord.HTTPException:
-            await interaction.response.send_message("*Fehler: Wahrscheinlich gerade Internetproblem. Bitte später nochmal probieren.*", ephemeral=True)
-    else:
-        await interaction.response.send_message('*Dies ist kein Ticket-Kanal.*', ephemeral=True)
+    await interaction.response.send_message('Closing this ticket in 5 seconds...')
+    await asyncio.sleep(5)
+    try:
+        await close_ticket_channel(bot, interaction.channel)
+    except discord.Forbidden:
+        await interaction.response.send_message("*Fehler: Fehlende Berechtigungen. Bitte dem Vorstand melden.*", ephemeral=True)
+    except discord.HTTPException:
+        await interaction.response.send_message("*Fehler: Wahrscheinlich gerade Internetproblem. Bitte später nochmal probieren.*", ephemeral=True)
 
 
 # ==============================================================================
@@ -164,10 +161,6 @@ async def sudoclose(bot, interaction):
 # ==============================================================================
 
 async def close(bot, interaction):
-
-    if 'ticket-' not in interaction.channel.name:
-        await interaction.response.send_message('This command can only be used in ticket channels.', ephemeral=True)
-        return
 
     messages = [message async for message in interaction.channel.history(oldest_first=True,limit=1)]
     first_message = messages[0]
@@ -180,7 +173,8 @@ async def close(bot, interaction):
                                          f'Lies dir erst die Antworten durch und checke, dass alles geklärt ist.\n'
                                          f'Reagiere dann mit 👍, um zuzustimmen und diesen Kanal zu löschen.')
         await confirm_message.add_reaction('👍')
-        await interaction.response.send_message("done.", ephemeral=True)
+        if not interaction.response.is_done():
+            await interaction.response.send_message("done.", ephemeral=True)
 
     else:
         await interaction.response.send_message("There was a problem fetching the ticket opener's information.", ephemeral=True)
@@ -207,9 +201,7 @@ async def reaction_close_check(bot, payload):
 
     if user == bot.user:
         return
-    
-    if 'ticket-' not in channel.name:
-        return
+
     
     if not message.content.startswith('- CloseRequest -'):
         return

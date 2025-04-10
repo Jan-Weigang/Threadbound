@@ -168,13 +168,13 @@ class EventManager:
             if oevent.id not in current_overlaps:
                 # New overlap detected, add to database and request approval
                 event.add_overlap(oevent)
-                # TODO self.discord_handler.create_overlap_request(event, oevent)
+                # TODO self.discord_handler.create_overlap_request(event, oevent) done?
 
                 self.discord_handler.open_ticket_for_overlap(
                     creator_id=event.user.discord_id,
                     overlapped_user_id=oevent.user.discord_id
                 )
-                
+
                 db.session.commit()
 
         # Remove overlaps that no longer exist

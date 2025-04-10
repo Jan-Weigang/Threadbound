@@ -2,8 +2,11 @@ import discord
 from discord.ext import commands, tasks
 
 from .config import discord_token, kalender_channels, guild_id, guild_roles
+from .ticketing import TicketCloseView, reaction_close_check
+
 
 import os, requests, datetime, pytz
+import logging
 
 
 
@@ -30,6 +33,8 @@ async def on_ready():
         print(f"✅ Chunked {guild.name} – {len(guild.members)} members cached.")
     else:
         print("❌ Guild not found. Check GUILD_ID.")
+
+    bot.add_view(TicketCloseView(bot)) 
 
 
 
@@ -170,6 +175,12 @@ async def interact_with_event(interaction, action):
         print(f"Error in handling interaction: {e}")
 
 
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    logging.info("Checking a raw reaction")
+    await reaction_close_check(bot, payload)
 
 
 # Function to start the bot
