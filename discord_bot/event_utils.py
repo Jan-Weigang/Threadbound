@@ -2,6 +2,7 @@ import discord
 from .bot import bot
 
 from flask import url_for
+import logging
 
 
 async def post_event_embed_to_channel(channel_id, embed):
@@ -15,8 +16,11 @@ async def post_event_embed_to_channel(channel_id, embed):
 async def delete_event_message_from_discord(channel_id, message_id):
     channel = bot.get_channel(channel_id)
     if channel and isinstance(channel, discord.TextChannel):
-        message = await channel.fetch_message(message_id)
-        await message.delete()
+        try:
+            message = await channel.fetch_message(message_id)
+            await message.delete()
+        except:
+            logging.info(f"event message not found to delete")
 
 
 async def update_event_embed_in_discord(channel_id, new_embed, message_id):
