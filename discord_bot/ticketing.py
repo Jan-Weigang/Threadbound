@@ -28,11 +28,11 @@ class OverlapTicketView(View):
 
     @discord.ui.button(label="🗑️ Neues Event löschen", style=ButtonStyle.primary, custom_id="ticket_delete_new")
     async def delete_new_event(self, interaction: discord.Interaction, button: Button):
-        await handle_overlap_resolution(interaction, prefer_new=False)
+        await handle_overlap_resolution(interaction, approve=False)
 
     @discord.ui.button(label="🗑️ Bestehendes Event löschen", style=ButtonStyle.blurple, custom_id="ticket_delete_existing")
     async def delete_existing_event(self, interaction: discord.Interaction, button: Button):
-        await handle_overlap_resolution(interaction, prefer_new=True)
+        await handle_overlap_resolution(interaction, approve=True)
 
     @discord.ui.button(label="🛠️ Sofort schließen (Vorstand)", style=ButtonStyle.secondary	, custom_id="ticket_sudo_close")
     async def sudo_close(self, interaction: discord.Interaction, button: Button):
@@ -163,7 +163,7 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
         view = OverlapTicketView(bot)
 
     else:
-        channel_name = f"{creator.name}-vereinsevent-{timestamp}"
+        channel_name = f"vereinsevent-{creator.name.lower()}-{timestamp}"
         description = (
             "Für diese Reservierung wurden mehr als 3 Tische ausgewählt.\n"
             "Dies muss vom Vorstand genehmigt werden. Erkläre hier kurz dein Event."
@@ -267,7 +267,10 @@ async def reaction_close_check(bot, payload):
 
     await channel.send('Schließung bestätigt. Kanal wird in 10 Sekunden gelöscht.')
     await asyncio.sleep(10)  # Optional delay
-    await close_ticket_channel(bot, channel)
+    try:
+        await close_ticket_channel(bot, channel)
+    except:
+        logging.info("ticket already deleted")
 
 
 
@@ -315,7 +318,7 @@ async def create_ticket_log(channel):
 # ====================================================================================================================
 
 
-async def handle_overlap_resolution(interaction, prefer_new: bool):
+async def handle_overlap_resolution(interaction, approve: bool):
     await interaction.response.defer(ephemeral=True)
 
     # Check if user has valid role
@@ -329,7 +332,7 @@ async def handle_overlap_resolution(interaction, prefer_new: bool):
     data = {
         "discord_user_id": interaction.user.id,
         "channel_id": interaction.channel.id,
-        "prefer_new": prefer_new,
+        "approve": approve,
         "is_vorstand": is_vorstand
     }
     print(data)

@@ -9,6 +9,7 @@ from tt_calendar import decorators
 from tt_calendar import utils
 import json
 import threading
+import logging
 
 # ======================================
 # ========== API Endpoints =============
@@ -16,136 +17,144 @@ import threading
 
 api = Blueprint('api_bp', __name__)
 
-@api.route('/users', methods=['GET'])
-@decorators.login_required
-def api_get_users():
-    users = User.query.all()
-    user_data = [{'id': user.id, 'discord_id': user.discord_id, 'username': user.username} for user in users]
-    # print(json.dumps(user_data, indent=4))
-    return jsonify({'users': user_data})
+# @api.route('/users', methods=['GET'])
+# @decorators.login_required
+# def api_get_users():
+#     users = User.query.all()
+#     user_data = [{'id': user.id, 'discord_id': user.discord_id, 'username': user.username} for user in users]
+#     # print(json.dumps(user_data, indent=4))
+#     return jsonify({'users': user_data})
 
-# POST endpoint to add a user (if needed)
-@api.route('/users', methods=['POST'])
-def api_create_user():
-    data = request.get_json()
-    new_user = User(discord_id=data['discord_id'], username=data['username']) # type: ignore
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message': 'User created successfully'}), 201
+# # POST endpoint to add a user (if needed)
+# @api.route('/users', methods=['POST'])
+# def api_create_user():
+#     data = request.get_json()
+#     new_user = User(discord_id=data['discord_id'], username=data['username']) # type: ignore
+#     db.session.add(new_user)
+#     db.session.commit()
+#     return jsonify({'message': 'User created successfully'}), 201
 
-@api.route('/game-categories', methods=['GET'])
-def api_get_game_categories():
-    categories = GameCategory.query.all()
-    category_data = [{'id': category.id, 'name': category.name, 'icon': category.icon} for category in categories]
-    # print(json.dumps(category_data, indent=4))
-    return jsonify({'game_categories': category_data})
+# @api.route('/game-categories', methods=['GET'])
+# def api_get_game_categories():
+#     categories = GameCategory.query.all()
+#     category_data = [{'id': category.id, 'name': category.name, 'icon': category.icon} for category in categories]
+#     # print(json.dumps(category_data, indent=4))
+#     return jsonify({'game_categories': category_data})
 
-# POST endpoint to add a new game category (if needed)
-@api.route('/game-categories', methods=['POST'])
-def api_create_game_category():
-    data = request.get_json()
-    new_category = GameCategory(name=data['name'], icon=data['icon']) # type: ignore
-    db.session.add(new_category)
-    db.session.commit()
-    return jsonify({'message': 'Game Category created successfully'}), 201
+# # POST endpoint to add a new game category (if needed)
+# @api.route('/game-categories', methods=['POST'])
+# def api_create_game_category():
+#     data = request.get_json()
+#     new_category = GameCategory(name=data['name'], icon=data['icon']) # type: ignore
+#     db.session.add(new_category)
+#     db.session.commit()
+#     return jsonify({'message': 'Game Category created successfully'}), 201
 
-@api.route('/event-types', methods=['GET'])
-def api_get_event_types():
-    event_types = EventType.query.all()
-    event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
-    # print(json.dumps(event_type_data, indent=4))
-    return jsonify({'event_types': event_type_data})
+# @api.route('/event-types', methods=['GET'])
+# def api_get_event_types():
+#     event_types = EventType.query.all()
+#     event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
+#     # print(json.dumps(event_type_data, indent=4))
+#     return jsonify({'event_types': event_type_data})
 
-# POST endpoint to add a new event type (if needed)
-@api.route('/event-types', methods=['POST'])
-def api_create_event_type():
-    data = request.get_json()
-    new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
-    db.session.add(new_event_type)
-    db.session.commit()
-    return jsonify({'message': 'Event Type created successfully'}), 201
+# # POST endpoint to add a new event type (if needed)
+# @api.route('/event-types', methods=['POST'])
+# def api_create_event_type():
+#     data = request.get_json()
+#     new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
+#     db.session.add(new_event_type)
+#     db.session.commit()
+#     return jsonify({'message': 'Event Type created successfully'}), 201
 
-@api.route('/publicities', methods=['GET'])
-def api_get_publicities():
-    publicities = Publicity.query.all()
-    publicity_data = [{'id': publicity.id, 'name': publicity.name} for publicity in publicities]
-    # print(json.dumps(publicity_data, indent=4))
-    return jsonify({'publicities': publicity_data})
+# @api.route('/publicities', methods=['GET'])
+# def api_get_publicities():
+#     publicities = Publicity.query.all()
+#     publicity_data = [{'id': publicity.id, 'name': publicity.name} for publicity in publicities]
+#     # print(json.dumps(publicity_data, indent=4))
+#     return jsonify({'publicities': publicity_data})
 
-# POST endpoint to add new publicity (if needed)
-@api.route('/publicities', methods=['POST'])
-def api_create_publicity():
-    data = request.get_json()
-    new_publicity = Publicity(name=data['name']) # type: ignore
-    db.session.add(new_publicity)
-    db.session.commit()
-    return jsonify({'message': 'Publicity created successfully'}), 201
+# # POST endpoint to add new publicity (if needed)
+# @api.route('/publicities', methods=['POST'])
+# def api_create_publicity():
+#     data = request.get_json()
+#     new_publicity = Publicity(name=data['name']) # type: ignore
+#     db.session.add(new_publicity)
+#     db.session.commit()
+#     return jsonify({'message': 'Publicity created successfully'}), 201
 
-@api.route('/events', methods=['GET'])
-@decorators.login_required
-def api_get_events():
-    events = Event.get_regular_events().all()
-    event_data = [{
-        'id': event.id,
-        'name': event.name,
-        'description': event.description,
-        'game_category_id': event.game_category_id,
-        'event_type_id': event.event_type_id,
-        'publicity_id': event.publicity_id,
-        'start_time': event.start_time.isoformat(),
-        'end_time': event.end_time.isoformat(),
-        'discord_post_id': event.discord_post_id,
-        'time_created': event.time.isoformat(),
-    } for event in events]
-    # print(json.dumps(event_data, indent=4))
-    return jsonify({'events': event_data})
-
-
-@api.route('/events', methods=['POST'])
-def api_create_event():
-    data = request.get_json()
-
-    # Check table availability before creating the event
-    start_datetime = datetime.fromisoformat(data['start_time'])
-    end_datetime = datetime.fromisoformat(data['end_time'])
-    table_ids = data['table_ids']
-
-    available, conflicting_table = utils.check_availability(start_datetime, end_datetime, table_ids)
-    if not available:
-        return jsonify({'error': f'Table {conflicting_table} is already reserved for the selected time.'}), 409
-
-    # Create the event
-    new_event = Event(
-        name=data['name'], # type: ignore
-        description=data.get('description', None), # type: ignore
-        game_category_id=int(data['game_category_id']), # type: ignore
-        event_type_id=int(data['event_type_id']), # type: ignore
-        publicity_id=int(data['publicity_id']), # type: ignore
-        start_time=start_datetime, # type: ignore
-        end_time=end_datetime, # type: ignore
-        discord_post_id=data.get('discord_post_id', None), # type: ignore
-        time_created=datetime.utcnow() # type: ignore
-    )
-    db.session.add(new_event)
-    db.session.commit()
-    return jsonify({'message': 'Event created successfully'}), 201
+# @api.route('/events', methods=['GET'])
+# @decorators.login_required
+# def api_get_events():
+#     events = Event.get_regular_events().all()
+#     event_data = [{
+#         'id': event.id,
+#         'name': event.name,
+#         'description': event.description,
+#         'game_category_id': event.game_category_id,
+#         'event_type_id': event.event_type_id,
+#         'publicity_id': event.publicity_id,
+#         'start_time': event.start_time.isoformat(),
+#         'end_time': event.end_time.isoformat(),
+#         'discord_post_id': event.discord_post_id,
+#         'time_created': event.time.isoformat(),
+#     } for event in events]
+#     # print(json.dumps(event_data, indent=4))
+#     return jsonify({'events': event_data})
 
 
-@api.route('/tables', methods=['GET'])
-def api_get_tables():
-    tables = Table.query.all()
-    table_data = [{'id': table.id, 'name': table.name, 'type': table.type, 'capacity': table.capacity} for table in tables]
-    # print(json.dumps(table_data, indent=4))
-    return jsonify({'tables': table_data})
+# @api.route('/events', methods=['POST'])
+# def api_create_event():
+#     data = request.get_json()
 
-# POST endpoint to add a new table (if needed)
-@api.route('/tables', methods=['POST'])
-def api_create_table():
-    data = request.get_json()
-    new_table = Table(name=data['name'], type=data['type'], capacity=data['capacity']) # type: ignore
-    db.session.add(new_table)
-    db.session.commit()
-    return jsonify({'message': 'Table created successfully'}), 201
+#     # Check table availability before creating the event
+#     start_datetime = datetime.fromisoformat(data['start_time'])
+#     end_datetime = datetime.fromisoformat(data['end_time'])
+#     table_ids = data['table_ids']
+
+#     available, conflicting_table = utils.check_availability(start_datetime, end_datetime, table_ids)
+#     if not available:
+#         return jsonify({'error': f'Table {conflicting_table} is already reserved for the selected time.'}), 409
+
+#     # Create the event
+#     new_event = Event(
+#         name=data['name'], # type: ignore
+#         description=data.get('description', None), # type: ignore
+#         game_category_id=int(data['game_category_id']), # type: ignore
+#         event_type_id=int(data['event_type_id']), # type: ignore
+#         publicity_id=int(data['publicity_id']), # type: ignore
+#         start_time=start_datetime, # type: ignore
+#         end_time=end_datetime, # type: ignore
+#         discord_post_id=data.get('discord_post_id', None), # type: ignore
+#         time_created=datetime.utcnow() # type: ignore
+#     )
+#     db.session.add(new_event)
+#     db.session.commit()
+#     return jsonify({'message': 'Event created successfully'}), 201
+
+
+# @api.route('/tables', methods=['GET'])
+# def api_get_tables():
+#     tables = Table.query.all()
+#     table_data = [{'id': table.id, 'name': table.name, 'type': table.type, 'capacity': table.capacity} for table in tables]
+#     # print(json.dumps(table_data, indent=4))
+#     return jsonify({'tables': table_data})
+
+# # POST endpoint to add a new table (if needed)
+# @api.route('/tables', methods=['POST'])
+# def api_create_table():
+#     data = request.get_json()
+#     new_table = Table(name=data['name'], type=data['type'], capacity=data['capacity']) # type: ignore
+#     db.session.add(new_table)
+#     db.session.commit()
+#     return jsonify({'message': 'Table created successfully'}), 201
+
+
+
+# ======================================
+# ========== App API Stuff =============
+# ======================================
+
+
 
 @api.route('/reservations/<string:view_type>', methods=['GET'])
 def api_get_reservations(view_type=None):
@@ -335,25 +344,6 @@ def check_table_availability():
     return jsonify({'tables': table_availability})
 
 
-# @api.route('register_user', methods=['POST'])
-# def register_user():
-#     data = request.get_json()
-
-#     # Extract the message_id, username, and action from the request data
-#     message_id = data.get('message_id')
-#     username = data.get('username')
-#     action = data.get('action')  # "attend", "maybe", "not_attend"
-
-#     if not message_id or not username or not action:
-#         return jsonify({"error": "Missing data"}), 400
-    
-#     # Call the function to process the registration (add user to event)
-#     result = register_user_for_event(message_id, username, action)
-
-#     return jsonify(result), 200
-
-
-
 @api.route('/attendance', methods=['POST'])
 def handle_attendance():
     data = request.json
@@ -397,34 +387,93 @@ def handle_attendance():
     
 
 
-@api.route('/resolve_overlap', methods=['POST'])
-def resolve_overlap():
+# ======================================
+# ========= Discord Bot API ============
+# ======================================
+
+def parse_bool(val):
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, str):
+        return val.lower() in ['true', '1', 'yes', 'y']
+    if isinstance(val, int):
+        return val == 1
+    return False
+
+
+def get_resolve_data_safely(data, has_user: bool):
     data = request.json
 
     if not data:
         return jsonify({"status": "error", "message": "No data in request."}), 500
 
     try:
-        discord_user_id = int(data.get('discord_user_id'))
-        channel_id = int(data.get('channel_id'))  # ← now this instead of message_id
+        if has_user:
+            discord_user_id = int(data.get('discord_user_id'))
+
+        channel_id = int(data.get('channel_id'))
     except:
         return jsonify({"status": "error", "message": "Error in integer fields."}), 400
     
     # get validated bool if new should overwrite old
-    prefer_new = data.get("prefer_new")
-    if prefer_new not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-        return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
-    prefer_new = str(prefer_new).lower() in ['true', '1']
+    approve = data.get("approve")
+    is_vorstand = data.get("is_vorstand")
 
-    is_vorstand = data.get("prefer_new")
-    if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-        return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
-    is_vorstand = str(is_vorstand).lower() in ['true', '1']
+    if not isinstance(approve, bool) or not isinstance(is_vorstand, bool):
+        return jsonify({"status": "error", "message": "approve and is_vorstand must be booleans."}), 400
 
-    if any(x is None for x in [discord_user_id, channel_id, prefer_new, is_vorstand]):
+    if any(x is None for x in [channel_id, approve, is_vorstand]):
         return jsonify({"status": "error", "message": "Missing required fields."}), 400
     
-    print(f"{discord_user_id=} {channel_id=} {prefer_new=} {is_vorstand=}")
+    if has_user and discord_user_id == None:
+        return jsonify({"status": "error", "message": "Missing required discord_user_id field."}), 400
+    
+    
+
+    if has_user:
+        logging.info(f"{discord_user_id=} {channel_id=} {approve=} {is_vorstand=}")
+        return None, (discord_user_id, channel_id, approve, is_vorstand)
+    else:
+        logging.info(f" {channel_id=} {approve=} {is_vorstand=}")
+        return None, (channel_id, approve, is_vorstand)
+
+
+@api.route('/resolve_overlap', methods=['POST'])
+def resolve_overlap():
+    # data = request.json
+
+    # if not data:
+    #     return jsonify({"status": "error", "message": "No data in request."}), 500
+
+    # try:
+    #     discord_user_id = int(data.get('discord_user_id'))
+    #     channel_id = int(data.get('channel_id'))  # ← now this instead of message_id
+    # except:
+    #     return jsonify({"status": "error", "message": "Error in integer fields."}), 400
+    
+    # # get validated bool if new should overwrite old
+    # approve = data.get("prefer_new")
+    # if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+    #     return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
+    # approve = str(approve).lower() in ['true', '1']
+
+    # is_vorstand = data.get("prefer_new")
+    # if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+    #     return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
+    # is_vorstand = str(is_vorstand).lower() in ['true', '1']
+
+    # if any(x is None for x in [discord_user_id, channel_id, approve, is_vorstand]):
+    #     return jsonify({"status": "error", "message": "Missing required fields."}), 400
+    
+    # print(f"{discord_user_id=} {channel_id=} {approve=} {is_vorstand=}")
+
+
+    error, values = get_resolve_data_safely(request.json, has_user=True)
+    if error:
+        return error
+
+    discord_user_id, channel_id, approve, is_vorstand = values # type: ignore
+
 
     # Find overlap by Discord channel ID
     overlap = Overlap.query.filter_by(request_discord_channel_id=channel_id).first()
@@ -443,61 +492,57 @@ def resolve_overlap():
         return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
     # Actual Function:
-
-    event_manager = current_app.config['event_manager']
-    if not prefer_new and (is_creator_requesting or is_vorstand):
+    if not approve and (is_creator_requesting or is_vorstand):
         # event_manager.delete_event(overlap.requesting_event)
         overlap.resolve_overlap(EventState.DENIED)
         deleted = "requesting event"
-    elif prefer_new and (is_creator_existing or is_vorstand):
+    elif approve and (is_creator_existing or is_vorstand):
         # event_manager.delete_event(overlap.existing_event)
         overlap.resolve_overlap(EventState.APPROVED)
         deleted = "existing event"
     else:
         return jsonify({"status": "error", "message": "Unauthorized"}), 403
-
     db.session.commit()
 
-    # THIS WIILL NOT WORK BECAUSE IT BLOCKS   this api call is awaited
-    # discord_handler = current_app.config['discord_handler']
-    # discord_handler.resolve_overlap_ticket_channel(overlap)
-
-
     run_event_manager(overlap.requesting_event)
-    # event_manager.event_state_handler(overlap.requesting_event)
 
-    
     return jsonify({"status": "success", "message": f"{deleted} deleted by creator."})
 
 
 
 @api.route('/resolve_size', methods=['POST'])
 def resolve_size():
-    data = request.json
+    # data = request.json
 
-    if not data:
-        return jsonify({"status": "error", "message": "No data in request."}), 500
+    # if not data:
+    #     return jsonify({"status": "error", "message": "No data in request."}), 500
 
-    try:
-        channel_id = int(data.get('channel_id'))
-    except:
-        return jsonify({"status": "error", "message": "Error in integer fields."}), 400
+    # try:
+    #     channel_id = int(data.get('channel_id'))
+    # except:
+    #     return jsonify({"status": "error", "message": "Error in integer fields."}), 400
 
-    approve = data.get("approve")
-    is_vorstand = data.get("is_vorstand")
+    # approve = data.get("approve")
+    # is_vorstand = data.get("is_vorstand")
 
-    if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-        return jsonify({"status": "error", "message": "Missing or invalid 'approve' flag."}), 400
-    if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-        return jsonify({"status": "error", "message": "Missing or invalid 'is_vorstand' flag."}), 400
+    # if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+    #     return jsonify({"status": "error", "message": "Missing or invalid 'approve' flag."}), 400
+    # if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+    #     return jsonify({"status": "error", "message": "Missing or invalid 'is_vorstand' flag."}), 400
 
-    approve = str(approve).lower() in ['true', '1']
-    is_vorstand = str(is_vorstand).lower() in ['true', '1']
+    # approve = str(approve).lower() in ['true', '1']
+    # is_vorstand = str(is_vorstand).lower() in ['true', '1']
 
-    if any(x is None for x in [channel_id, approve, is_vorstand]):
-        return jsonify({"status": "error", "message": "Missing required fields."}), 400
+    # if any(x is None for x in [channel_id, approve, is_vorstand]):
+    #     return jsonify({"status": "error", "message": "Missing required fields."}), 400
 
-    print(f"{channel_id=} {approve=} {is_vorstand=}")
+    # print(f"{channel_id=} {approve=} {is_vorstand=}")
+
+    error, values = get_resolve_data_safely(request.json, has_user=False)
+    if error:
+        return error
+
+    channel_id, approve, is_vorstand = values # type: ignore
 
     # Find the Event by size_request_discord_channel_id
     event = Event.get_regular_events().filter_by(size_request_discord_channel_id=channel_id).first()
@@ -507,17 +552,11 @@ def resolve_size():
     if not is_vorstand:
         return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
+
+    # resolve_size_thread(db, event)
     # Update state
     event.state_size = EventState.APPROVED if approve else EventState.DENIED
     db.session.commit()
-
-    # THIS WIILL NOT WORK BECAUSE IT BLOCKS   this api call is awaited
-    # discord_handler = current_app.config['discord_handler']
-    # discord_handler.resolve_size_ticket_channel(event)
-
-    # Run state handler
-    # event_manager = current_app.config['event_manager']
-    # event_manager.event_state_handler(event)
 
     
     # In your API route or wherever you're triggering it:
@@ -526,6 +565,7 @@ def resolve_size():
 
     msg = "Event genehmigt." if approve else "Event abgelehnt."
     return jsonify({"status": "success", "message": msg})
+
 
 
 def run_event_manager(event):

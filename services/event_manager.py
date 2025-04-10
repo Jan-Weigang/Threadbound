@@ -3,6 +3,7 @@
 from tt_calendar.models import Event, Reservation, db, EventState, Overlap
 from tt_calendar import utils
 from sqlalchemy import false, true
+import logging
 
 class EventManager:
     def __init__(self, discord_handler):
@@ -51,6 +52,8 @@ class EventManager:
         event.start_time = form_data['start_datetime_utc']
         event.end_time = form_data['end_datetime_utc']
         event.user_id = user.id
+
+        event.is_published = False
 
         try:
             Reservation.query.filter_by(event_id=event.id).delete()
@@ -268,6 +271,7 @@ class EventManager:
                 print(f"reached a case where {event.name} was not published but already approved")
         
         event.set_publish_state()       # Sets to published
+        logging.info(f"I just published event {event.name}")
         message_id = self.discord_handler.post_to_discord(event, action="update")
         if message_id:
             event.discord_post_id = message_id

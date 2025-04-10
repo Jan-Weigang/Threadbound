@@ -27,8 +27,7 @@ load_dotenv()
 
 # in tickets infos des events
 
-# TODO make Discord Chat functions
-# TODO make non-published and templates visible in calendar.
+# TODO make  templates visible in calendar.
 
 # TODO 8QugpIzfYAge Published aber Requested. Nach Published wieder durch Änerung überlappt.
 # Editieren müsste publish zurücknehmen.
