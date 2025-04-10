@@ -2,6 +2,7 @@ from .config import guild_id, guild_roles
 from .bot import bot
 import discord
 
+import logging
 
 async def get_nickname(discord_user_id):
     guild = bot.get_guild(guild_id)
@@ -18,8 +19,6 @@ async def get_nickname(discord_user_id):
 async def is_guild_role(discord_user_id: int, role_string):
     discord_user_id = int(discord_user_id)
     guild = bot.get_guild(guild_id)
-
-    print(f"- - is guild role with {discord_user_id=} and {guild=}")
 
     if not guild:
         return False
@@ -49,7 +48,7 @@ async def send_message_in_event_thread(channel_id, message_id, message: str):
 
     channel = bot.get_channel(channel_id)
     if not isinstance(channel, discord.TextChannel):
-        print(f"❌ Could not retrieve channel {channel_id}.")
+        logging.info(f"❌ Could not retrieve channel {channel_id}.")
         return
 
     try:
@@ -59,16 +58,15 @@ async def send_message_in_event_thread(channel_id, message_id, message: str):
 
         if thread:
             await thread.send(message)
-            print(f"✅ Sent reminder in thread for event.")
         else:
-            print(f"⚠️ No thread found for event.")
+            logging.info(f"⚠️ No thread found for event.")
 
     except discord.NotFound:
-        print(f"❌ Message {message_id} not found in {channel.name}")
+        logging.error(f"❌ Message {message_id} not found in {channel.name}")
     except discord.Forbidden:
-        print(f"❌ No permission to fetch message {message_id} in {channel.name}")
+        logging.error(f"❌ No permission to fetch message {message_id} in {channel.name}")
     except discord.HTTPException as e:
-        print(f"❌ HTTP error while fetching message {message_id}: {e}")
+        logging.error(f"❌ HTTP error while fetching message {message_id}: {e}")
 
 
 async def add_user_to_event_thread(channel_id: int, message_id: int, user_id: int):
@@ -80,9 +78,8 @@ async def add_user_to_event_thread(channel_id: int, message_id: int, user_id: in
     thread = message.thread
 
     if not thread:
-        print(f"⚠️ No thread found on message {message_id}")
+        logging.info(f"⚠️ No thread found on message {message_id}")
         return
 
     user = await bot.fetch_user(user_id)
     await thread.add_user(user)
-    print(f"✅ Added user {user_id} to thread {thread.name}")

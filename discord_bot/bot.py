@@ -26,13 +26,13 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     guild = bot.get_guild(guild_id)
     assert guild
-    print(f'{bot.user} has connected to Discord guild {guild.name}!')
+    logging.info(f'{bot.user} has connected to Discord guild {guild.name}!')
 
     if guild:
         await guild.chunk()
-        print(f"✅ Chunked {guild.name} – {len(guild.members)} members cached.")
+        logging.info(f"✅ Chunked {guild.name} – {len(guild.members)} members cached.")
     else:
-        print("❌ Guild not found. Check GUILD_ID.")
+        logging.error("❌ Guild not found. Check GUILD_ID.")
 
     bot.add_view(OverlapTicketView(bot)) 
     bot.add_view(SizeTicketView(bot))
@@ -47,15 +47,11 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    print("I am running on_message")
     # Check if the message author is the bot itself; if so, return early
     if message.author != bot.user:
         return  # Skip processing if the message is from the bot itself
 
-    # Check if the message was posted in one of the Kalenderchannels
     if message.channel.id in kalender_channels.values():
-        
-        # Extract event_id from the embed
         event_id = None
         if message.embeds:
             embed = message.embeds[0]
@@ -64,7 +60,7 @@ async def on_message(message):
                 event_id = footer_text.split("Event ID: ")[-1][:12]  # Get the 12 characters after "Event ID: "
 
         if not event_id:
-            print("Event ID not found in the embed footer.")
+            logging.info("Event ID not found in the embed footer.")
             return
 
         # Create the buttons
@@ -75,10 +71,7 @@ async def on_message(message):
 
         server_name = os.getenv('SERVER_NAME')
         ics_url = f"https://{server_name}/ics/event/{event_id}"
-        print(ics_url)
         view.add_item(discord.ui.Button(label="ICS", style=discord.ButtonStyle.link, url=ics_url))
-
-
 
         # Check if the message contains only an embed
         if message.embeds and not message.content:
@@ -93,22 +86,20 @@ async def on_message(message):
             try:
                 # Create the thread attached to the message
                 thread = await message.create_thread(name=thread_name, auto_archive_duration=1440)  # 1440 is for 24-hour archive duration
-                print(f"Thread '{thread_name}' created successfully.")
             except discord.Forbidden:
-                print("Bot does not have permission to create threads in this channel.")
+                logging.error("Bot does not have permission to create threads in this channel.")
             except discord.HTTPException as e:
-                print(f"Failed to create thread: {e}")
+                logging.error(f"Failed to create thread: {e}")
 
         # Create a thread for discussion if the channel allows it
         if isinstance(message.channel, discord.TextChannel):
             try:
                 # Create the thread attached to the message
                 await message.edit(view=view)
-                print(f"Thread '{thread_name}' created successfully.")
             except discord.Forbidden:
-                print("Bot does not have permission to create threads in this channel.")
+                logging.error("Bot does not have permission to create threads in this channel.")
             except discord.HTTPException as e:
-                print(f"Failed to create thread: {e}")
+                logging.error(f"Failed to create thread: {e}")
 
 
 
@@ -119,7 +110,7 @@ async def on_message(message):
 
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
-    print("I am running on_interaction")
+
     # TODO CHANGE THIS TO SMARTER BUTTONS
     try:
         await interaction.response.defer(ephemeral=True)
@@ -133,8 +124,6 @@ async def on_interaction(interaction: discord.Interaction):
     assert interaction.data
     custom_id = interaction.data.get('custom_id')
 
-    
-    
 
     # ======================================
     #             Function Switch
@@ -151,7 +140,6 @@ async def on_interaction(interaction: discord.Interaction):
 
 
 async def interact_with_event(interaction, action):
-    print("test")
     from .utils import get_nickname
     # Prepare data for the Flask API request
 
@@ -170,25 +158,17 @@ async def interact_with_event(interaction, action):
         response = requests.post(f"https://{server_name}/api/attendance", json=data)
         result = response.json()
 
-        print("json result:")
-        print(result)
-
         # Process the API response
         if response.status_code == 200:
             pass
 
         else:
             message = result.get('message', 'No message provided')
-            print(f"Error from API: {message}")
+            logging.error(f"Error from API while interacting with event: {message}")
 
     except Exception as e:
         await interaction.followup.send("An error occurred while processing your request.", ephemeral=True)
-        print(f"Error in handling interaction: {e}")
-
-
-
-
-
+        logging.error(f"Error in handling interaction: {e}")
 
 
 

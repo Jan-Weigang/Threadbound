@@ -29,16 +29,15 @@ async def update_event_embed_in_discord(channel_id, new_embed, message_id):
         try:
             message = await channel.fetch_message(message_id)
             await message.edit(embed=new_embed)
-            print("Message updated successfully.")
             return message_id
         except discord.NotFound:
-            print("Message not found.")
+            logging.error("Message not found.")
             return None
         except discord.Forbidden:
-            print("Permission to edit message denied.")
+            logging.error("Permission to edit message denied.")
             return None
         except discord.HTTPException as e:
-            print(f"HTTP error occurred: {e}")
+            logging.error(f"HTTP error occurred: {e}")
             return None
 
 
@@ -69,7 +68,6 @@ def generate_event_embed(event, channel_id, action):
 
         
     thumbnail_url = url_for('main.serve_thumbnail', filename='thumbnail.png', _external=True)
-    print(thumbnail_url)
     embed.set_thumbnail(url=thumbnail_url)
 
     embed.set_author(name=f"{event.start_time.strftime('%d.%m.%Y')} - {event.event_type.name} - {event.game_category.name}")

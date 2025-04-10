@@ -105,7 +105,7 @@ async def get_member_safely(guild, uid):
         try:
             member = await guild.fetch_member(uid)
         except Exception as e:
-            print(f"❌ Could not fetch member {uid}: {e}")
+            logging.error(f"❌ Could not fetch member {uid}: {e}")
     return member
 
 
@@ -325,7 +325,6 @@ async def handle_overlap_resolution(interaction, approve: bool):
         "approve": approve,
         "is_vorstand": is_vorstand
     }
-    print(data)
 
     try:
         server_name = os.getenv("SERVER_NAME")
@@ -340,7 +339,7 @@ async def handle_overlap_resolution(interaction, approve: bool):
             await interaction.channel.send(f"❌ {result.get('message', 'Fehler beim Löschen.')}")
 
     except Exception as e:
-        print(f"[handle_overlap_resolution] {e}")
+        logging.error(f"[handle_overlap_resolution] {e}")
         await interaction.followup.send("❌ Serverfehler beim Löschen.", ephemeral=True)
 
 
@@ -367,7 +366,6 @@ async def handle_size_resolution(interaction, approve: bool):
         "approve": approve,
         "is_vorstand": is_vorstand
     }
-    print(data)
 
     try:
         server_name = os.getenv("SERVER_NAME")
@@ -381,7 +379,7 @@ async def handle_size_resolution(interaction, approve: bool):
             await interaction.channel.send(f"❌ {result.get('message', 'Fehler beim Aktualisieren.')}")
 
     except Exception as e:
-        print(f"[handle_size_resolution] {e}")
+        logging.error(f"[handle_size_resolution] {e}")
         await interaction.followup.send("❌ Serverfehler beim Bearbeiten der Größe.", ephemeral=True)
 
 
@@ -398,20 +396,19 @@ async def handle_size_resolution(interaction, approve: bool):
 async def change_resolved_ticket_view(bot, channel_id: int):
     guild = bot.get_guild(guild_id)
     if not guild:
-        print("❌ Guild not found")
+        logging.info("❌ Guild not found")
         return
 
     channel = guild.get_channel(channel_id)
     if not channel:
-        print("❌ Channel not found")
+        logging.info("❌ Channel not found")
         return
 
     try:
         async for message in channel.history(oldest_first=True, limit=1):
             await message.edit(view=CloseOnlyTicketView(bot))
-            print(f"✅ Replaced view in channel {channel.name} ({channel.id})")
             return
 
-        print(f"⚠️ No message found in channel {channel.name} to edit.")
+        logging.error(f"⚠️ No message found in channel {channel.name} to edit.")
     except Exception as e:
-        print(f"❌ Failed to replace view: {e}")
+        logging.error(f"❌ Failed to replace view: {e}")
