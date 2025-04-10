@@ -234,7 +234,6 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
     return reservation_data
 
 
-
 # POST endpoint to add a new reservation (if needed)
 @api.route('/reservations', methods=['POST'])
 def api_create_reservation():
@@ -301,12 +300,6 @@ def check_table_availability():
         if reservations:
             events_on_date = [reservation.associated_event for reservation in reservations]
             events_on_date.sort(key=lambda event: event.start_time)
-            # # Calculate the earliest available start and latest possible end times for the table
-            # events_on_date = Event.query.filter(
-            #     Event.reservations.any(Reservation.table_id == table.id),
-            #     Event.start_time >= datetime.combine(start_datetime.date(), time.min),
-            #     Event.start_time <= datetime.combine(start_datetime.date(), time.max)
-            # ).order_by(Event.start_time).all()
 
             if events_on_date:
                 # Determine the earliest available start time and the latest possible end time for the day
@@ -318,11 +311,6 @@ def check_table_availability():
                     if event.end_time > end_datetime and event.start_time < start_datetime:
                         earliest_available_start = event.end_time
                         latest_possible_end = event.start_time
-
-                # if not earliest_available_start:
-                #     earliest_available_start = start_datetime.replace(hour=0, minute=0)
-                # if not latest_possible_end:
-                #     latest_possible_end = end_datetime.replace(hour=23, minute=59)
 
             table_availability.append({
                 'table_id': table.id,
@@ -376,13 +364,7 @@ def handle_attendance():
 
         db.session.commit()
 
-        # discord_handler = current_app.config['discord_handler']
-        # discord_handler.post_to_discord(event, action='update')
-        # if action == "attend":
-        #     discord_handler.add_user_to_event_thread(event, user.discord_id)
-
         run_discord_post_update(event, user.discord_id if action == "attend" else None)
-
         return jsonify({"status": "success", "message": f"User marked as {action} for event."})
 
     except Exception as e:
@@ -458,33 +440,6 @@ def get_resolve_data_safely(data, has_user: bool):
 
 @api.route('/resolve_overlap', methods=['POST'])
 def resolve_overlap():
-    # data = request.json
-
-    # if not data:
-    #     return jsonify({"status": "error", "message": "No data in request."}), 500
-
-    # try:
-    #     discord_user_id = int(data.get('discord_user_id'))
-    #     channel_id = int(data.get('channel_id'))  # ← now this instead of message_id
-    # except:
-    #     return jsonify({"status": "error", "message": "Error in integer fields."}), 400
-    
-    # # get validated bool if new should overwrite old
-    # approve = data.get("prefer_new")
-    # if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-    #     return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
-    # approve = str(approve).lower() in ['true', '1']
-
-    # is_vorstand = data.get("prefer_new")
-    # if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-    #     return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
-    # is_vorstand = str(is_vorstand).lower() in ['true', '1']
-
-    # if any(x is None for x in [discord_user_id, channel_id, approve, is_vorstand]):
-    #     return jsonify({"status": "error", "message": "Missing required fields."}), 400
-    
-    # print(f"{discord_user_id=} {channel_id=} {approve=} {is_vorstand=}")
-
     error, values = get_resolve_data_safely(request.json, has_user=True)
     if error:
         return error
@@ -529,32 +484,6 @@ def resolve_overlap():
 
 @api.route('/resolve_size', methods=['POST'])
 def resolve_size():
-    # data = request.json
-
-    # if not data:
-    #     return jsonify({"status": "error", "message": "No data in request."}), 500
-
-    # try:
-    #     channel_id = int(data.get('channel_id'))
-    # except:
-    #     return jsonify({"status": "error", "message": "Error in integer fields."}), 400
-
-    # approve = data.get("approve")
-    # is_vorstand = data.get("is_vorstand")
-
-    # if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-    #     return jsonify({"status": "error", "message": "Missing or invalid 'approve' flag."}), 400
-    # if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
-    #     return jsonify({"status": "error", "message": "Missing or invalid 'is_vorstand' flag."}), 400
-
-    # approve = str(approve).lower() in ['true', '1']
-    # is_vorstand = str(is_vorstand).lower() in ['true', '1']
-
-    # if any(x is None for x in [channel_id, approve, is_vorstand]):
-    #     return jsonify({"status": "error", "message": "Missing required fields."}), 400
-
-    # print(f"{channel_id=} {approve=} {is_vorstand=}")
-
     error, values = get_resolve_data_safely(request.json, has_user=False)
     if error:
         return error

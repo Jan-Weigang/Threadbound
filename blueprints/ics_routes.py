@@ -31,12 +31,12 @@ def get_event_ics(event_id):
     
     for instance in instances:
         ics_event.name = instance.name
-        ics_event.begin = instance.start_time.isoformat()
-        ics_event.end = instance.end_time.isoformat()
+        ics_event.begin = instance.start_time
+        ics_event.end = instance.end_time
         ics_event.uid = f"{instance.id}@3TH"
         ics_event.description = instance.description
         ics_event.location = f"https://{instance.get_discord_message_url()}"  # Optional: Discord URL as location if relevant
-        ics_event.created = instance.time_created.isoformat()
+        ics_event.created = instance.time_created
 
         calendar.events.add(ics_event)
     calendar_bytes = BytesIO(calendar.serialize().encode('utf-8'))

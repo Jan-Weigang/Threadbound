@@ -21,22 +21,11 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO 
-
-
-
 # Abgesagt ignorieren wenn gelöscht oder nicht published
-
-# delete channel should only try
 
 # in tickets infos des events
 
 # TODO make  templates visible in calendar.
-
-# TODO 8QugpIzfYAge Published aber Requested. Nach Published wieder durch Änerung überlappt.
-# Editieren müsste publish zurücknehmen.
-# Beim posten testen ob es schon nen Post gab und nur aktualisieren.
-# Unpublish und in Discord "Muss bestätigt werden" schriben.
 
 # TODO Gradien downward when Days in vertical mode.
 
@@ -46,21 +35,12 @@ load_dotenv()
 # TODO Hover Buttons links und rechts funktional als + - Zeit nutzen
 # TODO weitere Hover Buttons ergänzen oben neben den Tagen, die für + - Tage nutzen.
 
-# TODO Buttons für Ansichten tauschen.
-
-# TODO von bis 18:00 in den Buttens könnte übersichtlicher
 # TODO Zurückbutton von Event Form
 # TODO Time Scale each hour? Then only show every 2nd in nmobile
 
-# TODO Update bei aktualisierung des Projekts
+# TODO non member haben zwar ne Session aber keinen Member Status. Damit in einem Nirvana. ?
 
-# TODO non member haben zwar ne Session aber keinen Member Status. Damit in einem Nirvana.
-
-# TODO Event form extra Button der "knows_overlap" oder sowas hat, damit Check in Create umgangen wird für event state handler dann.
-
-
-# TODO Remove the DB logic from the api Calls and put them in their own module
-
+# possible: Remove the DB logic from the api Calls and put them in their own module
 # Possibly add other hovering buttons for time scale movements (left right)
 
 # TODO Adjust Editing Termine so check does not always say "12:00".
@@ -68,11 +48,7 @@ load_dotenv()
 # TODO Adjust Editing Termine: Button should be grey, not invis. 
 # Also add a button for "ask to overlap" --> Stammtisch
 
-
 # TODO Templates als Stammtsichkalender
-
-
-
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
 # Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
 
@@ -86,8 +62,6 @@ load_dotenv()
 
 # TODO Models anpassen mit "Template_ID" als Link, nullbar, default null.
 
-# TODO Ab 4 Tischen automatische Planung und Vorstandsticket zur Bestätigung. Gilt als "Vereinsevent"
-# TODO Diese Unterscheidung muss auch in die Module
 
 # TODO (1) Alembic - für Migration Changes und ICS Recurrence
 
@@ -125,7 +99,6 @@ load_dotenv()
 # TODO Löschantrag für eigene ID zu löschen.
 # TODO DSGVO Datenabfrage?
 
-
 # Feedback 10.4.2025
 
 # Gruppentypen - Geschlossene Gruppe, Vereinsintern, Öffentlich
@@ -138,33 +111,19 @@ load_dotenv()
 # Kollision etwas unituitiv - Müsste ein Hinweis per css, dass es weggenommen wurde. Oder ein Crash Symbol
 
 # Bei Editieren eine falsche Anzeige? Rollenspiel aber mit BrettspielwürfeL?
-
 # Popup bei Absagen sagt nicht "absagen"
-
 # auf kleinen Bildschirmen Tischansicht bissl zu groß. Browseradressleiste verschiebt skalieren. Android
-
 # Benachrichtigungen bei Absage an alle Teilnehme und nicht nur Everyone im Thread?
-
 # Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
-
 # "Heute" farbig hervorheben.
-
 # Fehlende Berechtigungen zum Löschen des 3TH Kalender Bots
-
 # Admins können noch nicht editieren, events
-
 # Nutzername neben logout.
-
 # Kollidierende Reservierung beantragen könnte im WOrtlaut anders heißen. Button.
-
 # Hintergrund ändern je nach Typ des Kalenders (Stammtischkalender, Öffentlich, Mitglieder)
-
 # Neu Laden auf dem Handy springt zu falschem Datum?
-
 # Warnung für Termine in Vergangenheit und keine Threads!
-
 # Nicht weiter in die Zukunft als ein Jahr. Warnung ab 3 Monate in Zukunft
-
 # Absagen ist gut, löschen erzeugt fehler, list.count() takes one argument 0 given.
 
 # ======================================
