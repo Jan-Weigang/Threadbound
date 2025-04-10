@@ -5,9 +5,7 @@ from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Eve
 from datetime import datetime, time
 from sqlalchemy import or_, and_
 
-from tt_calendar import decorators
 from tt_calendar import utils
-import json
 import threading
 import logging
 
@@ -50,21 +48,21 @@ api = Blueprint('api_bp', __name__)
 #     db.session.commit()
 #     return jsonify({'message': 'Game Category created successfully'}), 201
 
-# @api.route('/event-types', methods=['GET'])
-# def api_get_event_types():
-#     event_types = EventType.query.all()
-#     event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
-#     # print(json.dumps(event_type_data, indent=4))
-#     return jsonify({'event_types': event_type_data})
+@api.route('/event-types', methods=['GET'])
+def api_get_event_types():
+    event_types = EventType.query.all()
+    event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
+    # print(json.dumps(event_type_data, indent=4))
+    return jsonify({'event_types': event_type_data})
 
-# # POST endpoint to add a new event type (if needed)
-# @api.route('/event-types', methods=['POST'])
-# def api_create_event_type():
-#     data = request.get_json()
-#     new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
-#     db.session.add(new_event_type)
-#     db.session.commit()
-#     return jsonify({'message': 'Event Type created successfully'}), 201
+# POST endpoint to add a new event type (if needed)
+@api.route('/event-types', methods=['POST'])
+def api_create_event_type():
+    data = request.get_json()
+    new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
+    db.session.add(new_event_type)
+    db.session.commit()
+    return jsonify({'message': 'Event Type created successfully'}), 201
 
 # @api.route('/publicities', methods=['GET'])
 # def api_get_publicities():
@@ -391,16 +389,6 @@ def handle_attendance():
 # ========= Discord Bot API ============
 # ======================================
 
-def parse_bool(val):
-    if isinstance(val, bool):
-        return val
-    if isinstance(val, str):
-        return val.lower() in ['true', '1', 'yes', 'y']
-    if isinstance(val, int):
-        return val == 1
-    return False
-
-
 def get_resolve_data_safely(data, has_user: bool):
     data = request.json
 
@@ -427,8 +415,6 @@ def get_resolve_data_safely(data, has_user: bool):
     
     if has_user and discord_user_id == None:
         return jsonify({"status": "error", "message": "Missing required discord_user_id field."}), 400
-    
-    
 
     if has_user:
         logging.info(f"{discord_user_id=} {channel_id=} {approve=} {is_vorstand=}")
@@ -466,7 +452,6 @@ def resolve_overlap():
     #     return jsonify({"status": "error", "message": "Missing required fields."}), 400
     
     # print(f"{discord_user_id=} {channel_id=} {approve=} {is_vorstand=}")
-
 
     error, values = get_resolve_data_safely(request.json, has_user=True)
     if error:
@@ -552,20 +537,16 @@ def resolve_size():
     if not is_vorstand:
         return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
-
     # resolve_size_thread(db, event)
     # Update state
     event.state_size = EventState.APPROVED if approve else EventState.DENIED
     db.session.commit()
 
-    
     # In your API route or wherever you're triggering it:
     run_event_manager(event)
 
-
     msg = "Event genehmigt." if approve else "Event abgelehnt."
     return jsonify({"status": "success", "message": msg})
-
 
 
 def run_event_manager(event):
@@ -574,6 +555,7 @@ def run_event_manager(event):
     event_id = event.id
     thread = threading.Thread(target=event_manager_function, args=(app, event_id))
     thread.start()
+
 
 def event_manager_function(app, event_id):
     with app.app_context():

@@ -21,6 +21,10 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO 
+
+
+
 # Abgesagt ignorieren wenn gelöscht oder nicht published
 
 # delete channel should only try
@@ -121,6 +125,47 @@ load_dotenv()
 # TODO Löschantrag für eigene ID zu löschen.
 # TODO DSGVO Datenabfrage?
 
+
+# Feedback 10.4.2025
+
+# Gruppentypen - Geschlossene Gruppe, Vereinsintern, Öffentlich
+
+# Overview / Modal eines Events mit Escape abbrechen können
+# Tooltip auf das Symbol des Eventtype (Rollenspiel) bei Events
+
+# Bei Event erstellung (Ansicht) eine Checkbox für teilnehmen, die standardmäßig an ist?
+
+# Kollision etwas unituitiv - Müsste ein Hinweis per css, dass es weggenommen wurde. Oder ein Crash Symbol
+
+# Bei Editieren eine falsche Anzeige? Rollenspiel aber mit BrettspielwürfeL?
+
+# Popup bei Absagen sagt nicht "absagen"
+
+# auf kleinen Bildschirmen Tischansicht bissl zu groß. Browseradressleiste verschiebt skalieren. Android
+
+# Benachrichtigungen bei Absage an alle Teilnehme und nicht nur Everyone im Thread?
+
+# Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
+
+# "Heute" farbig hervorheben.
+
+# Fehlende Berechtigungen zum Löschen des 3TH Kalender Bots
+
+# Admins können noch nicht editieren, events
+
+# Nutzername neben logout.
+
+# Kollidierende Reservierung beantragen könnte im WOrtlaut anders heißen. Button.
+
+# Hintergrund ändern je nach Typ des Kalenders (Stammtischkalender, Öffentlich, Mitglieder)
+
+# Neu Laden auf dem Handy springt zu falschem Datum?
+
+# Warnung für Termine in Vergangenheit und keine Threads!
+
+# Nicht weiter in die Zukunft als ein Jahr. Warnung ab 3 Monate in Zukunft
+
+# Absagen ist gut, löschen erzeugt fehler, list.count() takes one argument 0 given.
 
 # ======================================
 # ============= APP SETUP ==============

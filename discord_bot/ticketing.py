@@ -122,15 +122,9 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
     :param ping_role: Optional role to mention (e.g. Vorstand).
     """
 
-    print(f"{overlapped_member_id=} {creator_id=}")
-
-
     guild = bot.get_guild(guild_id)
-    print(guild.name)
     category = guild.get_channel(int(ticket_category_id))
     creator = await get_member_safely(guild, creator_id)
-
-    print(f"🔍 Creator: {creator} ({creator_id})")
 
     bot_role = guild.get_role(guild_roles["bot"])
     vorstand_role = guild.get_role(guild_roles["vorstand"])
@@ -146,11 +140,7 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
     }
 
     if overlapped_member_id:
-        print("if overlapped")
-        
         overlapped_member = await get_member_safely(guild, overlapped_member_id)
-
-        print(f"{overlapped_member=} {creator=}")
 
         channel_name = f"doppelbuchung-{creator.name.lower()}-{timestamp}"
         description = (
