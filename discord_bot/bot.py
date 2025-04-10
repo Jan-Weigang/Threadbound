@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 
 from .config import discord_token, kalender_channels, guild_id, guild_roles
-from .ticketing import TicketCloseView, reaction_close_check
+from .ticketing import OverlapTicketView, SizeTicketView, reaction_close_check
 
 
 import os, requests, datetime, pytz
@@ -34,7 +34,8 @@ async def on_ready():
     else:
         print("❌ Guild not found. Check GUILD_ID.")
 
-    bot.add_view(TicketCloseView(bot)) 
+    bot.add_view(OverlapTicketView(bot)) 
+    bot.add_view(SizeTicketView(bot)) 
 
 
 

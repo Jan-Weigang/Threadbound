@@ -21,16 +21,20 @@ from .config import *
 # ====================================================================================================================
 
 
-class TicketCloseView(View):
+class OverlapTicketView(View):
     def __init__(self, bot):
         super().__init__(timeout=None)
         self.bot = bot
 
-    @discord.ui.button(label="✅ Schließen", style=ButtonStyle.success, custom_id="ticket_close")
-    async def user_close(self, interaction: discord.Interaction, button: Button):
-        await close(interaction)
+    @discord.ui.button(label="🗑️ Neues Event löschen", style=ButtonStyle.primary, custom_id="ticket_delete_new")
+    async def delete_new_event(self, interaction: discord.Interaction, button: Button):
+        await handle_overlap_resolution(interaction, prefer_new=False)
 
-    @discord.ui.button(label="🛠️ Sofort schließen (Vorstand)", style=ButtonStyle.danger, custom_id="ticket_sudo_close")
+    @discord.ui.button(label="🗑️ Bestehendes Event löschen", style=ButtonStyle.blurple, custom_id="ticket_delete_existing")
+    async def delete_existing_event(self, interaction: discord.Interaction, button: Button):
+        await handle_overlap_resolution(interaction, prefer_new=True)
+
+    @discord.ui.button(label="🛠️ Sofort schließen (Vorstand)", style=ButtonStyle.secondary	, custom_id="ticket_sudo_close")
     async def sudo_close(self, interaction: discord.Interaction, button: Button):
         # Optional: check if the user has mod/admin role
         if not any(r.id == guild_roles["vorstand"] for r in interaction.user.roles): # type: ignore
@@ -40,13 +44,18 @@ class TicketCloseView(View):
         # await interaction.response.send_message('Wird geschlossen…', ephemeral=True)
         await interaction.response.send_modal(ConfirmSudoCloseModal(self.bot))
 
-    @discord.ui.button(label="🗑️ Neues Event löschen", style=ButtonStyle.danger, custom_id="ticket_delete_new")
-    async def delete_new_event(self, interaction: discord.Interaction, button: Button):
-        await handle_overlap_resolution(interaction, prefer_new=False)
+class SizeTicketView(View):
+    def __init__(self, bot):
+        super().__init__(timeout=None)
+        self.bot = bot
 
-    @discord.ui.button(label="🗑️ Bestehendes Event löschen", style=ButtonStyle.danger, custom_id="ticket_delete_existing")
-    async def delete_existing_event(self, interaction: discord.Interaction, button: Button):
-        await handle_overlap_resolution(interaction, prefer_new=True)
+    @discord.ui.button(label="✅ Genehmigen", style=ButtonStyle.success, custom_id="size_approve")
+    async def approve_size(self, interaction: discord.Interaction, button: Button):
+        await handle_size_resolution(interaction, approve=True)
+
+    @discord.ui.button(label="❌ Ablehnen", style=ButtonStyle.danger, custom_id="size_deny")
+    async def deny_size(self, interaction: discord.Interaction, button: Button):
+        await handle_size_resolution(interaction, approve=False)
 
 
 from discord.ui import Modal, TextInput
@@ -139,12 +148,15 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
 
         overwrites[overlapped_member] = discord.PermissionOverwrite(read_messages=True)
 
+        view = OverlapTicketView(bot)
+
     else:
         channel_name = f"{creator.name}-vereinsevent-{timestamp}"
         description = (
             "Für diese Reservierung wurden mehr als 3 Tische ausgewählt.\n"
             "Dies muss vom Vorstand genehmigt werden. Erkläre hier kurz dein Event."
         )
+        view = SizeTicketView(bot)
 
 
     # Create the channel
@@ -160,7 +172,7 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
     mentions = f"{creator.mention} {vorstand_role.mention}"
     if overlapped_member_id:
         mentions += f" {overlapped_member.mention}"
-    await ticket_channel.send(f"{mentions}", embed=embed, view=TicketCloseView(bot))
+    await ticket_channel.send(f"{mentions}", embed=embed, view=view)
 
     return ticket_channel.id
 
@@ -294,9 +306,6 @@ async def create_ticket_log(channel):
 async def handle_overlap_resolution(interaction, prefer_new: bool):
     await interaction.response.defer(ephemeral=True)
 
-    from .utils import get_nickname
-    nickname = await get_nickname(interaction.user.id)
-
     # Check if user has valid role
     guild = interaction.guild
     member = await get_member_safely(guild, interaction.user.id)
@@ -311,6 +320,7 @@ async def handle_overlap_resolution(interaction, prefer_new: bool):
         "prefer_new": prefer_new,
         "is_vorstand": is_vorstand
     }
+    print(data)
 
     try:
         server_name = os.getenv("SERVER_NAME")
@@ -329,3 +339,42 @@ async def handle_overlap_resolution(interaction, prefer_new: bool):
         await interaction.followup.send("❌ Serverfehler beim Löschen.", ephemeral=True)
 
 
+# ====================================================================================================================
+# ====================================================================================================================
+#                                                   size resolutions
+# ====================================================================================================================
+# ====================================================================================================================
+
+
+async def handle_size_resolution(interaction, approve: bool):
+    await interaction.response.defer(ephemeral=True)
+
+    # Check if user has valid role
+    guild = interaction.guild
+    member = await get_member_safely(guild, interaction.user.id)
+    if not member:
+        member = await guild.fetch_member(interaction.user.id)
+
+    is_vorstand = any(role.id in [guild_roles["vorstand"], guild_roles["admin"]] for role in member.roles)
+
+    data = {
+        "channel_id": interaction.channel.id,
+        "approve": approve,
+        "is_vorstand": is_vorstand
+    }
+    print(data)
+
+    try:
+        server_name = os.getenv("SERVER_NAME")
+        response = requests.post(f"https://{server_name}/api/resolve_size", json=data)
+        result = response.json()
+
+        if response.status_code == 200:
+            await interaction.channel.send(f"📌 {result['message']}")
+            await close(interaction)
+        else:
+            await interaction.channel.send(f"❌ {result.get('message', 'Fehler beim Aktualisieren.')}")
+
+    except Exception as e:
+        print(f"[handle_size_resolution] {e}")
+        await interaction.followup.send("❌ Serverfehler beim Bearbeiten der Größe.", ephemeral=True)

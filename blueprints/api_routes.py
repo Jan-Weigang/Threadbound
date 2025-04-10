@@ -420,7 +420,7 @@ def resolve_overlap():
         return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
     is_vorstand = str(is_vorstand).lower() in ['true', '1']
 
-    if not all([discord_user_id, channel_id, prefer_new, is_vorstand]):
+    if any(x is None for x in [discord_user_id, channel_id, prefer_new, is_vorstand]):
         return jsonify({"status": "error", "message": "Missing required fields."}), 400
     
     print(f"{discord_user_id=} {channel_id=} {prefer_new=} {is_vorstand=}")
@@ -461,3 +461,51 @@ def resolve_overlap():
     event_manager.event_state_handler(overlap.requesting_event)
     return jsonify({"status": "success", "message": f"{deleted} deleted by creator."})
 
+
+
+@api.route('/resolve_size', methods=['POST'])
+def resolve_size():
+    data = request.json
+
+    if not data:
+        return jsonify({"status": "error", "message": "No data in request."}), 500
+
+    try:
+        channel_id = int(data.get('channel_id'))
+    except:
+        return jsonify({"status": "error", "message": "Error in integer fields."}), 400
+
+    approve = data.get("approve")
+    is_vorstand = data.get("is_vorstand")
+
+    if approve not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+        return jsonify({"status": "error", "message": "Missing or invalid 'approve' flag."}), 400
+    if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+        return jsonify({"status": "error", "message": "Missing or invalid 'is_vorstand' flag."}), 400
+
+    approve = str(approve).lower() in ['true', '1']
+    is_vorstand = str(is_vorstand).lower() in ['true', '1']
+
+    if any(x is None for x in [channel_id, approve, is_vorstand]):
+        return jsonify({"status": "error", "message": "Missing required fields."}), 400
+
+    print(f"{channel_id=} {approve=} {is_vorstand=}")
+
+    # Find the Event by size_request_discord_channel_id
+    event = Event.get_regular_events().filter_by(size_request_discord_channel_id=channel_id).first()
+    if not event:
+        return jsonify({"status": "error", "message": "Event not found."}), 404
+
+    if not is_vorstand:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
+
+    # Update state
+    event.state_size = EventState.APPROVED if approve else EventState.DENIED
+    db.session.commit()
+
+    # Run state handler
+    event_manager = current_app.config['event_manager']
+    event_manager.event_state_handler(event)
+
+    msg = "Event genehmigt." if approve else "Event abgelehnt."
+    return jsonify({"status": "success", "message": msg})

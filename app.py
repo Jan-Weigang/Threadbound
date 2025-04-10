@@ -21,6 +21,10 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# Abgesagt ignorieren wenn gelöscht oder nicht published
+
+# in tickets infos des events
+
 # TODO make Discord Chat functions
 # TODO make non-published and templates visible in calendar.
 

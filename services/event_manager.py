@@ -107,22 +107,24 @@ class EventManager:
         try:
             followup_events = event.get_all_overlapping_events()
 
-            print("Running the event state handler")
-            print("Trying to update event state size")
+            print(f"- Running the event state handler for {event.name}")
+            print("- Trying to update event state size")
             self.update_event_state_size(event)
-            print("Trying to update event state overlap")
+            print("- Trying to update event state overlap")
             self.update_event_state_overlap(event)
-            print("Trying to handle event states and resolve")
+            print("- Trying to handle event states and resolve")
             self.handle_event_states(event)
 
 
             for evt in followup_events:
-                print("Running the event state handler")
-                print("Trying to update event state size")
+                if evt.deleted:
+                    continue
+                print(f"- Running the event state handler on followup {evt.name}")
+                print("- Trying to update event state size")
                 self.update_event_state_size(evt)
-                print("Trying to update event state overlap")
+                print("- Trying to update event state overlap")
                 self.update_event_state_overlap(evt)
-                print("Trying to handle event states and resolve")
+                print("- Trying to handle event states and resolve")
                 self.handle_event_states(evt)
 
         except Exception as e:
@@ -140,6 +142,13 @@ class EventManager:
                 if len(event.reservations) >= 4:
                     event.state_size = EventState.REQUESTED  # Needs approval by Vorstand
                     # TODO self.discord_handler.create_size_request(event)
+
+
+                    channel_id = self.discord_handler.open_ticket_for_size(
+                        creator_id=event.user.discord_id
+                    )
+
+                    event.size_request_discord_channel_id = channel_id
                     db.session.commit()
 
             case EventState.REQUESTED:                      # If requested, but now smaller, reset
@@ -176,6 +185,18 @@ class EventManager:
         # Add new overlaps
         for oevent in all_overlapping_events:
             if oevent.id not in current_overlaps:
+                # 🔒 Check if this event is already being overlapped by the other one
+                reverse_overlap_exists = Overlap.query.filter_by(
+                    requesting_event_id=oevent.id,
+                    existing_event_id=event.id
+                ).first()
+
+                if reverse_overlap_exists:
+                    print(f"Skipping reciprocal overlap from {oevent.id} → {event.id}")
+                    continue
+
+
+
                 # New overlap detected, add to database and request approval
                 overlap = event.add_overlap(oevent)
                 # TODO self.discord_handler.create_overlap_request(event, oevent) done?
@@ -207,6 +228,7 @@ class EventManager:
     def handle_event_states(self, event):
         # First check for Denial
         if event.state_size == EventState.DENIED or event.state_overlap == EventState.DENIED:
+            print(f"{event.name} was denied and is set to be deleted")
             event.deleted = True
             # TODO self.discord_handler.cancel_size_request(event)
             # TODO self.discord_handler.cancel_overlap_requests(event)
@@ -229,11 +251,11 @@ class EventManager:
         
 
         # Delete those that the new event overlaps.
-        approved_overlaps = Overlap.query.filter_by(existing_event_id=event.id, state=EventState.APPROVED).all()
+        approved_overlaps = Overlap.query.filter_by(requesting_event_id=event.id, state=EventState.APPROVED).all()
 
         for overlap in approved_overlaps:
-            requesting_event = overlap.requesting_event
-            db.session.delete(requesting_event)  # Delete other event
+            existing_event = overlap.existing_event
+            existing_event.deleted = True  # Delete other event
             # TODO self.discord_handler.cancel_overlap_chat(event, requesting_event)  # Notify Discord
             db.session.delete(overlap)  # Remove overlap record
 

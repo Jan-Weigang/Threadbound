@@ -172,6 +172,21 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             print(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
             return None
 
+    def open_ticket_for_size(self, creator_id: int):
+        """
+        Creates a Discord ticket for overlapping events between two users.
+        """
+        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
+
+        try:
+            channel_id = future.result(timeout=5)
+            print(f"✅ Overlap ticket created in channel ID: {channel_id}")
+            return channel_id
+        except Exception as e:
+            print(f"❌ Failed to create overlap ticket for {creator_id=}: {e}")
+            return None
+        
 
     def open_ticket_for_table_request(self, creator_id: int):
         """

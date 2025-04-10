@@ -194,6 +194,10 @@ class Event(db.Model, SoftDeleteMixin):
         return cls.query.filter_by(is_template=False, deleted=False)
     
     @classmethod
+    def get_active_events(cls):
+        return cls.query.filter_by(deleted=False)
+    
+    @classmethod
     def get_template_events(cls):
         return cls.query.filter_by(is_template=True, deleted=False)
     
@@ -235,14 +239,15 @@ class Event(db.Model, SoftDeleteMixin):
     def get_all_overlapping_events(self):
         """
         Retrieve all events that overlap with this one, both as requester and as existing event.
+        Excludes deleted events.
         """
         # Events that this event is overlapping (outgoing overlaps)
         outgoing_overlaps = Overlap.query.filter_by(requesting_event_id=self.id).all()
-        outgoing_events = [overlap.existing_event for overlap in outgoing_overlaps]
+        outgoing_events = [overlap.existing_event for overlap in outgoing_overlaps if not overlap.existing_event.deleted]
 
         # Events that are overlapping this event (incoming overlaps)
         incoming_overlaps = Overlap.query.filter_by(existing_event_id=self.id).all()
-        incoming_events = [overlap.requesting_event for overlap in incoming_overlaps]
+        incoming_events = [overlap.requesting_event for overlap in incoming_overlaps if not overlap.existing_event.deleted]
 
         # Combine both lists (ensuring uniqueness)
         return set(outgoing_events + incoming_events)
