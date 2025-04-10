@@ -365,6 +365,8 @@ def handle_attendance():
             db.session.commit()
             user = User.query.filter_by(discord_id=discord_user_id).first()
 
+        assert user
+
         if action == "attend":
             if user not in event.attendees:
                 event.attendees.append(user)
@@ -374,8 +376,12 @@ def handle_attendance():
 
         db.session.commit()
 
-        discord_handler = current_app.config['discord_handler']
-        discord_handler.post_to_discord(event, action='update')
+        # discord_handler = current_app.config['discord_handler']
+        # discord_handler.post_to_discord(event, action='update')
+        # if action == "attend":
+        #     discord_handler.add_user_to_event_thread(event, user.discord_id)
+
+        run_discord_post_update(event, user.discord_id if action == "attend" else None)
 
         return jsonify({"status": "success", "message": f"User marked as {action} for event."})
 
@@ -383,6 +389,32 @@ def handle_attendance():
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
     
+
+def run_discord_post_update(event, user_id):
+    logging.info(f"running discord post update")
+    app = current_app._get_current_object()  # type: ignore
+    event_id = event.id
+    thread = threading.Thread(
+        target=post_update_function,
+        args=(app, event_id, user_id)
+    )
+    thread.start()
+
+
+def post_update_function(app, event_id, user_discord_id=None):
+    with app.app_context():
+        event = Event.query.get(event_id)
+        if not event:
+            print(f"⚠️ Event {event_id} not found during post_update_function.")
+            return
+
+        discord_handler = app.config['discord_handler']
+        discord_handler.post_to_discord(event, action='update')
+        if user_discord_id:
+            discord_handler.add_user_to_event_thread(event, user_discord_id)
+
+
+
 
 
 # ======================================

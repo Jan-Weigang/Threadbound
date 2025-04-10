@@ -157,6 +157,30 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             print(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
+    def add_user_to_event_thread(self, event, user_discord_id: int):
+        """
+        Adds a user to the Discord thread associated with the event.
+        """
+        message_id = event.discord_post_id
+        channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
+
+        if not message_id:
+            print(f"⚠️ No Discord message ID found for event {event.id}. Skipping.")
+            return
+
+        if not channel_id:
+            print(f"⚠️ No Discord channel found for event {event.id}")
+            return
+
+        coroutine = discord_bot.add_user_to_event_thread(channel_id, message_id, user_discord_id)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
+
+        try:
+            future.result(timeout=2)
+        except Exception as e:
+            print(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
+
+
     def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int):
         """
         Creates a Discord ticket for overlapping events between two users.

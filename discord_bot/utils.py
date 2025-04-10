@@ -71,26 +71,18 @@ async def send_message_in_event_thread(channel_id, message_id, message: str):
         print(f"❌ HTTP error while fetching message {message_id}: {e}")
 
 
-    # async def create_private_channel(category_id, channel_name, permissions):
-    #     guild = bot.get_guild(guild_id)
-    #     assert guild
-    #     category = guild.get_channel(category_id)
-    #     assert category
+async def add_user_to_event_thread(channel_id: int, message_id: int, user_id: int):
+    guild = bot.get_guild(guild_id)  # or fetch dynamically if needed
+    assert guild
 
-    #     if not category:
-    #         print(f"Category {category_id} not found.")
-    #         return None
+    channel = guild.get_channel(channel_id)
+    message = await channel.fetch_message(message_id) # type: ignore
+    thread = message.thread
 
-    #     # Create the channel
-    #     overwrites = {
-    #         guild.default_role: discord.PermissionOverwrite(view_channel=False)  # Hide from everyone
-    #     }
-        
-    #     for user_id, perms in permissions.items():
-    #         overwrites[guild.get_member(user_id)] = discord.PermissionOverwrite(
-    #             **{perm: True for perm in perms}
-    #         )
+    if not thread:
+        print(f"⚠️ No thread found on message {message_id}")
+        return
 
-    #     channel = await guild.create_text_channel(name=channel_name, category=category, overwrites=overwrites)
-    #     return channel.id  # Return the channel ID
-
+    user = await bot.fetch_user(user_id)
+    await thread.add_user(user)
+    print(f"✅ Added user {user_id} to thread {thread.name}")
