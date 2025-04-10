@@ -1,6 +1,6 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from tt_calendar.models import db, User, EventType, Publicity, Table, GameCategory, DiscordChannel, Event  # Adjust paths as needed
+from tt_calendar.models import db, User, EventType, Publicity, Table, GameCategory, DiscordChannel, Event, Overlap  # Adjust paths as needed
 
 # Initialize Admin instance (assuming it will be used in app.py)
 admin = Admin(name='TableTop Admin', template_mode='bootstrap4')
@@ -49,6 +49,26 @@ class EventView(ModelView):
         'user_id': {'query_factory': lambda: User.query.all()}
     }
 
+class OverlapView(ModelView):
+    column_list = ('id', 'request_discord_channel_id', 'display_name', 'state', 'created_at')
+    form_columns = ('request_discord_channel_id', 'requesting_event', 'existing_event', 'state')
+
+    column_labels = {
+        'request_discord_channel_id': 'Discord Channel ID',
+        'display_name': 'Involved Events',
+        'state': 'Status',
+        'created_at': 'Created'
+    }
+
+    column_formatters = {
+        'display_name': lambda v, c, m, p: f"{m.requesting_event.name} ⟷ {m.existing_event.name}"
+    }
+
+    can_create = False
+    can_edit = True
+    can_delete = True
+    
+
 def init_admin(app):
     admin.init_app(app)
     admin.add_view(UserView(User, db.session))
@@ -58,3 +78,4 @@ def init_admin(app):
     admin.add_view(GameCategoryView(GameCategory, db.session))
     admin.add_view(DiscordChannelView(DiscordChannel, db.session))
     admin.add_view(EventView(Event, db.session)) 
+    admin.add_view(OverlapView(Overlap, db.session)) 

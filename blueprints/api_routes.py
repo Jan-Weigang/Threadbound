@@ -1,7 +1,7 @@
 from flask import session, request, jsonify
 from flask import request, Blueprint, current_app
 from flask_dance.contrib.discord import discord
-from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Event, Table, Reservation
+from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Event, Table, Reservation, Overlap, EventState
 from datetime import datetime, time
 from sqlalchemy import or_, and_
 
@@ -393,3 +393,71 @@ def handle_attendance():
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+
+@api.route('/resolve_overlap', methods=['POST'])
+def resolve_overlap():
+    data = request.json
+
+    if not data:
+        return jsonify({"status": "error", "message": "No data in request."}), 500
+
+    try:
+        discord_user_id = int(data.get('discord_user_id'))
+        channel_id = int(data.get('channel_id'))  # ← now this instead of message_id
+    except:
+        return jsonify({"status": "error", "message": "Error in integer fields."}), 400
+    
+    # get validated bool if new should overwrite old
+    prefer_new = data.get("prefer_new")
+    if prefer_new not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+        return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
+    prefer_new = str(prefer_new).lower() in ['true', '1']
+
+    is_vorstand = data.get("prefer_new")
+    if is_vorstand not in [True, False, 'true', 'false', 'True', 'False', 0, 1]:
+        return jsonify({"status": "error", "message": "Missing or invalid 'prefer_new' flag."}), 400
+    is_vorstand = str(is_vorstand).lower() in ['true', '1']
+
+    if not all([discord_user_id, channel_id, prefer_new, is_vorstand]):
+        return jsonify({"status": "error", "message": "Missing required fields."}), 400
+    
+    print(f"{discord_user_id=} {channel_id=} {prefer_new=} {is_vorstand=}")
+
+    # Find overlap by Discord channel ID
+    overlap = Overlap.query.filter_by(request_discord_channel_id=channel_id).first()
+    if not overlap:
+        return jsonify({"status": "error", "message": "Overlap not found."}), 404
+
+    user = User.query.filter_by(discord_id=discord_user_id).first()
+    if not user:
+        return jsonify({"status": "error", "message": "User not found."}), 403
+    
+    discord_handler = current_app.config['discord_handler']
+
+    # Permission check
+    is_creator_requesting = str(user.discord_id) == str(overlap.requesting_event.user.discord_id)
+    is_creator_existing   = str(user.discord_id) == str(overlap.existing_event.user.discord_id)
+
+    if not (is_creator_requesting or is_creator_existing or is_vorstand):
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
+
+    # Actual Function:
+
+    event_manager = current_app.config['event_manager']
+    if not prefer_new and (is_creator_requesting or is_vorstand):
+        # event_manager.delete_event(overlap.requesting_event)
+        overlap.resolve_overlap(EventState.DENIED)
+        deleted = "requesting event"
+    elif prefer_new and (is_creator_existing or is_vorstand):
+        # event_manager.delete_event(overlap.existing_event)
+        overlap.resolve_overlap(EventState.APPROVED)
+        deleted = "existing event"
+    else:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
+
+    db.session.commit()
+    event_manager.event_state_handler(overlap.requesting_event)
+    return jsonify({"status": "success", "message": f"{deleted} deleted by creator."})
+

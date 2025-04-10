@@ -31,6 +31,7 @@ class DiscordHandler:
         """
         Check if a user is a club member.
         """
+        print("- - - -CALLED ISROLE - - - -")
         # Run the `is_club_member` coroutine in the main event loop
         future = asyncio.run_coroutine_threadsafe(
             discord_bot.is_guild_role(discord_user_id, role_string), 
@@ -41,7 +42,9 @@ class DiscordHandler:
             # Wait for the result with a timeout
             return future.result(timeout=3)
         except Exception as e:
+            import traceback
             print(f"Error checking membership: {e}")
+            traceback.print_exc()
             return None
 
 
@@ -166,7 +169,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             print(f"✅ Overlap ticket created in channel ID: {channel_id}")
             return channel_id
         except Exception as e:
-            print(f"❌ Failed to create overlap ticket: {e}")
+            print(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
             return None
 
 

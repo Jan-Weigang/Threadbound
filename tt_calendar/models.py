@@ -213,18 +213,7 @@ class Event(db.Model, SoftDeleteMixin):
         )
         db.session.add(overlap)
         db.session.commit()
-
-
-    def resolve_overlap(self, existing_event, new_state):
-        """Update the state of a specific overlap."""
-        overlap = Overlap.query.filter_by(
-            requesting_event_id=self.id,
-            existing_event_id=existing_event.id
-        ).first()
-        if not overlap:
-            raise ValueError(f"No overlap exists with event {existing_event.id}.")
-        overlap.state = new_state
-        db.session.commit()
+        return overlap
 
 
     def get_pending_overlaps(self):
@@ -318,3 +307,9 @@ class Overlap(db.Model):
     # Metadata
     created_at = db.Column(AwareDateTime(), nullable=False, default=lambda: datetime.now(pytz.utc))
     updated_at = db.Column(AwareDateTime(), nullable=True, onupdate=lambda: datetime.now(pytz.utc))
+
+
+    def resolve_overlap(self, new_state):
+        """Update the state of a specific overlap."""
+        self.state = new_state
+        db.session.commit()

@@ -117,7 +117,11 @@ async def on_message(message):
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     print("I am running on_interaction")
-    await interaction.response.defer(ephemeral=True)
+    # TODO CHANGE THIS TO SMARTER BUTTONS
+    try:
+        await interaction.response.defer(ephemeral=True)
+    except:
+        return
     
     # Check if the interaction is from a button
     if not interaction.type == discord.InteractionType.component:
@@ -126,12 +130,16 @@ async def on_interaction(interaction: discord.Interaction):
     assert interaction.data
     custom_id = interaction.data.get('custom_id')
 
+    
+    
+
     # ======================================
     #             Function Switch
     # ======================================
 
     # Map the custom_id to an action
     if custom_id == "attend" or custom_id == "not_attend":
+        
         await interact_with_event(interaction, action=custom_id)
     else:
         await interaction.followup.send("Unknown action.", ephemeral=True)

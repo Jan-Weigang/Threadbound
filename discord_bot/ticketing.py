@@ -3,6 +3,7 @@ import discord
 from datetime import datetime
 import asyncio
 import aiohttp
+import requests
 from concurrent.futures import ThreadPoolExecutor
 
 import logging
@@ -12,6 +13,14 @@ from discord import ButtonStyle
 
 from .config import *
 
+
+# ====================================================================================================================
+# ====================================================================================================================
+#                                                         Views
+# ====================================================================================================================
+# ====================================================================================================================
+
+
 class TicketCloseView(View):
     def __init__(self, bot):
         super().__init__(timeout=None)
@@ -19,7 +28,7 @@ class TicketCloseView(View):
 
     @discord.ui.button(label="✅ Schließen", style=ButtonStyle.success, custom_id="ticket_close")
     async def user_close(self, interaction: discord.Interaction, button: Button):
-        await close(self.bot, interaction)
+        await close(interaction)
 
     @discord.ui.button(label="🛠️ Sofort schließen (Vorstand)", style=ButtonStyle.danger, custom_id="ticket_sudo_close")
     async def sudo_close(self, interaction: discord.Interaction, button: Button):
@@ -30,6 +39,14 @@ class TicketCloseView(View):
 
         # await interaction.response.send_message('Wird geschlossen…', ephemeral=True)
         await interaction.response.send_modal(ConfirmSudoCloseModal(self.bot))
+
+    @discord.ui.button(label="🗑️ Neues Event löschen", style=ButtonStyle.danger, custom_id="ticket_delete_new")
+    async def delete_new_event(self, interaction: discord.Interaction, button: Button):
+        await handle_overlap_resolution(interaction, prefer_new=False)
+
+    @discord.ui.button(label="🗑️ Bestehendes Event löschen", style=ButtonStyle.danger, custom_id="ticket_delete_existing")
+    async def delete_existing_event(self, interaction: discord.Interaction, button: Button):
+        await handle_overlap_resolution(interaction, prefer_new=True)
 
 
 from discord.ui import Modal, TextInput
@@ -53,6 +70,13 @@ class ConfirmSudoCloseModal(Modal, title="⚠️ Ticket wirklich schließen?"):
         else:
             await interaction.response.send_message("❌ Nicht bestätigt. Ticket bleibt offen.", ephemeral=True)
 
+
+
+# ====================================================================================================================
+# ====================================================================================================================
+#                                                    Tickets
+# ====================================================================================================================
+# ====================================================================================================================
 
 async def get_member_safely(guild, uid):
     member = guild.get_member(uid)
@@ -160,7 +184,7 @@ async def sudoclose(bot, interaction):
 #                                    CLOSE
 # ==============================================================================
 
-async def close(bot, interaction):
+async def close(interaction):
 
     messages = [message async for message in interaction.channel.history(oldest_first=True,limit=1)]
     first_message = messages[0]
@@ -257,3 +281,51 @@ async def create_ticket_log(channel):
     with open(file_name, 'w', encoding='utf-8') as file:
         file.write(log_content)
     return file_name
+
+
+
+# ====================================================================================================================
+# ====================================================================================================================
+#                                                overlap resolutions
+# ====================================================================================================================
+# ====================================================================================================================
+
+
+async def handle_overlap_resolution(interaction, prefer_new: bool):
+    await interaction.response.defer(ephemeral=True)
+
+    from .utils import get_nickname
+    nickname = await get_nickname(interaction.user.id)
+
+    # Check if user has valid role
+    guild = interaction.guild
+    member = await get_member_safely(guild, interaction.user.id)
+    if not member:
+        member = await guild.fetch_member(interaction.user.id)
+
+    is_vorstand = any(role.id in [guild_roles["vorstand"], guild_roles["admin"]] for role in member.roles)
+
+    data = {
+        "discord_user_id": interaction.user.id,
+        "channel_id": interaction.channel.id,
+        "prefer_new": prefer_new,
+        "is_vorstand": is_vorstand
+    }
+
+    try:
+        server_name = os.getenv("SERVER_NAME")
+        response = requests.post(f"https://{server_name}/api/resolve_overlap", json=data)
+        result = response.json()
+
+        if response.status_code == 200:
+            await interaction.channel.send(f"🗑️ {result['message']}")
+
+            await close(interaction)
+        else:
+            await interaction.channel.send(f"❌ {result.get('message', 'Fehler beim Löschen.')}")
+
+    except Exception as e:
+        print(f"[handle_overlap_resolution] {e}")
+        await interaction.followup.send("❌ Serverfehler beim Löschen.", ephemeral=True)
+
+

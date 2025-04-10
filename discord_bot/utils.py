@@ -19,6 +19,8 @@ async def is_guild_role(discord_user_id: int, role_string):
     discord_user_id = int(discord_user_id)
     guild = bot.get_guild(guild_id)
 
+    print(f"- - is guild role with {discord_user_id=} and {guild=}")
+
     if not guild:
         return False
     

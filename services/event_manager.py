@@ -161,29 +161,35 @@ class EventManager:
         all_overlapping_events = self.get_overlapping_events(event)
         all_overlapping_event_ids = {oevent.id for oevent in all_overlapping_events}
 
-        
-
-        # Add new overlaps
-        for oevent in all_overlapping_events:
-            if oevent.id not in current_overlaps:
-                # New overlap detected, add to database and request approval
-                event.add_overlap(oevent)
-                # TODO self.discord_handler.create_overlap_request(event, oevent) done?
-
-                self.discord_handler.open_ticket_for_overlap(
-                    creator_id=event.user.discord_id,
-                    overlapped_user_id=oevent.user.discord_id
-                )
-
-                db.session.commit()
-
+        print(f"- - removing overlaps:")
         # Remove overlaps that no longer exist
         for overlap_id, overlap in current_overlaps.items():
             if overlap_id not in all_overlapping_event_ids:
                 # The overlap is no longer valid, remove it
                 db.session.delete(overlap)
+                print(f"{overlap.id}")
                 # TODO self.discord_handler.cancel_overlap_chat(event, overlap.existing_event)  # New method to cancel chat
                 db.session.commit()
+
+
+        print("- - adding new overlaps:")
+        # Add new overlaps
+        for oevent in all_overlapping_events:
+            if oevent.id not in current_overlaps:
+                # New overlap detected, add to database and request approval
+                overlap = event.add_overlap(oevent)
+                # TODO self.discord_handler.create_overlap_request(event, oevent) done?
+
+                channel_id = self.discord_handler.open_ticket_for_overlap(
+                    creator_id=event.user.discord_id,
+                    overlapped_user_id=oevent.user.discord_id
+                )
+
+                overlap.request_discord_channel_id = channel_id
+                print(f"{overlap.id} triggered a new channel")
+                db.session.commit()
+
+        
 
         pending_overlaps = event.get_pending_overlaps()
         denied_overlaps = event.get_denied_overlaps()
@@ -240,6 +246,7 @@ class EventManager:
         """
         overlapping_events = Event.get_regular_events().filter(
             Event.id != event.id,
+            Event.deleted == False,
             Event.start_time < event.end_time,
             Event.end_time > event.start_time,
             Event.reservations.any(Reservation.table_id.in_(
