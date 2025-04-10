@@ -23,6 +23,8 @@ load_dotenv()
 
 # Abgesagt ignorieren wenn gelöscht oder nicht published
 
+# delete channel should only try
+
 # in tickets infos des events
 
 # TODO make Discord Chat functions

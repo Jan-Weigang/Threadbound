@@ -141,7 +141,7 @@ class EventManager:
             case EventState.NOT_SET:                        # If not yet set, check for size
                 if len(event.reservations) >= 4:
                     event.state_size = EventState.REQUESTED  # Needs approval by Vorstand
-                    # TODO self.discord_handler.create_size_request(event)
+                    # TODO done?
 
 
                     channel_id = self.discord_handler.open_ticket_for_size(
@@ -154,7 +154,9 @@ class EventManager:
             case EventState.REQUESTED:                      # If requested, but now smaller, reset
                 if len(event.reservations) < 4:
                     event.state_size = EventState.NOT_SET  # Needs approval by Vorstand
-                    # TODO self.discord_handler.cancel_size_request(event)
+                    # TODO done?
+                    self.discord_handler.resolve_size_ticket_channel(event)
+
                     db.session.commit()
             case _:
                 pass
@@ -177,7 +179,11 @@ class EventManager:
                 # The overlap is no longer valid, remove it
                 db.session.delete(overlap)
                 print(f"{overlap.id}")
-                # TODO self.discord_handler.cancel_overlap_chat(event, overlap.existing_event)  # New method to cancel chat
+                # TODO DONE?
+                try:
+                    self.discord_handler.resolve_overlap_ticket_channel(overlap)
+                except:
+                    print("apparently this overlap had no channel")
                 db.session.commit()
 
 
@@ -199,7 +205,7 @@ class EventManager:
 
                 # New overlap detected, add to database and request approval
                 overlap = event.add_overlap(oevent)
-                # TODO self.discord_handler.create_overlap_request(event, oevent) done?
+                # TODO  done?
 
                 channel_id = self.discord_handler.open_ticket_for_overlap(
                     creator_id=event.user.discord_id,
@@ -230,10 +236,21 @@ class EventManager:
         if event.state_size == EventState.DENIED or event.state_overlap == EventState.DENIED:
             print(f"{event.name} was denied and is set to be deleted")
             event.deleted = True
-            # TODO self.discord_handler.cancel_size_request(event)
-            # TODO self.discord_handler.cancel_overlap_requests(event)
+            # TODO ?
+
+            if event.state_size == EventState.DENIED:
+                self.discord_handler.resolve_size_ticket_channel(event)
+
+            if event.state_overlap == EventState.DENIED:
+                for overlap in event.requested_overlaps:
+                    if overlap.request_discord_channel_id:
+                        print(f"🔧 Closing overlap ticket for channel {overlap.request_discord_channel_id}")
+                        self.discord_handler.resolve_overlap_ticket_channel(overlap)
+
             db.session.commit()
             return
+        
+
 
         # Do nothing if still pending requests
         if (event.state_size == EventState.REQUESTED or \
@@ -243,6 +260,12 @@ class EventManager:
         # If this is reached, it must be Not Set and Approved only!
         if event.is_published:
             return
+        
+        if event.state_size == EventState.APPROVED:
+            try:   
+                self.discord_handler.resolve_size_ticket_channel(event)
+            except:
+                print(f"reached a case where {event.name} was not published but already approved")
         
         event.set_publish_state()       # Sets to published
         message_id = self.discord_handler.post_to_discord(event, action="update")
@@ -257,6 +280,7 @@ class EventManager:
             existing_event = overlap.existing_event
             existing_event.deleted = True  # Delete other event
             # TODO self.discord_handler.cancel_overlap_chat(event, requesting_event)  # Notify Discord
+            self.discord_handler.resolve_overlap_ticket_channel(overlap)
             db.session.delete(overlap)  # Remove overlap record
 
         db.session.commit()

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 
 from .config import discord_token, kalender_channels, guild_id, guild_roles
-from .ticketing import OverlapTicketView, SizeTicketView, reaction_close_check
+from .ticketing import OverlapTicketView, SizeTicketView, CloseOnlyTicketView, reaction_close_check
 
 
 import os, requests, datetime, pytz
@@ -35,7 +35,8 @@ async def on_ready():
         print("❌ Guild not found. Check GUILD_ID.")
 
     bot.add_view(OverlapTicketView(bot)) 
-    bot.add_view(SizeTicketView(bot)) 
+    bot.add_view(SizeTicketView(bot))
+    bot.add_view(CloseOnlyTicketView(bot)) 
 
 
 
@@ -111,6 +112,7 @@ async def on_message(message):
 
 
 
+
 # ==============================================================================
 #                                 Button Presses
 # ==============================================================================
@@ -182,6 +184,11 @@ async def interact_with_event(interaction, action):
     except Exception as e:
         await interaction.followup.send("An error occurred while processing your request.", ephemeral=True)
         print(f"Error in handling interaction: {e}")
+
+
+
+
+
 
 
 

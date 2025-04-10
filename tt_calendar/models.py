@@ -208,6 +208,7 @@ class Event(db.Model, SoftDeleteMixin):
             return f"discord.com/channels/{server_id}/{channel_id}/{self.discord_post_id}"
         return None
 
+
     def add_overlap(self, existing_event):
         """Add an overlap request."""
         overlap = Overlap(

@@ -8,6 +8,7 @@ from sqlalchemy import or_, and_
 from tt_calendar import decorators
 from tt_calendar import utils
 import json
+import threading
 
 # ======================================
 # ========== API Endpoints =============
@@ -433,8 +434,6 @@ def resolve_overlap():
     user = User.query.filter_by(discord_id=discord_user_id).first()
     if not user:
         return jsonify({"status": "error", "message": "User not found."}), 403
-    
-    discord_handler = current_app.config['discord_handler']
 
     # Permission check
     is_creator_requesting = str(user.discord_id) == str(overlap.requesting_event.user.discord_id)
@@ -458,7 +457,16 @@ def resolve_overlap():
         return jsonify({"status": "error", "message": "Unauthorized"}), 403
 
     db.session.commit()
-    event_manager.event_state_handler(overlap.requesting_event)
+
+    # THIS WIILL NOT WORK BECAUSE IT BLOCKS   this api call is awaited
+    # discord_handler = current_app.config['discord_handler']
+    # discord_handler.resolve_overlap_ticket_channel(overlap)
+
+
+    run_event_manager(overlap.requesting_event)
+    # event_manager.event_state_handler(overlap.requesting_event)
+
+    
     return jsonify({"status": "success", "message": f"{deleted} deleted by creator."})
 
 
@@ -503,9 +511,31 @@ def resolve_size():
     event.state_size = EventState.APPROVED if approve else EventState.DENIED
     db.session.commit()
 
+    # THIS WIILL NOT WORK BECAUSE IT BLOCKS   this api call is awaited
+    # discord_handler = current_app.config['discord_handler']
+    # discord_handler.resolve_size_ticket_channel(event)
+
     # Run state handler
-    event_manager = current_app.config['event_manager']
-    event_manager.event_state_handler(event)
+    # event_manager = current_app.config['event_manager']
+    # event_manager.event_state_handler(event)
+
+    
+    # In your API route or wherever you're triggering it:
+    run_event_manager(event)
+
 
     msg = "Event genehmigt." if approve else "Event abgelehnt."
     return jsonify({"status": "success", "message": msg})
+
+
+def run_event_manager(event):
+    # In your API route or wherever you're triggering it:
+    app = current_app._get_current_object() # type: ignore
+    event_id = event.id
+    thread = threading.Thread(target=event_manager_function, args=(app, event_id))
+    thread.start()
+
+def event_manager_function(app, event_id):
+    with app.app_context():
+        event = Event.query.get(event_id)  # Reattach to session
+        app.config['event_manager'].event_state_handler(event)

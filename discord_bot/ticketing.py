@@ -58,6 +58,18 @@ class SizeTicketView(View):
         await handle_size_resolution(interaction, approve=False)
 
 
+class CloseOnlyTicketView(View):
+    def __init__(self, bot):
+        super().__init__(timeout=None)
+        self.bot = bot
+
+    @discord.ui.button(label="✅ Ticket schließen", style=ButtonStyle.secondary, custom_id="ticket_close")
+    async def close_ticket(self, interaction: discord.Interaction, button: Button):
+        from .ticketing import close  # or adjust import as needed
+        await close(interaction)
+
+
+
 from discord.ui import Modal, TextInput
 
 class ConfirmSudoCloseModal(Modal, title="⚠️ Ticket wirklich schließen?"):
@@ -378,3 +390,35 @@ async def handle_size_resolution(interaction, approve: bool):
     except Exception as e:
         print(f"[handle_size_resolution] {e}")
         await interaction.followup.send("❌ Serverfehler beim Bearbeiten der Größe.", ephemeral=True)
+
+
+
+# ====================================================================================================================
+# ====================================================================================================================
+#                                                   Ticket resolving
+# ====================================================================================================================
+# ====================================================================================================================
+
+
+
+
+async def change_resolved_ticket_view(bot, channel_id: int):
+    guild = bot.get_guild(guild_id)
+    if not guild:
+        print("❌ Guild not found")
+        return
+
+    channel = guild.get_channel(channel_id)
+    if not channel:
+        print("❌ Channel not found")
+        return
+
+    try:
+        async for message in channel.history(oldest_first=True, limit=1):
+            await message.edit(view=CloseOnlyTicketView(bot))
+            print(f"✅ Replaced view in channel {channel.name} ({channel.id})")
+            return
+
+        print(f"⚠️ No message found in channel {channel.name} to edit.")
+    except Exception as e:
+        print(f"❌ Failed to replace view: {e}")

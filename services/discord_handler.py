@@ -1,7 +1,7 @@
 from tt_calendar.models import *
 from tt_calendar import utils
 import discord_bot
-from discord_bot.ticketing import create_ticket  # adjust path as needed
+from discord_bot.ticketing import create_ticket, change_resolved_ticket_view  # adjust path as needed
 
 import asyncio
 import datetime, pytz
@@ -172,6 +172,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             print(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
             return None
 
+
     def open_ticket_for_size(self, creator_id: int):
         """
         Creates a Discord ticket for overlapping events between two users.
@@ -188,17 +189,50 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             return None
         
 
-    def open_ticket_for_table_request(self, creator_id: int):
+    def resolve_size_ticket_channel(self, event):
         """
-        Creates a Discord ticket when more than 3 tables are reserved.
+        Replaces the first message's view in a ticket channel with just a close button.
         """
-        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
+        channel_id = event.size_request_discord_channel_id
+        coroutine = change_resolved_ticket_view(bot=discord_bot.bot, channel_id=channel_id)
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:
-            channel_id = future.result(timeout=5)
-            print(f"✅ Table reservation ticket created in channel ID: {channel_id}")
-            return channel_id
+            future.result(timeout=5)
+            print(f"✅ Replaced view with CloseOnly in channel {channel_id}")
         except Exception as e:
-            print(f"❌ Failed to create table reservation ticket: {e}")
-            return None
+            import traceback
+            print(f"❌ Failed to replace view in channel {channel_id}: {e}")
+            traceback.print_exc()
+
+
+    def resolve_overlap_ticket_channel(self, overlap):
+        """
+        Replaces the first message's view in a ticket channel with just a close button.
+        """
+        channel_id = overlap.request_discord_channel_id
+        coroutine = change_resolved_ticket_view(bot=discord_bot.bot, channel_id=channel_id)
+        future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
+
+        try:
+            future.result(timeout=5)
+            print(f"✅ Replaced view with CloseOnly in channel {channel_id}")
+        except Exception as e:
+            print(f"❌ Failed to replace view in channel {channel_id}: {e}")
+
+
+
+    # def open_ticket_for_table_request(self, creator_id: int):
+    #     """
+    #     Creates a Discord ticket when more than 3 tables are reserved.
+    #     """
+    #     coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
+    #     future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
+
+    #     try:
+    #         channel_id = future.result(timeout=5)
+    #         print(f"✅ Table reservation ticket created in channel ID: {channel_id}")
+    #         return channel_id
+    #     except Exception as e:
+    #         print(f"❌ Failed to create table reservation ticket: {e}")
+    #         return None
