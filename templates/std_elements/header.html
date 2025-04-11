@@ -31,25 +31,28 @@
         <option value="12">mittags</option>
         <option value="16" selected>abends</option>
     </select>
-    <select id="viewTypeSelect" name="view_type" data-disable-scroll>
+    <select id="viewTypeSelect" name="view_type" data-disable-scroll
+            data-bg-regular="#eef2f0"
+            data-bg-template="#fbf8f1"
+            data-bg-public="#f3eaf5">
         {% if is_authenticated %}
             {% if view_type == "regular" %}
-                <option value="regular" selected>Mitglied / Normal</option>
+                <option value="regular" selected>Ansicht: Mitglieder</option>
             {% else %}
-                <option value="regular" >Mitglied / Normal</option>
+                <option value="regular" >Ansicht: Mitglieder</option>
             {% endif %}
 
             {% if view_type == "template" %}
-                <option value="template" selected>Stammtischkalender</option>
+                <option value="template" selected>Ansicht: Stammtische</option>
             {% else %}
-                <option value="template" >Stammtischkalender</option>
+                <option value="template" >Ansicht: Stammtische</option>
             {% endif %}
         {% endif %}
 
         {% if view_type == "public" %}
-            <option value="public" selected>Öffentliche Events</option>
+            <option value="public" selected>Ansicht: Öffentlich</option>
         {% else %}
-            <option value="public" >Öffentliche Events</option>
+            <option value="public" >Ansicht: Öffentlich</option>
         {% endif %}
     </select>
 </div>

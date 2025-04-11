@@ -19,7 +19,7 @@
     <meta name="date" content="{{ date }}">
 
 </head>
-<body>
+<body id="page-body">
     
     {% include 'std_elements/body.html' %}
     <div class="layout-wrapper" id="layoutWrapper" data-layout="mixed">
@@ -40,5 +40,24 @@
         {% include 'std_elements/footer.html' %}
         
     </div>
+
+    <script> // This changes background color based on selected viewtype.
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('viewTypeSelect');
+            const body = document.getElementById('page-body');
+        
+            if (select && body) {
+                const updateBg = () => {
+                    const val = select.value;
+                    const color = select.dataset[`bg${val.charAt(0).toUpperCase() + val.slice(1)}`] || 'white';
+                    body.style.backgroundColor = color;
+                };
+        
+                select.addEventListener('change', updateBg);
+                updateBg();
+            }
+        });
+        </script>
+        
 </body>
 </html>
