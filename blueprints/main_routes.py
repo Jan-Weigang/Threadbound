@@ -19,6 +19,7 @@ def logout():
     session.clear()
     return redirect(url_for('main.index'))
 
+
 @main.route('/login')
 def login():
     if not discord.authorized:

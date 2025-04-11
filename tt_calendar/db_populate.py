@@ -59,8 +59,8 @@ def add_event_types():
 def add_publicity_levels():
     publicity_levels = [
         Publicity(name="Geschlossene Gruppe"), # type: ignore
-        Publicity(name="Offene Gruppe"), # type: ignore
-        Publicity(name="Öffentlich (Gäste)") # type: ignore
+        Publicity(name="Vereinsintern"), # type: ignore
+        Publicity(name="Öffentlich") # type: ignore
     ]
     db.session.bulk_save_objects(publicity_levels)
     db.session.commit()
@@ -79,6 +79,7 @@ def add_tables():
     ]
     db.session.bulk_save_objects(tables)
     db.session.commit()
+
 
 def add_channels_from_env():
     channels_json = os.getenv('CHANNELS')
@@ -99,7 +100,6 @@ def add_channels_from_env():
             print(f"Added channel: {name} with ID {discord_channel_id}")
     db.session.commit()
     print("Channels added successfully.")
-
 
 
 def add_server_from_env():

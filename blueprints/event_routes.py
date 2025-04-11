@@ -4,10 +4,10 @@ from tt_calendar import decorators
 from tt_calendar import utils
 
 
-event = Blueprint('event_bp', __name__)
+event_bp = Blueprint('event_bp', __name__)
 
 
-@event.route('/create', methods=['GET', 'POST'])
+@event_bp.route('/create', methods=['GET', 'POST'])
 @decorators.login_required
 def create_event():
     user_manager = current_app.config['user_manager']
@@ -62,7 +62,7 @@ def create_event():
                            requested_date=requested_date)
 
 
-@event.route('/edit/<string:event_id>', methods=['GET', 'POST'])
+@event_bp.route('/edit/<string:event_id>', methods=['GET', 'POST'])
 @decorators.login_required
 def edit_event(event_id):
     user_manager = current_app.config['user_manager']
@@ -123,7 +123,7 @@ def edit_event(event_id):
                            requested_date=requested_date)
 
 
-@event.route('/delete/<string:event_id>', methods=['POST'])
+@event_bp.route('/delete/<string:event_id>', methods=['POST'])
 @decorators.login_required
 def delete_event(event_id):
     user_manager = current_app.config['user_manager']
