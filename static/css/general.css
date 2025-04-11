@@ -29,6 +29,14 @@ input[type="time"] {
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+select:hover {
+    background-color: #ddd;
+}
+select:focus {
+    background-color: #f9f9f9;
 }
 select[data-icon]::after {
     content: '';
@@ -56,7 +64,7 @@ button {
 }
 
 button:hover {
-    background-color: #ccc;
+    background-color: #ddd;
 }
 
 button:is(.set) {

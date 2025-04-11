@@ -57,6 +57,11 @@
                 updateBg();
             }
         });
+        // make all selects lose focus on option select
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('viewTypeSelect');
+            select?.addEventListener('change', () => select.blur());
+        });
         </script>
         
 </body>

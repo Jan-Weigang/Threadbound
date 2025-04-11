@@ -26,13 +26,13 @@
 </div>
 
 <div class="header-right">
-    <select id="hourSelect" name="hour" style="width: 6rem;">
+    <select id="hourSelect" name="hour" style="width: 6rem;" data-disable-scroll>
         <option value="8">morgens</option>
         <option value="12">mittags</option>
         <option value="16" selected>abends</option>
     </select>
     <select id="viewTypeSelect" name="view_type" data-disable-scroll
-            data-bg-regular="#eef2f0"
+            data-bg-regular="#fff"
             data-bg-template="#fbf8f1"
             data-bg-public="#f3eaf5">
         {% if is_authenticated %}
