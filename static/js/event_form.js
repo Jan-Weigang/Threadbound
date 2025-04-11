@@ -93,9 +93,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (!tableData.available) {
                         // button.disabled = true;
-                        button.select = false;
-                        button.classList.remove('selected');
+
+                        button.select = false; // if it was selected, add flash effect
+                        if (button.classList.contains('selected')) {
+                            button.classList.remove('selected');
+                        
+                            // Flash red
+                            button.classList.add('flash-unselect');
+                            setTimeout(() => button.classList.remove('flash-unselect'), 4000);
+                        }
+
                         button.classList.add('unavailable');
+
                         button.setAttribute('title', `Available from ${tableData.earliest_available_start || 'N/A'} to ${tableData.latest_possible_end || 'N/A'}`);
                     
                         // Add bold class to ::before or ::after elements if current selection is the reason for unavailability

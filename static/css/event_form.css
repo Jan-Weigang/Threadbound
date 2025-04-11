@@ -103,6 +103,10 @@ label {
     border: solid #bf8686 1px;
 }
 
+.table-button.unavailable:hover {
+    background-color: #c3fffa;
+}
+
 .table-button.selected {
     background-color: #3788d8;
     color: white;
@@ -116,6 +120,9 @@ label {
 .table-button.selected:hover {
     background-color: #90b0d0;
     color: white;
+}
+.table-button.selected.unavailable {
+    background: #84e4db;
 }
 .table-button::before, .table-button::after {
     display: block;
@@ -135,7 +142,11 @@ label {
 }
 
 .table-button.selected::before, .table-button.selected::after {
-    color: #8fa9f7;
+    color: #bdcaf0;
+}
+
+.table-button.selected.unavailable::before, .table-button.selected.unavailable:after {
+    color: #6d8399;
 }
 
 .table-button.bold-earliest::before, .table-button.bold-latest::after {
@@ -146,4 +157,20 @@ label {
 .half-button {
     margin-left: 1.5rem;
     margin-right: 1.5rem;
+}
+
+
+@keyframes tableUnselectFlash {
+    0%   { background-color: #ff4444; } /* Bright red */
+    4%   { background-color: #a6ddd1; }
+    8%   { background-color: #ff4444; }
+    12%   { background-color: #a6ddd1; }
+    16%   { background-color: #ff4444; }
+    20%   { background-color: #a6ddd1; }
+    24%   { background-color: #ff4444; }
+    100% { background-color: #ddc7cc; } /* Return to normal */
+}
+
+.table-button.flash-unselect {
+    animation: tableUnselectFlash 2s ease-out;
 }
