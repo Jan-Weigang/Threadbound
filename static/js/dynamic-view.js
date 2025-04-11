@@ -121,6 +121,19 @@ calendarGrid.addEventListener('htmx:afterSwap', function(event) {
 
     const newDate = new Date(dateInput.value);
     updateCalendarClasses(newDate);
+
+    // Inject nav buttons if not already present
+    if (!calendarGrid.querySelector('.side-nav.prev-day')) {
+        const prev = document.createElement('div');
+        prev.className = 'side-nav prev-day';
+        calendarGrid.appendChild(prev);
+    }
+
+    if (!calendarGrid.querySelector('.side-nav.next-day')) {
+        const next = document.createElement('div');
+        next.className = 'side-nav next-day';
+        calendarGrid.appendChild(next);
+    }
 });
 
 document.addEventListener('newMonthLoaded', function() {
@@ -138,18 +151,48 @@ document.addEventListener('htmx:afterSwap', function(event) {
     const prevDay = document.querySelector('.prev-day');
     const nextDay = document.querySelector('.next-day');
 
+    const prevTime = document.querySelector('.prev-time');
+    const nextTime = document.querySelector('.next-time');
+    const hourSelect = document.getElementById('hourSelect');
+
     if (prevDay) {
-        prevDay.addEventListener('click', () => {
-            change_dateInput_by(-1);
-        });
+        prevDay.onclick = () => change_dateInput_by(-1);
+    }
+    if (nextDay) {
+        nextDay.onclick = () => change_dateInput_by(1);
     }
 
-    if (nextDay) {
-        nextDay.addEventListener('click', () => {
-            change_dateInput_by(1);
-        });
+    const updateButtons = () => updateTimeNavButtons(hourSelect, prevTime, nextTime);
+    updateButtons();
+
+    if (prevTime && hourSelect) {
+        prevTime.onclick = () => {
+            const i = hourSelect.selectedIndex;
+            if (i > 0) {
+                hourSelect.selectedIndex = i - 1;
+                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+    }
+    
+    if (nextTime && hourSelect) {
+        nextTime.onclick = () => {
+            const i = hourSelect.selectedIndex;
+            if (i < hourSelect.options.length - 1) {
+                hourSelect.selectedIndex = i + 1;
+                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
     }
 });
+
+function updateTimeNavButtons(hourSelect, prevTime, nextTime) {
+    const i = hourSelect.selectedIndex;
+    const max = hourSelect.options.length - 1;
+
+    if (prevTime) prevTime.style.display = i <= 0 ? 'none' : '';
+    if (nextTime) nextTime.style.display = i >= max ? 'none' : '';
+}
 
 function change_dateInput_by(dayAmount) {
     const dateInput = document.getElementById('dateInput');

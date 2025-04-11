@@ -5,7 +5,7 @@
                 <button id="logoutButton" type="submit">Logout</button>
             </form>
             {% if user.name %} 
-                <div style="display: flex; flex-direction: column; position:relative"
+                <div class="user-status" style="display: flex; flex-direction: column; position:relative"
                     onmouseover="this.querySelector('.hover-popup').style.display = 'grid';"
                     onmouseout="this.querySelector('.hover-popup').style.display = 'none';">
                         
@@ -38,7 +38,7 @@
             <form action="{{ url_for('main.login') }}" method="GET">
                 <button id="loginButton" type="submit">Login</button>
             </form>
-                <div style="display: flex; flex-direction: column;">
+                <div class="user-status" style="display: flex; flex-direction: column;">
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem;"><i>Nicht eingeloggt</i></span>
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem; 
                     overflow: hidden; text-overflow: ellipsis; max-width: 20ch; white-space: nowrap;"></span>

@@ -2,6 +2,10 @@ body {
     height: 100%;
 }
 
+#hourSelect {
+    display: none;
+}
+
 .error-box {
     padding: 1rem;
     margin: 1rem 0;
@@ -28,6 +32,7 @@ body {
     display: grid;
     grid-template-rows: 5rem 1fr 5rem;
     height: calc(100vh - 0.5rem);
+    height: calc(var(--vh, 1vh) * 100 - 0.5rem);
     padding-right: 3rem;
     padding-left: 3rem;
     grid-gap: 1rem;
@@ -38,7 +43,7 @@ body {
     width: min(100ch,100%);
     margin-left: auto;
     margin-right: auto;
-    padding: 0 1vw 0 1vw;
+    /* padding: 0 1vw 0 1vw; */
     min-width: 0;
 }
 .calendar-container {
@@ -64,22 +69,31 @@ body {
     color: white;
     font-size: 24px;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.15s;
     /* pointer-events: none; Prevent clicks unless hovered */
+}
+
+.side-nav.next-time, .side-nav.prev-time {
+    top: -.5rem;
 }
 
 .side-nav:hover {
     opacity: 0.7;
     pointer-events: auto; /* Enable clicks on hover */
     background-color: var(--accent-color-light);
+    border-radius: .3rem;
 }
 
-.prev-day {
-    left: -5rem;
+.side-nav.next-time:hover, .side-nav.prev-time:hover {
+    background-color: #aaa;
 }
 
-.next-day {
-    right: -5rem;
+.prev-day, .prev-time {
+    left: -6rem;
+}
+
+.next-day, .next-time {
+    right: -6rem;
 }
 
 .side-nav::before {
@@ -90,13 +104,15 @@ body {
     border-style: solid;
 }
 
-.prev-day::before {
+
+
+.prev-day::before, .prev-time::before {
     border-width: 10px 15px 10px 0;
     border-color: transparent white transparent transparent;
     margin-right: 5px;
 }
 
-.next-day::before {
+.next-day::before, .next-time::before {
     border-width: 10px 0 10px 15px;
     border-color: transparent transparent transparent white;
     margin-left: 5px;
@@ -121,13 +137,6 @@ body {
     font-size: 0.8em;
     border-left: 1px dotted #ccc;
 }
-/* .time-label[data-hour='12'] { left: 0%; }
-.time-label[data-hour='14'] { left: 16.66%; }
-.time-label[data-hour='16'] { left: 33.33%; }
-.time-label[data-hour='18'] { left: 50%; }
-.time-label[data-hour='20'] { left: 66.66%; }
-.time-label[data-hour='22'] { left: 83.33%; }
-.time-label[data-hour='24'] { left: 100%; } */
 
 .calendar-header {
     display: grid;
@@ -514,8 +523,9 @@ body {
     grid-template-rows: 1rem;
     grid-auto-rows: 1fr;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
     padding-bottom: 1rem;
+    position: relative;
 }
 
 .day-header {
@@ -623,6 +633,11 @@ body {
     color: #555;
 }
 
+
+.user-status {
+    display: block;
+}
+
 @media (max-width: 768px) {
     .calendar-grid {
         grid-template-columns: 1fr; /* Make it a single column */
@@ -631,6 +646,14 @@ body {
         grid-template-rows: none;
         overflow-y: auto;
         scroll-padding: 20vh;
+    }
+
+    #hourSelect {
+        display: block;
+    }
+
+    .user-status {
+        display: none !important;
     }
 
     #nextMonth {

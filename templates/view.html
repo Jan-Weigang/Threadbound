@@ -73,6 +73,14 @@
             const select = document.getElementById('viewTypeSelect');
             select?.addEventListener('change', () => select.blur());
         });
+
+        // make viewheight correct.
+        function updateViewportHeight() {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+          }
+          window.addEventListener('resize', updateViewportHeight);
+          window.addEventListener('load', updateViewportHeight);
+          
         </script>
         
 </body>

@@ -142,6 +142,7 @@ button:is(.set) {
 }
 .layout-footer > * {
     flex: 1;
+    height: 2.5rem;
 }
 .footer-left {
     text-align: left;
