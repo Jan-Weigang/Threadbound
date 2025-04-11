@@ -101,7 +101,7 @@ load_dotenv()
 
 # Feedback 10.4.2025
 
-# Overview / Modal eines Events mit Escape abbrechen können
+
 # Tooltip auf das Symbol des Eventtype (Rollenspiel) bei Events
 
 # Bei Event erstellung (Ansicht) eine Checkbox für teilnehmen, die standardmäßig an ist?
