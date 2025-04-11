@@ -115,9 +115,8 @@ load_dotenv()
 # Admins können noch nicht editieren, events
 # Nutzername neben logout.
 # Kollidierende Reservierung beantragen könnte im WOrtlaut anders heißen. Button.
-# Hintergrund ändern je nach Typ des Kalenders (Stammtischkalender, Öffentlich, Mitglieder)
 # Neu Laden auf dem Handy springt zu falschem Datum?
-# Warnung für Termine in Vergangenheit und keine Threads!
+# für Termine in Vergangenheit und keine Threads!
 # Nicht weiter in die Zukunft als ein Jahr. Warnung ab 3 Monate in Zukunft
 
 # ======================================

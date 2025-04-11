@@ -62,7 +62,7 @@
         <input type="text" name="name" id="name" required>
 
         <label for="description">Beschreibung:</label>
-        <textarea name="description" id="description" required></textarea>
+        <textarea name="description" id="description"></textarea>
 
         <label for="game_category_id">Kategorie:</label>
         <div style="display: flex; flex-direction: row; align-items: center;">
@@ -126,7 +126,7 @@
 
         <button type="submit" id="submitButton" style="display:block" data-availability-checked="false" data-tables="true" data-collision="false"></button>
         <button type="submit" id="requestButton" style="display:none; background: rgb(84, 199, 189);">
-            Kollidierende Reservierung anfragen
+            Buchung mit Kollision anfragen!
         </button>
 
         <script>
@@ -215,9 +215,15 @@
             watchFields.forEach(el => {
                 initialValues.set(el, el.value);
             });
+            
+            let isSubmitting = false;
+            form.addEventListener('submit', () => {
+                isSubmitting = true;
+            });
         
             // Warn when leaving the page with changes
             window.addEventListener('beforeunload', (e) => {
+                if (isSubmitting) return; // Don't warn if we're submitting the form
                 for (const [el, initial] of initialValues.entries()) {
                     if (el.value !== initial) {
                         e.preventDefault();

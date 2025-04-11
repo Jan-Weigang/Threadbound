@@ -32,6 +32,9 @@ input[type="time"] {
     background-color: #f9f9f9;
     cursor: pointer;
 }
+input[type="text"], textarea {
+    cursor: initial;
+}
 select:hover {
     background-color: #ddd;
 }
