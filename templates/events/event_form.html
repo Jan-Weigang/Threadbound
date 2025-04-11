@@ -91,6 +91,9 @@
         <label for="date">Datum:</label>
         <input type="date" name="date" id="date" required value="{{ event.date if event else '' }}">
 
+        <div id="date-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none"></div>
+
+
         <label for="startTime">Startzeit:</label>
         <input type="time" name="start_time" id="startTime" required value="{{ start_time }}">
 
@@ -204,27 +207,55 @@
             }
 
             const form = document.querySelector('form');
-            console.log(form);
-                if (!form) return;
-            
-                const watchFields = form.querySelectorAll('input, textarea, select');
-                const initialValues = new Map();
+        
+            const watchFields = form.querySelectorAll('input, textarea, select');
+            const initialValues = new Map();
 
-                // Listen to changes for all relevant inputs (selects, date, time, etc.)
-                watchFields.forEach(el => {
-                    initialValues.set(el, el.value);
-                });
-            
-                // Warn when leaving the page with changes
-                window.addEventListener('beforeunload', (e) => {
-                    for (const [el, initial] of initialValues.entries()) {
-                        if (el.value !== initial) {
-                            e.preventDefault();
-                            e.returnValue = '';
-                            return;
-                        }
+            // Listen to changes for all relevant inputs (selects, date, time, etc.)
+            watchFields.forEach(el => {
+                initialValues.set(el, el.value);
+            });
+        
+            // Warn when leaving the page with changes
+            window.addEventListener('beforeunload', (e) => {
+                for (const [el, initial] of initialValues.entries()) {
+                    if (el.value !== initial) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        return;
                     }
-                });
+                }
+            });
+
+
+            const dateInput = document.getElementById('date');
+            const warningBox = document.getElementById('date-warning');
+
+            function checkDateWarning() {
+                const selected = new Date(dateInput.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // zero time for clean comparison
+
+                const farAhead = new Date(today);
+                farAhead.setMonth(farAhead.getMonth() + 3);
+
+                if (selected < today) {
+                    warningBox.textContent = '⚠️ Das Datum liegt in der Vergangenheit.';
+                    warningBox.style.display = 'block';
+                } else if (selected > farAhead) {
+                    warningBox.textContent = '⚠️ Das Datum liegt weit in der Zukunft.';
+                    warningBox.style.display = 'block';
+                } else {
+                    warningBox.textContent = '';
+                    warningBox.style.display = 'none';
+                }
+            }
+
+            // Initial check on load
+            checkDateWarning();
+
+            // Also check whenever the user changes the date
+            dateInput.addEventListener('change', checkDateWarning);
         });
 
         document.addEventListener('keydown', function (e) {

@@ -119,7 +119,6 @@ load_dotenv()
 # Neu Laden auf dem Handy springt zu falschem Datum?
 # Warnung für Termine in Vergangenheit und keine Threads!
 # Nicht weiter in die Zukunft als ein Jahr. Warnung ab 3 Monate in Zukunft
-# Absagen ist gut, löschen erzeugt fehler, list.count() takes one argument 0 given.
 
 # ======================================
 # ============= APP SETUP ==============
