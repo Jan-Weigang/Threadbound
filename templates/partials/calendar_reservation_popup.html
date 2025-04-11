@@ -61,4 +61,7 @@ document.addEventListener('click', function(event) {
         overlay.remove();
     }
 });
+
+document.addEventListener('keydown', e => e.key === 'Escape' && document.querySelector('.popup-overlay')?.remove());
+
 </script>

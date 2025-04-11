@@ -101,8 +101,6 @@ load_dotenv()
 
 # Feedback 10.4.2025
 
-# Gruppentypen - Geschlossene Gruppe, Vereinsintern, Öffentlich
-
 # Overview / Modal eines Events mit Escape abbrechen können
 # Tooltip auf das Symbol des Eventtype (Rollenspiel) bei Events
 

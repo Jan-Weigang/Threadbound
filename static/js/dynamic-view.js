@@ -128,7 +128,6 @@ document.addEventListener('newMonthLoaded', function() {
     initialize_hover();
 });
 
-
 // Small Updates after any htmx requests
 document.addEventListener('htmx:afterSwap', function(event) {
     const popup = document.querySelector('.reservation-popup');
@@ -336,8 +335,6 @@ function set_up_tableHeaders() {
 
     });
 }
-
-
 
 function set_up_reservations() {
     const reservations = document.querySelectorAll('.reservation');
