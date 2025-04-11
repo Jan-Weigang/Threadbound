@@ -25,10 +25,16 @@ def view(view_type):
     is_authenticated = session.get('is_member', False)
     print(f"Triggered route with auth: {is_authenticated}")
 
+    user = {}
+    user['name'] = session.get('username', None)
+    user['beirat'] = "Ja" if session.get('is_beirat', None) else "Nein"
+    user['vorstand'] = "Ja" if session.get('is_vorstand', None) else "Nein"
+    user['admin'] = "Ja" if session.get('is_admin', None) else "Nein"
+
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated)
+    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated, user=user)
 
 
 

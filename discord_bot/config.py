@@ -37,6 +37,7 @@ raw_guild_roles = {
     "member": os.getenv('MEMBER_ROLE_ID'),
     "beirat": os.getenv('BEIRAT_ROLE_ID'),
     "vorstand": os.getenv('VORSTAND_ROLE_ID'),
+    "mod": os.getenv('MOD_ROLE_ID'),
     "admin": os.getenv('ADMIN_ROLE_ID')
 }
 guild_roles = {}

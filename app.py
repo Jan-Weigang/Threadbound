@@ -101,9 +101,6 @@ load_dotenv()
 
 # Feedback 10.4.2025
 
-
-# Tooltip auf das Symbol des Eventtype (Rollenspiel) bei Events
-
 # Bei Event erstellung (Ansicht) eine Checkbox für teilnehmen, die standardmäßig an ist?
 
 # Kollision etwas unituitiv - Müsste ein Hinweis per css, dass es weggenommen wurde. Oder ein Crash Symbol
