@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Data validation in Buchformular triggers on scrolling?
+
 # Abgesagt ignorieren wenn gelöscht oder nicht published
 
 # in tickets infos des events
@@ -29,12 +31,6 @@ load_dotenv()
 
 # TODO Gradien downward when Days in vertical mode.
 
-# TODO in half view (under 760px) in fractions 1 zu 3?
-# grid-template-rows: 4rem 1fr 2fr 3rem;
-
-# TODO Hover Buttons links und rechts funktional als + - Zeit nutzen
-# TODO weitere Hover Buttons ergänzen oben neben den Tagen, die für + - Tage nutzen.
-
 # TODO Time Scale each hour? Then only show every 2nd in nmobile
 
 # TODO non member haben zwar ne Session aber keinen Member Status. Damit in einem Nirvana. ?
@@ -42,7 +38,6 @@ load_dotenv()
 # possible: Remove the DB logic from the api Calls and put them in their own module
 # Possibly add other hovering buttons for time scale movements (left right)
 
-# TODO Adjust Editing Termine so check does not always say "12:00".
 # TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
 # TODO Adjust Editing Termine: Button should be grey, not invis. 
 # Also add a button for "ask to overlap" --> Stammtisch
