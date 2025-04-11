@@ -139,10 +139,17 @@
         <hr>
         <form action="{{ url_for('event_bp.delete_event', event_id=event.id) }}" 
             method="POST" 
-            onsubmit="return confirm('Are you sure you want to delete this event?');"
             style="display: flex; flex-direction: row; justify-content: space-between;">
-            <button type="submit" name="action" value="delete" class="delete-button revert-button">Event Löschen</button>
-            <button type="submit" name="action" value="cancel" class="cancel-button revert-button">Event absagen</button>
+            <button type="button" class="back-button revert-button"
+                    onclick="history.back();">
+                Zurück
+            </button>
+            <button type="submit" name="action" value="delete" class="delete-button revert-button"
+                onclick="return confirm('⚠️ Willst du das Event ABSAGEN? ⚠️\n\nAbsagen: Es wird eine Discordnachricht generiert.\nLöschen: Das Event wird einfach entfernt.\n\nWenn das Event näher als eine Woche entfernt liegt wird jedes Löschen eine Absage.');">
+                Event Löschen</button>
+            <button type="submit" name="action" value="cancel" class="cancel-button revert-button"
+                onclick="return confirm('⚠️ Willst du das Event ABSAGEN? ⚠️\n\nAbsagen: Es wird eine Discordnachricht generiert.\nLöschen: Das Event wird einfach entfernt.\n\nWenn das Event näher als eine Woche entfernt liegt wird jedes Löschen eine Absage.');">
+                Event absagen</button>
         </form>
 
     {% endif %}
@@ -193,6 +200,36 @@
                 
                 // Update the hidden input with selected table IDs
                 updateSelectedTables();
+
+            }
+
+            const form = document.querySelector('form');
+            console.log(form);
+                if (!form) return;
+            
+                const watchFields = form.querySelectorAll('input, textarea, select');
+                const initialValues = new Map();
+
+                // Listen to changes for all relevant inputs (selects, date, time, etc.)
+                watchFields.forEach(el => {
+                    initialValues.set(el, el.value);
+                });
+            
+                // Warn when leaving the page with changes
+                window.addEventListener('beforeunload', (e) => {
+                    for (const [el, initial] of initialValues.entries()) {
+                        if (el.value !== initial) {
+                            e.preventDefault();
+                            e.returnValue = '';
+                            return;
+                        }
+                    }
+                });
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                history.back();
             }
         });
     </script>
