@@ -29,6 +29,7 @@
                 hx-get="{{ url_for('cal_bp.fetch_day')}}"
                 hx-target=".calendar-container"
                 hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect, change from:#hourSelect"
+                hx-request='{"timeout": 500}'
                 class="layout-header">
 
                 {% include 'std_elements/header.html' %}
@@ -41,7 +42,17 @@
         
     </div>
 
-    <script> // This changes background color based on selected viewtype.
+    <script> 
+        // checks for timeouts
+        document.body.addEventListener('htmx:timeout', function(evt) {
+            if (evt.target.closest('#viewTypeForm')) {
+                document.querySelector('.calendar-container').innerHTML =
+                    "<div class='error-box'>Request timed out. Server might be offline.</div>";
+            }
+        });
+        
+        
+        // This changes background color based on selected viewtype.
         document.addEventListener('DOMContentLoaded', function () {
             const select = document.getElementById('viewTypeSelect');
             const body = document.getElementById('page-body');
