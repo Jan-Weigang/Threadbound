@@ -379,7 +379,7 @@ function set_up_tableHeaders() {
                     let timeOffset = calculateSteppedHoverPosition(moveTouch.clientX, calendar)
                     hoverReservation.style.left = `${timeOffset}px`;
                     if (is_inside_header(header, moveEvent)) {
-                        header.setAttribute('data-hover-info', `${table_name} - Uhrzeit: ${get_hover_event_time(timeOffset)}`);
+                        header.setAttribute('data-hover-info', `${table_name} \n Uhrzeit: ${get_hover_event_time(timeOffset)}`);
                     } else {
                         header.setAttribute('data-hover-info', `Hier loslassen, um abzubrechen.`);
                     }
@@ -470,7 +470,7 @@ function set_up_tableHeaders() {
             // hoverReservation.style.left = `${e.clientX - calendar.getBoundingClientRect().left}px`;
             let timeOffset = calculateSteppedHoverPosition(e.clientX, calendar)
             hoverReservation.style.left = `${timeOffset}px`;
-            header.setAttribute('data-hover-info', `${table_name} - Uhrzeit: ${get_hover_event_time(timeOffset)}`);
+            header.setAttribute('data-hover-info', `${table_name} \n Uhrzeit: ${get_hover_event_time(timeOffset)}`);
             hoverReservation.style.width = `${calendar.clientWidth / 12}px` // Arbitrary width for visualizing the block
         });
         header.addEventListener('mouseleave', () => {
