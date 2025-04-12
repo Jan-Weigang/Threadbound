@@ -1,0 +1,50 @@
+
+
+<div class="popup-overlay" style="inset: 0; margin: 0; position: fixed; backdrop-filter: blur(3px);">
+    <div class="reservation-popup">
+        <div class="popup-content">
+            <div class="popup-heading">⚡ Tastenkürzel</div>
+            <div class="popup-value">test</div>
+
+            <div class="popup-label">Mehr Info</div>
+            <div class="popup-value">Tolle Info</div>
+
+
+
+        </div>
+        <div class="popup-footer">
+            <div class="popup-footer-buttons">
+                <button class="edit-popup"
+                    onclick="this.closest('.popup-overlay').remove(); 
+                            htmx.ajax('GET', '/calendar/shortcuts', { target: 'body', swap: 'beforeend' });">
+                    Tastenkürzel
+                </button>
+
+                <button class="close-popup" 
+                    onclick="this.closest('.popup-overlay').remove()">
+                    Schließen
+                </button>
+                
+                
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('click', function(event) {
+    const overlay = document.querySelector('.popup-overlay');
+    const popup = document.querySelector('.reservation-popup');
+
+    if (overlay && popup && !popup.contains(event.target)) {
+        overlay.remove();
+    }
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelector('.popup-overlay')?.remove();
+    }
+});
+</script>

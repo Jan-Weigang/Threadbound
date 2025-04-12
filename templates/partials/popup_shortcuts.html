@@ -1,0 +1,82 @@
+
+
+<div class="popup-overlay" style="inset: 0; margin: 0; position: fixed; backdrop-filter: blur(3px);">
+    <div class="reservation-popup">
+        <div class="popup-content">
+            <div class="popup-heading">⚡ Tastenkürzel</div><div></div>
+
+            <div class="popup-label"><kbd>Enter</kbd></div>
+            <div class="popup-value">Bestätigen / Termin erstellen</div>
+
+            <div class="popup-label"><kbd>ESC</kbd></div>
+            <div class="popup-value">Zurück / Overlay schließen</div>
+
+            <div class="popup-label"><kbd>T</kbd> / <kbd>Space</kbd></div>
+            <div class="popup-value">Heutiger Tag</div>
+
+            <div class="popup-label"><kbd>←</kbd> / <kbd>→</kbd></div>
+            <div class="popup-value">Tag: vorheriger / nächster</div>
+
+            <div class="popup-label"><kbd>↑</kbd> / <kbd>↓</kbd></div>
+            <div class="popup-value">Woche: vorherige / nächste</div>
+
+            <div class="popup-label"><kbd>,</kbd> / <kbd>.</kbd></div>
+            <div class="popup-value">Uhrzeit: früher / später</div>
+
+            <div class="popup-label"><kbd>0</kbd></div>
+            <div class="popup-value">Monatsansicht</div>
+
+            <div class="popup-label"><kbd>Enter</kbd></div>
+            <div class="popup-value">In Monatsansicht: Tag auswählen</div>
+
+            <div class="popup-label"><kbd>R</kbd></div>
+            <div class="popup-value">Neu laden</div>
+
+            
+
+        </div>
+        <div class="popup-footer">
+            <div class="popup-footer-buttons">
+                <button class="edit-popup"
+                    onclick="this.closest('.popup-overlay').remove(); 
+                            htmx.ajax('GET', '/calendar/tutorial', { target: 'body', swap: 'beforeend' });">
+                    Anleitung
+                </button>
+
+                <button class="close-popup" 
+                    onclick="this.closest('.popup-overlay').remove()">
+                    Schließen
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    kbd {
+        background: #eee;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-family: monospace;
+        margin: 0 1rem;
+    }
+</style>
+
+<script>
+document.addEventListener('click', function(event) {
+    const overlay = document.querySelector('.popup-overlay');
+    const popup = document.querySelector('.reservation-popup');
+
+    if (overlay && popup && !popup.contains(event.target)) {
+        overlay.remove();
+    }
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelector('.popup-overlay')?.remove();
+    }
+});
+</script>

@@ -18,6 +18,10 @@ input, textarea, button, select, optgroup {
     font-family: inherit
 }
 
+.hidden {
+    display: none !important;
+}
+
 input[type="text"],
 textarea,
 select,

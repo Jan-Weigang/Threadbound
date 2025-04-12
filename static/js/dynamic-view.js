@@ -86,6 +86,83 @@ function loadNewMonth() {
 }
 
 
+document.addEventListener('keydown', function(event) {
+    const tag = event.target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || event.ctrlKey || event.metaKey) return;
+
+    const dateInput = document.getElementById('dateInput');
+    const hourSelect = document.getElementById('hourSelect');
+
+    switch (event.key) {
+        case 'ArrowLeft': // ← previous day
+            if (dateInput) change_dateInput_by(-1);
+            break;
+        case 'ArrowRight': // → next day
+            if (dateInput) change_dateInput_by(1);
+            break;
+        case 'ArrowDown':
+            if (dateInput) change_dateInput_by(7);
+            break;
+        case 'ArrowUp':
+            if (dateInput) change_dateInput_by(-7);
+            break;
+        case ',':
+            if (hourSelect && hourSelect.selectedIndex > 0) {
+                hourSelect.selectedIndex -= 1;
+                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            break;
+        case '.':
+            if (hourSelect && hourSelect.selectedIndex < hourSelect.options.length - 1) {
+                hourSelect.selectedIndex += 1;
+                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            break;
+        case '0':
+            const datePickerButton = document.getElementById('datePickerButton');
+            if (datePickerButton) {
+                datePickerButton.click();
+            }
+            break
+        case 'Enter':
+            const wrapper = document.getElementById('layoutWrapper');
+            layout = wrapper.getAttribute('data-layout');
+
+            if (layout == 'month') {
+                const activeDay = document.querySelector('.active-day');
+                if (activeDay) activeDay.click();
+            } else {
+                const dateInput = document.getElementById('dateInput');
+                if (dateInput) {
+                    const selectedDate = dateInput.value; // should be YYYY-MM-DD
+                    if (selectedDate) {
+                        window.location.href = `/events/create?date=${selectedDate}`;
+                    }
+                }
+            }
+            break
+        case 'Space':
+        case ' ':
+        case 'T':
+        case 't': // Jump to today
+            event.preventDefault(); 
+            if (dateInput) {
+                const today = new Date().toISOString().slice(0, 10);
+                dateInput.value = today;
+                dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            break;
+        case 'R':
+        case 'r': // Reload same date/hour (force re-fetch)
+            if (hourSelect) hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            break;
+        case 'F1': 
+            event.preventDefault();
+            htmx.ajax('GET', '/calendar/shortcuts', { target: 'body', swap: 'beforeend' });
+    }
+});
+
+
 
 
 

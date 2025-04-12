@@ -127,3 +127,11 @@ def reservation_popup(event_id):
                            reservation=reservation_data, 
                            event_type=event_type, 
                            relatedTablesInfo=relatedTablesInfo)
+
+@cal.route('/shortcuts')
+def popup_shortcuts():
+    return render_template('partials/popup_shortcuts.html')
+
+@cal.route('/tutorial')
+def popup_tutorial():
+    return render_template('partials/popup_tutorial.html')

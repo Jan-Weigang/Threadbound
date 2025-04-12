@@ -42,6 +42,46 @@
         
     </div>
 
+    
+    <div id="help-overlay" class="hidden" style="
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70vw;
+            background: #fefefe;
+            border: 2px solid #aaa;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            z-index: 9999;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            ">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: column;">
+            <strong>⚡ Tastenkürzel</strong>
+            <button onclick="document.getElementById('help-overlay').classList.add('hidden')" style="
+                border: none;
+                background: none;
+                font-size: 1.2rem;
+                cursor: pointer;
+            ">&times;</button>
+        </div>
+        <hr>
+        <div style="line-height: 1.6;">
+            <kbd>←</kbd> Vorheriger Tag<br>
+            <kbd>→</kbd> Nächster Tag<br>
+            <kbd>↑</kbd> Frühere Zeit<br>
+            <kbd>↓</kbd> Spätere Zeit<br>
+            <kbd>T</kbd> Heute anzeigen<br>
+            <kbd>R</kbd> Neu laden<br>
+            <kbd>F1</kbd> Hilfe ein-/ausblenden<br>
+            <kbd>Esc</kbd> Hilfe schließen
+        </div>
+    </div>
+
+
+
     <script> 
         // checks for timeouts
         document.body.addEventListener('htmx:timeout', function(evt) {
@@ -81,7 +121,17 @@
           window.addEventListener('resize', updateViewportHeight);
           window.addEventListener('load', updateViewportHeight);
           
-        </script>
+
+        // escape to close help
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const helpOverlay = document.getElementById('help-overlay');
+                if (helpOverlay && !helpOverlay.classList.contains('hidden')) {
+                    helpOverlay.classList.add('hidden');
+                }
+            }
+        });
+    </script>
         
 </body>
 </html>
