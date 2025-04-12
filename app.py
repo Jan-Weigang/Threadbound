@@ -98,15 +98,13 @@ load_dotenv()
 # Bei Event erstellung (Ansicht) eine Checkbox für teilnehmen, die standardmäßig an ist?
 
 # Bei Editieren eine falsche Anzeige? Rollenspiel aber mit BrettspielwürfeL?
-# auf kleinen Bildschirmen Tischansicht bissl zu groß. Browseradressleiste verschiebt skalieren. Android
 # Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
 # "Heute" farbig hervorheben.
 # Fehlende Berechtigungen zum Löschen des 3TH Kalender Bots
 # Admins können noch nicht editieren, events
 
 # Neu Laden auf dem Handy springt zu falschem Datum?
-# für Termine in Vergangenheit und keine Threads!
-# Nicht weiter in die Zukunft als ein Jahr. Warnung ab 3 Monate in Zukunft
+# für Termine in Vergangenheit keine Threads!
 
 # ======================================
 # ============= APP SETUP ==============

@@ -91,6 +91,7 @@ function loadNewMonth() {
 
 // Calendar Setup
 calendarContainer.addEventListener('htmx:afterSwap', function(event) {
+    console.log("Running Cal Con");
     // const viewType = document.getElementById('viewTypeSelect').value;
     // const date = document.getElementById('dateInput').value;
     const dateInput = document.getElementById('dateInput');
@@ -110,13 +111,13 @@ calendarContainer.addEventListener('htmx:afterSwap', function(event) {
     set_up_tableHeaders();
     set_up_reservations();
     combine_reservations(calendar);
-    initialize_hover();
- 
+    // initialize_hover(); not calling this here anymore as it is being called on every after htmx
 });
 
 const calendarGrid = document.getElementById('calendar-grid');
 
 calendarGrid.addEventListener('htmx:afterSwap', function(event) {
+    console.log("I am updating Calendar Grid");
     renewCalendarGridEventListeners();
 
     const newDate = new Date(dateInput.value);
@@ -143,26 +144,31 @@ document.addEventListener('newMonthLoaded', function() {
 
 // Small Updates after any htmx requests
 document.addEventListener('htmx:afterSwap', function(event) {
+    console.log("I am running - ö - - ");
     const popup = document.querySelector('.reservation-popup');
     if (popup) {
         shortenLinksInPopup(popup);
     }
 
-    const prevDay = document.querySelector('.prev-day');
-    const nextDay = document.querySelector('.next-day');
+    const prevDays = document.querySelectorAll('.prev-day');
+    const nextDays = document.querySelectorAll('.next-day');
 
     const prevTime = document.querySelector('.prev-time');
     const nextTime = document.querySelector('.next-time');
     const hourSelect = document.getElementById('hourSelect');
 
-    if (prevDay) {
-        prevDay.onclick = () => change_dateInput_by(-1);
-    }
-    if (nextDay) {
-        nextDay.onclick = () => change_dateInput_by(1);
-    }
+    prevDays.forEach(btn => {
+        btn.onclick = () => change_dateInput_by(-1);
+    });
 
-    const updateButtons = () => updateTimeNavButtons(hourSelect, prevTime, nextTime);
+    nextDays.forEach(btn => {
+        btn.onclick = () => change_dateInput_by(1);
+    });
+
+    const updateButtons = () => {
+        updateTimeNavButtons(hourSelect, prevTime, nextTime);
+        updateHoverDescriptions(); 
+    };
     updateButtons();
 
     if (prevTime && hourSelect) {
@@ -184,6 +190,9 @@ document.addEventListener('htmx:afterSwap', function(event) {
             }
         };
     }
+
+    initialize_hover();
+
 });
 
 function updateTimeNavButtons(hourSelect, prevTime, nextTime) {
@@ -192,6 +201,22 @@ function updateTimeNavButtons(hourSelect, prevTime, nextTime) {
 
     if (prevTime) prevTime.style.display = i <= 0 ? 'none' : '';
     if (nextTime) nextTime.style.display = i >= max ? 'none' : '';
+}
+
+function updateHoverDescriptions() {
+    const buttonDescriptions = {
+        '.prev-day': '1 Tag zurück',
+        '.next-day': '1 Tag vor',
+        '.prev-time': 'frühere Ansicht',
+        '.next-time': 'spätere Ansicht',
+    };
+
+    for (const [selector, description] of Object.entries(buttonDescriptions)) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+            element.setAttribute('data-hover-info', description);
+        });
+    }
 }
 
 function change_dateInput_by(dayAmount) {
@@ -389,6 +414,7 @@ function set_up_reservations() {
         const start = new Date(reservationBlock.getAttribute('data-reservation-start'));
         const end = new Date(reservationBlock.getAttribute('data-reservation-end'));
         const name = reservationBlock.querySelector('.reservation-info-name').textContent;
+        const tableCount = reservationBlock.getAttribute('data-event-table-count');
 
         let startHour = start.getHours();
         let startMinutes = start.getMinutes();
@@ -401,7 +427,7 @@ function set_up_reservations() {
             return;
         } 
         let durationString = get_duration_string(start, end)
-        reservationBlock.setAttribute('data-hover-info', `${name} - ${durationString}`)
+        reservationBlock.setAttribute('data-hover-info', `${name} \n ${tableCount} Tische - ${durationString}`)
 
         // Adjust start and duration based on the selected time window
         let adjustedStartHour = startHour - selectedStartHour;
@@ -876,16 +902,16 @@ function get_hover_info_for_dayElement(occupancyThisDay, event_count) {
 
     // Add event count and occupancy percentage
     if (viewtype == 'public') {
-        hoverInfo.push(`${event_count} öffentliche Events`);
+        hoverInfo = `${event_count} öffentliche Events`;
     } else {
-        hoverInfo.push(`${event_count} Events`);
-        hoverInfo.push(`${Math.round((1 - avgOccupancy) * 100)}% frei`)
+        hoverInfo = `${event_count} Events`;
+        hoverInfo += ` | ${Math.round((1 - avgOccupancy) * 100)}% frei`
     }
     if (peak_exists) {
         const peakHoursText = `${String(peakStart).padStart(2, '0')}:00 - ${String(peakEnd).padStart(2, '0')}:00`;
-        hoverInfo.push(`Peak: ${peakHoursText}`);
+        hoverInfo += `\n Peak: ${peakHoursText}`;
     }
 
     // Set the hover info by joining the array into a single string
-    return hoverInfo.join(' | ');
+    return hoverInfo;
 }

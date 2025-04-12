@@ -113,7 +113,9 @@
                 infoDisplay.style.visibility = 'visible';
             });
             element.addEventListener('mousemove', () => {
-                infoDisplay.textContent = element.getAttribute('data-hover-info');
+                // infoDisplay.textContent = element.getAttribute('data-hover-info');
+                infoDisplay.innerHTML = element.getAttribute('data-hover-info').replace(/\n/g, '<br>');
+
             });
             element.addEventListener('mouseleave', () => {
                 infoDisplay.style.visibility = 'hidden';
@@ -123,7 +125,9 @@
                 infoDisplay.style.visibility = 'visible';
             });
             element.addEventListener('touchmove', () => {
-                infoDisplay.textContent = element.getAttribute('data-hover-info');
+                // infoDisplay.textContent = element.getAttribute('data-hover-info');
+                infoDisplay.innerHTML = element.getAttribute('data-hover-info').replace(/\n/g, '<br>');
+
             });
             element.addEventListener('touchend', () => {
                 infoDisplay.style.visibility = 'hidden';

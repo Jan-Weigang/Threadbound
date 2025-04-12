@@ -201,12 +201,19 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         
     # **Sort by date and start_time**
     reservations.sort(key=lambda r: r.associated_event.start_time)
+
+    from collections import defaultdict
+
+    event_to_table_count = defaultdict(set)
+    for reservation in reservations:
+        event_to_table_count[reservation.event_id].add(reservation.table_id)
     
     reservation_data = [{
         'id': reservation.id,
         'user_name': reservation.user.username,
         'event_id': reservation.event_id,
         'table_id': reservation.table_id,
+        'event_table_count': len(event_to_table_count[reservation.event_id]),
         'date': reservation.associated_event.start_time.date(),
         'start_time': reservation.associated_event.start_time.isoformat(),
         'end_time': reservation.associated_event.end_time.isoformat(),
