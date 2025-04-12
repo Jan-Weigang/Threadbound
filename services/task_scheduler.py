@@ -9,29 +9,31 @@ from flask import current_app
 logging.basicConfig(level=logging.INFO)
 
 def run_daily_reminder():
-    """Fetch events for today and send reminders to Discord."""
-    berlin_tz = pytz.timezone('Europe/Berlin')
-    now = datetime.now(berlin_tz)
-    
-    # Get the start and end of today
-    start_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 0, 0, 0))
-    end_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 23, 59, 59))
+    app = current_app._get_current_object() #type: ignore
+    with app.app_context:
+        """Fetch events for today and send reminders to Discord."""
+        berlin_tz = pytz.timezone('Europe/Berlin')
+        now = datetime.now(berlin_tz)
+        
+        # Get the start and end of today
+        start_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 0, 0, 0))
+        end_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 23, 59, 59))
 
-    print(f"Running Event Remeinder for today: {start_of_day} to {end_of_day}")
+        print(f"Running Event Remeinder for today: {start_of_day} to {end_of_day}")
 
-    with current_app.app_context():
-        events = Event.get_regular_events().filter(
-            Event.start_time >= start_of_day.astimezone(pytz.utc),  # Convert to UTC for DB
-            Event.start_time <= end_of_day.astimezone(pytz.utc)  # Convert to UTC for DB
-        ).all()
+        with current_app.app_context():
+            events = Event.get_regular_events().filter(
+                Event.start_time >= start_of_day.astimezone(pytz.utc),  # Convert to UTC for DB
+                Event.start_time <= end_of_day.astimezone(pytz.utc)  # Convert to UTC for DB
+            ).all()
 
-        if not events:
-            logging.info(f"📅 No events today ({now.strftime('%Y-%m-%d')}). Skipping reminder.")
-            return
+            if not events:
+                logging.info(f"📅 No events today ({now.strftime('%Y-%m-%d')}). Skipping reminder.")
+                return
 
-        logging.info(f"📢 Sending reminders for {len(events)} events.")
-        discord_handler = current_app.config['discord_handler']
-        discord_handler.send_reminders_in_threads(events)
+            logging.info(f"📢 Sending reminders for {len(events)} events.")
+            discord_handler = current_app.config['discord_handler']
+            discord_handler.send_reminders_in_threads(events)
 
 # Setup scheduler
 scheduler = BackgroundScheduler()
