@@ -1,0 +1,21 @@
+{
+    "name": "3TH Kalender und Buchungssystem",
+    "short_name": "3TH Cal",
+    "start_url": "/calendar/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [
+      {
+        "src": "/static/icons/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/static/icons/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ]
+  }
+  

@@ -12,6 +12,14 @@
     <script src="/static/js/general.js" defer></script>
     <script src="/static/js/dynamic-view.js" defer></script>
 
+    <!-- PWA Capability -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+
 
     <title>Reservations Week View</title>
 
@@ -29,7 +37,7 @@
                 hx-get="{{ url_for('cal_bp.fetch_day')}}"
                 hx-target=".calendar-container"
                 hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect, change from:#hourSelect"
-                hx-request='{"timeout": 500}'
+                hx-request='{"timeout": 800}'
                 class="layout-header">
 
                 {% include 'std_elements/header.html' %}
@@ -43,7 +51,7 @@
     </div>
 
     
-    <div id="help-overlay" class="hidden" style="
+    <!-- <div id="help-overlay" class="hidden" style="
             position: fixed;
             top: 10%;
             left: 50%;
@@ -78,7 +86,7 @@
             <kbd>F1</kbd> Hilfe ein-/ausblenden<br>
             <kbd>Esc</kbd> Hilfe schließen
         </div>
-    </div>
+    </div> -->
 
 
 
