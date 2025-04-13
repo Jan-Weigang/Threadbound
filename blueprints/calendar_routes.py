@@ -4,7 +4,8 @@ from flask_dance.contrib.discord import discord
 from tt_calendar.models import *
 from tt_calendar import utils
 
-from datetime import datetime
+from datetime import datetime, timezone
+
 import json
 
 
@@ -72,6 +73,9 @@ def fetch_month():
     event_types = EventType.query.all()
 
     occupancy_by_day = utils.get_occupancy_by_day(reservations, tables)
+
+    today = datetime.now(timezone.utc).date()
+    
     return render_template('partials/month_content.html', 
                            date=date, 
                            tables=tables, 
@@ -80,7 +84,8 @@ def fetch_month():
                            date_list=list(date_range),
                            week_start=week_start,
                            week_end=week_end,
-                           occupancy_by_day=json.dumps(occupancy_by_day))
+                           occupancy_by_day=json.dumps(occupancy_by_day),
+                           today=today)
 
 
 

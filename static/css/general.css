@@ -1,6 +1,7 @@
 :root {
     --accent-color-dark: hsl(120, 30%, 30%);
     --accent-color-light: hsl(120, 30%, 85%);
+    --accent-color: hsl(120, 100%, 32%);
     --font-color: black;
     --font-on-main: white;
 }

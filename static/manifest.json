@@ -1,10 +1,10 @@
 {
     "name": "3TH Kalender und Buchungssystem",
-    "short_name": "3TH Cal",
+    "short_name": "3TH Buchungen",
     "start_url": "/calendar/",
     "display": "standalone",
-    "background_color": "#fffffe",
-    "theme_color": "#fffffe",
+    "background_color": "#333",
+    "theme_color": "#fffff6",
     "icons": [
       {
         "src": "/static/icons/icon-192.png",

@@ -175,13 +175,11 @@ function initializeAvailabilityChecking() {
                 if (tableData) {
                     const selectedStartTime = startTime;
                     const selectedEndTime = endTime;
+                    const collisionWarning = document.getElementById('collision-warning');
 
                     if (!tableData.available) {
-                        // button.disabled = true;
-
-                        // A Collision happened during Check
-                        const collisionWarning = document.getElementById('collision-warning');
-                        collisionWarning.style.display = 'block';
+                        // button.disabled = true;   
+                        console.log("I triggered");
 
                         button.select = false; // if it was selected, add flash effect
                         if (button.classList.contains('selected')) {
@@ -190,6 +188,10 @@ function initializeAvailabilityChecking() {
                             // Flash red
                             button.classList.add('flash-unselect');
                             setTimeout(() => button.classList.remove('flash-unselect'), 4000);
+
+                            // Show Warning
+                            collisionWarning.style.display = 'block';
+                            collisionWarning.setAttribute('data-warning', 'true');
                         }
 
                         button.classList.add('unavailable');
@@ -221,9 +223,10 @@ function initializeAvailabilityChecking() {
 
                 document.getElementById('submitButton').setAttribute('data-availability-checked', 'true');
                 document.getElementById('submitButton').setAttribute('data-collision', 'false');
-                updateSubmitButton();
-                updateSelectedTables();
             });
+
+            updateSubmitButton();
+            updateSelectedTables();
         });
     });
 }
@@ -240,14 +243,18 @@ function initializeTableButtons() {
             if (hasUnavailableSelected) {
                 submitButton.setAttribute('data-collision', 'true');
                 submitButton.setAttribute('data-availability-checked', 'false');
+            } else {
+                submitButton.setAttribute('data-collision', 'false');
             }
             
             
             // Update the hidden input with selected table IDs
             updateSelectedTables();
             updateRequestButton();
+            
         });
     });
+    
 }
 
 function initializeEventTypeColoring() {
@@ -382,19 +389,20 @@ function updateSubmitButton() {
 
 function updateRequestButton() {
     const requestButton = document.getElementById('requestButton');
+    const submitButton = document.getElementById('submitButton');
     const collisionWarning = document.getElementById('collision-warning');
                         
 
-    let collisionCheck = Array.from(tableButtons).some(button =>
-        button.classList.contains('selected') && button.classList.contains('unavailable')
-    );
+    let collisionCheck = submitButton.getAttribute('data-collision') === 'true';
     if (collisionCheck) {
         requestButton.style.display = 'block';
         collisionWarning.style.display = 'none';
-
     } else {
         requestButton.style.display = 'none';
-        collisionWarning.style.display = 'block';
+        if (collisionWarning.getAttribute('data-warning') === 'true') {
+            collisionWarning.style.display = 'block';
+        }
+        
     }
 }
 

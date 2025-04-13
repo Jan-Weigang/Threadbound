@@ -606,6 +606,14 @@ body {
 .day + .active-day:hover {
     background-color: #d9aeae;
 }
+.day + .today {
+    border-left: .25rem solid var(--accent-color);
+}
+.day + .past {
+    border-left: .15rem solid #bbb;
+}
+
+
 .active-month {
     background-color: #fff;
 }

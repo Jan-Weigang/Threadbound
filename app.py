@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO dynamic css @Container and @media
+
 # api/resolve_overlap 404 error?
 
 # Abgesagt ignorieren wenn gelöscht oder nicht published

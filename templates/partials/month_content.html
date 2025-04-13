@@ -19,7 +19,7 @@
 
 
 {% for day in date_list %}
-    <div class="day" data-date="{{ day.strftime('%Y-%m-%d') }}">
+    <div class="day {% if day == today %}today{% elif day < today %}past{% endif %}" data-date="{{ day.strftime('%Y-%m-%d') }}">
         <div class="day-heading">
             <span class="mobile-weekday">{{ day.strftime('%a') }}</span>
             <span class="day-number">{{ day.day }}</span>

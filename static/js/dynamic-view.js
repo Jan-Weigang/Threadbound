@@ -566,6 +566,10 @@ function update_time_labels() {
             // Dynamically calculate percentage position
             const positionPercentage = ((hour - selectedStartHour) / totalHours) * 100;
             label.style.left = `${positionPercentage}%`;
+
+            if (positionPercentage == "100") {
+                label.innerHTML = '';
+            }
         }
     });
 }
