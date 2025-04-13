@@ -1,0 +1,120 @@
+
+<style>
+    .floor-wrapper {
+        aspect-ratio: 26 / 31;
+        width: 100%; /* or set a max-width */
+      }
+
+    .floorgrid-container {
+        display: grid;
+        grid-template-columns: repeat(26, 1fr);
+        grid-template-rows: repeat(31, 1fr);
+        background-color: white;
+        height: 100%;
+        width: 100%;
+    }
+
+    .wall {
+        background-color: #333;
+    }
+
+    .door {
+        background-color: #aaa;
+    }
+
+    .tabled {
+        background-color: orange;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: bold;
+        border: 0.15rem solid black;
+        border-radius: .5rem;
+        box-shadow: 1px 1px 8px gray;
+    }
+
+    .table {
+        padding: 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        /* height: 3rem; */
+        transition: background-color 0.1s;
+        color: black;
+    }
+
+    .table:hover {
+        background-color: #ddd;
+    }
+
+    .door {
+        background-color: #aaa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        color: white;
+    }
+
+    .wc {
+        background-color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: black;
+    }
+</style>
+<div class="popup-overlay" style="inset: 0; margin: 0; position: fixed; backdrop-filter: blur(3px);">
+    <div class="floor-wrapper">
+        <div class="floorgrid-container">
+            <!-- Walls -->
+            <div class="wall" style="grid-column: 1 / 2; grid-row: 1 / 30;"></div>
+            <div class="wall" style="grid-column: 1 / 22; grid-row: 1 / 2;"></div>
+            <div class="wall" style="grid-column: 25 / 27; grid-row: 1 / 2;"></div>
+            <div class="wall" style="grid-column: 2 / 9; grid-row: 2 / 4;"></div>
+            <div class="wall" style="grid-column: 13 / 14; grid-row: 2 / 6"></div>
+            <div class="wall" style="grid-column: 2 / 4; grid-row: 8 / 9;"></div>
+            <div class="wall" style="grid-column: 7 / 9; grid-row: 8 / 9;"></div>
+            <div class="wall" style="grid-column: 8 / 9; grid-row: 9 / 12;"></div>
+            <div class="wall" style="grid-column: 2 / 3; grid-row: 13 / 16;"></div>
+            <div class="wall" style="grid-column: 2 / 14; grid-row: 12 / 13;"></div>
+            <div class="wall" style="grid-column: 13 / 14; grid-row: 9 / 12;"></div>
+            <div class="wall" style="grid-column: 13 / 15; grid-row: 16 / 18;"></div>
+            <div class="wall" style="grid-column: 8 / 9; grid-row: 9 / 12;"></div>
+            <div class="wall" style="grid-column: 26 / 27; grid-row: 1 / 30;"></div>
+            <div class="wall" style="grid-column: 24 / 26; grid-row: 14 / 17;"></div>
+            <div class="wall" style="grid-column: 1 / 11; grid-row: 30 / 31;"></div>
+            <div class="wall" style="grid-column: 17 / 27; grid-row: 30 / 31;"></div>
+
+            <!-- Doors-->
+            <div class="door" style="grid-column: 22 / 25; grid-row: 1 / 2;">Hoftür</div>
+            <div class="door" style="grid-column: 4 / 7; grid-row: 8 / 9;">WC Tür</div>
+            <div class="door" style="grid-column: 2 / 4; grid-row: 4 / 8;">Küche</div>
+            <div class="door" style="grid-column: 3 / 13; grid-row: 13 / 15;">Regale</div>
+            <div class="door" style="grid-column: 2 / 3; grid-row: 16 / 23;">Regal</div>
+            <div class="door" style="grid-column: 15 / 17; grid-row: 27 / 28;">Hochtisch</div>
+
+            <div class="door" style="grid-column: 11 / 17; grid-row: 28 / 30;">Eingang</div>
+
+            <!-- WC -->
+            <div class="wc" style="grid-column: 2 / 8; grid-row: 9 / 12;">WC</div>
+
+            <!-- Tables -->
+            <div class="table table-button" style="grid-column: 4 / span 4; grid-row: 23 / span 6;">Tisch 1</div>
+            <div class="table table-button" style="grid-column: 4 / span 6; grid-row: 16 / span 4;">Tisch 2</div>
+            <div class="table table-button" style="grid-column: 12 / span 6; grid-row: 18 / span 4;">Tisch 3</div>
+            <div class="table table-button" style="grid-column: 19 / span 6; grid-row: 25 / span 4;">Tisch 4</div>
+            <div class="table table-button" style="grid-column: 20 / span 6; grid-row: 18 / span 4;">Tisch 5</div>
+            <div class="table table-button" style="grid-column: 20 / span 3; grid-row: 10 / span 4;">Tisch 6.1</div>
+            <div class="table table-button" style="grid-column: 23 / span 3; grid-row: 10 / span 4;">Tisch 6.2</div>
+            <div class="table table-button" style="grid-column: 17 / span 6; grid-row: 4 / span 4;">Tisch 7</div>
+            <div class="table table-button" style="grid-column: 14 / span 3; grid-row: 12 / span 4;">Tisch 7.5</div>
+
+        </div>
+    </div>
+</div>
+

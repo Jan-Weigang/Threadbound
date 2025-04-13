@@ -148,7 +148,7 @@ body {
     text-align: bottom;
     padding-bottom: 5px;
     font-size: 0.8em;
-    border-left: 1px dotted #ccc;
+    border-left: 1px dotted #aaa;
 }
 
 .calendar-header {
@@ -786,6 +786,10 @@ body {
 }
 
 @container body (width < 600px) {
+    .uneven-hour {
+        display: none;
+    }
+
     [data-layout="day"] .calendar-grid, 
     [data-layout="mixed"] .calendar-grid, 
     [data-layout="month"] .calendar-grid {

@@ -27,22 +27,12 @@ load_dotenv()
 
 # in tickets infos des events
 
-# TODO teilnehmen klicken im Kalender, sofern eingeloggt.
+# ? teilnehmen klicken im Kalender, sofern eingeloggt.
 
-# TODO make  templates visible in calendar.
-
-# TODO Gradien downward when Days in vertical mode.
-
-# TODO Time Scale each hour? Then only show every 2nd in nmobile
-
-# TODO non member haben zwar ne Session aber keinen Member Status. Damit in einem Nirvana. ?
+# TODO make templates visible in calendar.
 
 # possible: Remove the DB logic from the api Calls and put them in their own module
 # Possibly add other hovering buttons for time scale movements (left right)
-
-# TODO Buchformular beginnt scheinbar immer erst um 12 Uhr.
-# TODO Adjust Editing Termine: Button should be grey, not invis. 
-# Also add a button for "ask to overlap" --> Stammtisch
 
 # TODO Templates als Stammtsichkalender
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
@@ -67,9 +57,7 @@ load_dotenv()
 # TODO spieltreff oder geschlossebe gruppen nicht auf discord packen oder optional machen
 # TODO morgens um 9 eine erinnerung an event ersteller, ob stattfindet oder gelöscht werden soll. Normalfall: bleibt bestehen. Bei leuten, die seltener anwesend markieren und nicht kommen als ihre termine wahrnehmen dann auto-aktion löschung, wenn nicht bestätigt wird. Oder erinnerung optional..
 # TODO embed mit wochenevents in einem main channel?
-# TODO "editiert am" in mycalendar Popup rechts ausrichten (siehe Umbrechung bei engen Fenstern)
 # TODO container-name für reservations nutzen
-# TODO wifth vs minwidtj?
 
 # Feadback
 # TODO Ersteller im Embed verlinken (mit @ und echtem Namen?)
