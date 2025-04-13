@@ -22,7 +22,12 @@ const warningBox = document.getElementById('date-warning');
 document.addEventListener('DOMContentLoaded', function() {
 
     if (isEditMode) {
-        setFieldsForEditing()
+        setFieldsForEditing();
+        const attendCheckBox = document.getElementById('attend_self_wrapper');
+        const attendLabel = document.getElementById('attend_self_label');
+        attendCheckBox.style.display = 'none';
+        attendLabel.style.display = 'none';
+        attendCheckBox.checked = false;
     }
 
     checkDateWarning();
@@ -105,6 +110,8 @@ window.addEventListener('load', () => {
             }
         }
     });
+
+    checkDateWarning();
 });
 
 

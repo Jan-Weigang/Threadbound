@@ -353,31 +353,34 @@ def handle_attendance():
         if not event:
             return jsonify({"status": "error", "message": "Event not found"}), 404
 
-        user = User.query.filter_by(discord_id=discord_user_id).first()
-        if not user:
-            user = User(discord_id=discord_user_id, username=data.get('username')) # type: ignore
-            db.session.add(user)
-            db.session.commit()
-            user = User.query.filter_by(discord_id=discord_user_id).first()
-
-        assert user
-
-        if action == "attend":
-            if user not in event.attendees:
-                event.attendees.append(user)
-        elif action == "not_attend":
-            if user in event.attendees:
-                event.attendees.remove(user)
-
-        db.session.commit()
-
-        run_discord_post_update(event, user.discord_id if action == "attend" else None)
+        mark_attendance_by_user_and_event(discord_user_id, data.get('username'), event, action)
         return jsonify({"status": "success", "message": f"User marked as {action} for event."})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"status": "error", "message": str(e)}), 500
     
+
+def mark_attendance_by_user_and_event(discord_user_id: str, username: str, event: Event, action: str):
+    user = User.query.filter_by(discord_id=discord_user_id).first()
+    if not user:
+        user = User(discord_id=discord_user_id, username=username) # type: ignore
+        db.session.add(user)
+        db.session.commit()
+        user = User.query.filter_by(discord_id=discord_user_id).first()
+
+    assert user
+
+    if action == "attend":
+        if user not in event.attendees:
+            event.attendees.append(user)
+    elif action == "not_attend":
+        if user in event.attendees:
+            event.attendees.remove(user)
+
+    db.session.commit()
+    run_discord_post_update(event, user.discord_id if action == "attend" else None)
+
 
 def run_discord_post_update(event, user_id):
     logging.info(f"running discord post update")

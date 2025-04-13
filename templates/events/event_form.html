@@ -88,6 +88,12 @@
             {% endfor %}
         </select>
 
+        <label for="attend_self" id="attend_self_label"></label>
+        <div id="attend_self_wrapper"><input type="checkbox" name="attend_self" id="attend_self" checked style="justify-self: start;"> Selbst teilnehmen</div>
+
+        <hr style="grid-column: 1 / -1;">
+        
+
         <label for="date">Datum:</label>
         <input type="date" name="date" id="date" required value="{{ event.date if event else '' }}">
 

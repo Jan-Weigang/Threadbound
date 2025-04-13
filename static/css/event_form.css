@@ -78,6 +78,10 @@ label {
         grid-template-columns: 1fr; /* Make labels and inputs stack vertically */
     }
 
+    form > * {
+        grid-column: auto !important; /* Force all children to use single column */
+    }
+
     button[type="submit"] {
         grid-column: 1;
     }
