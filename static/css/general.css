@@ -122,7 +122,7 @@ button:is(.set) {
     text-align: right;
     justify-content: right;
 }
-@container body (width < 600px) {
+@container body (width < 650px) {
     .layout-header {
         flex-direction: column;
     }
