@@ -21,10 +21,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO clamp thing try again with margins
-
-# Mitglied und Member unterscheiden ? 
-
 # TODO Data validation in Buchformular triggers on scrolling?
 
 # Abgesagt ignorieren wenn gelöscht oder nicht published

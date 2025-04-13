@@ -77,7 +77,7 @@
         <label for="event_type_id">Art des Events:</label>
         <select name="event_type_id" id="event_type_id">
             {% for event_type in event_types %}
-                <option value="{{ event_type.id }}" data-color="{{ event_type.color }}"">{{ event_type.name }}</option>
+                <option value="{{ event_type.id }}" data-color="{{ event_type.color }}">{{ event_type.name }}</option>
             {% endfor %}
         </select>
 
@@ -156,121 +156,6 @@
         </form>
 
     {% endif %}
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // preload the fields if editing
-
-            if (isEditMode) {
-
-                document.getElementById('name').value = eventData.getAttribute('data-name');
-                document.getElementById('description').value = eventData.getAttribute('data-description');
-                document.getElementById('date').value = eventData.getAttribute('data-date');
-                document.getElementById('startTime').value = eventData.getAttribute('data-start-time');
-                document.getElementById('endTime').value = eventData.getAttribute('data-end-time');
-        
-                
-                // Set selected game category
-                var gameCategoryId = eventData.getAttribute('data-game-category-id');
-                if (gameCategoryId) {
-                    var gameCategorySelect = document.getElementById('game_category_id');
-                    gameCategorySelect.value = gameCategoryId;
-                }
-
-                // Set selected event type
-                var eventTypeId = eventData.getAttribute('data-event-type-id');
-                if (eventTypeId) {
-                    var eventTypeSelect = document.getElementById('event_type_id');
-                    eventTypeSelect.value = eventTypeId;
-                }
-
-                // Set selected publicity level
-                var publicityId = eventData.getAttribute('data-publicity-id');
-                if (publicityId) {
-                    var publicitySelect = document.getElementById('publicity_id');
-                    publicitySelect.value = publicityId;
-                }
-
-                // Set selected table buttons as "selected"
-                const selectedTables = JSON.parse(eventData.getAttribute('data-selected-tables'));
-                selectedTables.forEach(tableId => {
-                    const tableButton = document.querySelector(`.table-button[data-table-id="${tableId}"]`);
-                    if (tableButton) {
-                        tableButton.classList.add('selected');
-                    }
-                });
-                
-                // Update the hidden input with selected table IDs
-                updateSelectedTables();
-
-            }
-
-            const form = document.querySelector('form');
-        
-            const watchFields = form.querySelectorAll('input, textarea, select');
-            const initialValues = new Map();
-
-            // Listen to changes for all relevant inputs (selects, date, time, etc.)
-            watchFields.forEach(el => {
-                initialValues.set(el, el.value);
-            });
-            
-            let isSubmitting = false;
-            form.addEventListener('submit', () => {
-                isSubmitting = true;
-            });
-        
-            // Warn when leaving the page with changes
-            window.addEventListener('beforeunload', (e) => {
-                if (isSubmitting) return; // Don't warn if we're submitting the form
-                for (const [el, initial] of initialValues.entries()) {
-                    if (el.value !== initial) {
-                        e.preventDefault();
-                        e.returnValue = '';
-                        return;
-                    }
-                }
-            });
-
-
-            const dateInput = document.getElementById('date');
-            const warningBox = document.getElementById('date-warning');
-
-            function checkDateWarning() {
-                const selected = new Date(dateInput.value);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // zero time for clean comparison
-
-                const farAhead = new Date(today);
-                farAhead.setMonth(farAhead.getMonth() + 3);
-
-                if (selected < today) {
-                    warningBox.textContent = '⚠️ Das Datum liegt in der Vergangenheit.';
-                    warningBox.style.display = 'block';
-                } else if (selected > farAhead) {
-                    warningBox.textContent = '⚠️ Das Datum liegt weit in der Zukunft.';
-                    warningBox.style.display = 'block';
-                } else {
-                    warningBox.textContent = '';
-                    warningBox.style.display = 'none';
-                }
-            }
-
-            // Initial check on load
-            checkDateWarning();
-
-            // Also check whenever the user changes the date
-            dateInput.addEventListener('change', checkDateWarning);
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                history.back();
-            }
-        });
-    </script>
-    
 
 </body>
 </html>

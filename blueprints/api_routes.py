@@ -48,21 +48,21 @@ api = Blueprint('api_bp', __name__)
 #     db.session.commit()
 #     return jsonify({'message': 'Game Category created successfully'}), 201
 
-@api.route('/event-types', methods=['GET'])
-def api_get_event_types():
-    event_types = EventType.query.all()
-    event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
-    # print(json.dumps(event_type_data, indent=4))
-    return jsonify({'event_types': event_type_data})
+# @api.route('/event-types', methods=['GET'])
+# def api_get_event_types():
+#     event_types = EventType.query.all()
+#     event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
+#     # print(json.dumps(event_type_data, indent=4))
+#     return jsonify({'event_types': event_type_data})
 
-# POST endpoint to add a new event type (if needed)
-@api.route('/event-types', methods=['POST'])
-def api_create_event_type():
-    data = request.get_json()
-    new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
-    db.session.add(new_event_type)
-    db.session.commit()
-    return jsonify({'message': 'Event Type created successfully'}), 201
+# # POST endpoint to add a new event type (if needed)
+# @api.route('/event-types', methods=['POST'])
+# def api_create_event_type():
+#     data = request.get_json()
+#     new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
+#     db.session.add(new_event_type)
+#     db.session.commit()
+#     return jsonify({'message': 'Event Type created successfully'}), 201
 
 # @api.route('/publicities', methods=['GET'])
 # def api_get_publicities():

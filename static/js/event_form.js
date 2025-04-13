@@ -16,23 +16,93 @@ const hiddenInput = document.getElementById('table_ids');
 const checkAvailabilityButton = document.getElementById('check-availability');
 const eventData = document.getElementById('eventData');
 
+const dateInput = document.getElementById('date');
+const warningBox = document.getElementById('date-warning');
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - - - SubmitButton Stuff - - - - - - - - - - - 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    if (isEditMode) {
+        setFieldsForEditing()
+    }
 
-    // Reset the Checker when times are changed.
+    checkDateWarning();
+    dateInput.addEventListener('change', checkDateWarning);
+    
     updateSubmitButton();
 
+    initializeSubmitButtonChecks();
+    initializeAvailabilityChecking();
+    initializeTableButtons();
+    initializeEventTypeColoring();
+    initializeEventCategoryIcons();
+});
+
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        history.back();
+    }
+});
+
+
+// Form validation to ensure end time is after start time
+document.querySelector('form').addEventListener('submit', function(event) {
+    const startTime = document.getElementById('startTime').value;
+    let endTime = document.getElementById('endTime').value;
+
+    // Check if end time is set to 24:00 and adjust it to 23:59
+    if (endTime === "00:00") {
+        endTime = "23:59";
+        document.getElementById('endTime').value = endTime; // Update the input field value
+    }
+
+
+    if (startTime >= endTime) {
+        alert("End Time must be later than Start Time.");
+        event.preventDefault(); // Prevent form submission if validation fails
+    }
+});
+
+
+// Triggers after all is loaded and saves data (user-leave popup check))
+window.addEventListener('load', () => {
+    const form = document.querySelector('form');
+
+    const watchFields = form.querySelectorAll('input, textarea, select');
+    const initialValues = new Map();
+
+    // Listen to changes for all relevant inputs (selects, date, time, etc.)
+    watchFields.forEach(el => {
+        initialValues.set(el, el.value);
+    });
+    
+    let isSubmitting = false;
+    form.addEventListener('submit', () => {
+        isSubmitting = true;
+    });
+
+    // Warn when leaving the page with changes
+    window.addEventListener('beforeunload', (e) => {
+        if (isSubmitting) return; // Don't warn if we're submitting the form
+        for (const [el, initial] of initialValues.entries()) {
+            if (el.value !== initial) {
+                console.log('Changed element:', el, 'Initial:', initial, 'Now:', el.value);
+                e.preventDefault();
+                e.returnValue = '';
+                return;
+            }
+        }
+    });
+});
+
+
+function initializeSubmitButtonChecks() {
     document.getElementById('date').addEventListener('change', function() {
-        console.log("test");
         document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
 
     $('#startTime').on('timechanged', function(e) {
-        console.log("test");
         document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
@@ -41,14 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
-    
+}
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - - - Check Availability - - - - - - - - - - - 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+function initializeAvailabilityChecking() {
 
-    
-    
     checkAvailabilityButton.addEventListener('click', function() {
         const date = document.getElementById('date').value;
         const startTime = document.getElementById('startTime').value;
@@ -137,13 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+}
 
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - Updating Table Button Grid - - - - - - - - - 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-
+function initializeTableButtons() {
     tableButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Toggle the selected class
@@ -162,12 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateSelectedTables();
         });
     });
+}
 
-    
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - Updating Selection colors - - - - - - - - - -
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
+function initializeEventTypeColoring() {
     // Get all option elements with the data-color attribute
     const optionElements = document.querySelectorAll('option[data-color]');
         
@@ -177,11 +236,15 @@ document.addEventListener('DOMContentLoaded', function() {
         option.style.backgroundColor = color;  // Set the background color
     });
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - Updating Eventy Type Icons - - - - - - - - - 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    const eventTypeSelect = document.getElementById('event_type_id');
+    updateSelectColor(eventTypeSelect);
 
-    const dateInput = document.getElementById('date');
+    eventTypeSelect.addEventListener('change', function() {
+        updateSelectColor(eventTypeSelect);
+    });
+}
+
+function initializeEventCategoryIcons() {
     // Retrieve the data-date and data-requested-date values
     const eventDate = eventData.getAttribute('data-date');
     const requestedDate = eventData.getAttribute('data-requested-date');
@@ -192,12 +255,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("eventDate");
     } else if (requestedDate) {
         dateInput.value = requestedDate;
-        console.log("requested");
+        console.log("Setting a requested date");
     } else {
         // If neither are set, use today's date
         const today = new Date().toISOString().split('T')[0]; // Get the current date in YYYY-MM-DD format
         dateInput.value = today;
-        console.log("today");
+        console.log("Setting today as date");
     }
 
     // Handle icon for Game Category select box
@@ -208,39 +271,50 @@ document.addEventListener('DOMContentLoaded', function() {
     gameCategorySelect.addEventListener('change', function() {
         updateSelectIcon(gameCategorySelect, iconPreview);
     });
+}
 
+function setFieldsForEditing() {
+    document.getElementById('name').value = eventData.getAttribute('data-name');
+    document.getElementById('description').value = eventData.getAttribute('data-description');
+    document.getElementById('date').value = eventData.getAttribute('data-date');
+    document.getElementById('startTime').value = eventData.getAttribute('data-start-time');
+    document.getElementById('endTime').value = eventData.getAttribute('data-end-time');
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    // - - - - - - - - - - Updating Event Colors - - - - - - - - - -
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    
+    // Set selected game category
+    var gameCategoryId = eventData.getAttribute('data-game-category-id');
+    if (gameCategoryId) {
+        var gameCategorySelect = document.getElementById('game_category_id');
+        gameCategorySelect.value = gameCategoryId;
+    }
 
-    // Fetch event type colors and style the options
-    fetch('/api/event-types')
-        .then(response => response.json())
-        .then(data => {
-            const eventTypeSelect = document.getElementById('event_type_id');
-            Array.from(eventTypeSelect.options).forEach(option => {
-                const eventTypeId = option.value;
-                if (data[eventTypeId]) {
-                    option.style.backgroundColor = data[eventTypeId];
-                    option.setAttribute('data-color', data[eventTypeId]);
-                }
-            });
+    // Set selected event type
+    var eventTypeId = eventData.getAttribute('data-event-type-id');
+    if (eventTypeId) {
+        var eventTypeSelect = document.getElementById('event_type_id');
+        eventTypeSelect.value = eventTypeId;
+    }
 
-            // Set the select box background to the color of the selected option
-            updateSelectColor(eventTypeSelect);
-        });
+    // Set selected publicity level
+    var publicityId = eventData.getAttribute('data-publicity-id');
+    if (publicityId) {
+        var publicitySelect = document.getElementById('publicity_id');
+        publicitySelect.value = publicityId;
+    }
 
-    // Change select color based on user selection
-    const eventTypeSelect = document.getElementById('event_type_id');
-    eventTypeSelect.addEventListener('change', function() {
-        updateSelectColor(eventTypeSelect);
+    // Set selected table buttons as "selected"
+    const selectedTables = JSON.parse(eventData.getAttribute('data-selected-tables'));
+    selectedTables.forEach(tableId => {
+        const tableButton = document.querySelector(`.table-button[data-table-id="${tableId}"]`);
+        if (tableButton) {
+            tableButton.classList.add('selected');
+        }
     });
+    
+    // Update the hidden input with selected table IDs
+    updateSelectedTables();
+}
 
-
-});
-
-// Function to update the select background color based on the selected option
 function updateSelectColor(selectElement) {
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const color = selectedOption.getAttribute('data-color');
@@ -251,30 +325,6 @@ function updateSelectColor(selectElement) {
     }
 }
 
-// Form validation to ensure end time is after start time
-document.querySelector('form').addEventListener('submit', function(event) {
-    const startTime = document.getElementById('startTime').value;
-    let endTime = document.getElementById('endTime').value;
-
-    // Check if end time is set to 24:00 and adjust it to 23:59
-    if (endTime === "00:00") {
-        endTime = "23:59";
-        document.getElementById('endTime').value = endTime; // Update the input field value
-    }
-
-
-    if (startTime >= endTime) {
-        alert("End Time must be later than Start Time.");
-        event.preventDefault(); // Prevent form submission if validation fails
-    }
-});
-
-
-
-
-
-
-// Function to update the SVG icon for the select element
 function updateSelectIcon(selectElement, iconElement) {
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const base64Svg = selectedOption.getAttribute('data-icon');
@@ -302,7 +352,6 @@ window.updateSelectedTables = function() {
     
 }
 
-
 function updateSubmitButton() {
     const submitButton = document.getElementById('submitButton');
     const requestButton = document.getElementById('requestButton');
@@ -325,5 +374,25 @@ function updateSubmitButton() {
         requestButton.style.display = 'block';
     } else {
         requestButton.style.display = 'none';
+    }
+}
+
+function checkDateWarning() {
+    const selected = new Date(dateInput.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // zero time for clean comparison
+
+    const farAhead = new Date(today);
+    farAhead.setMonth(farAhead.getMonth() + 3);
+
+    if (selected < today) {
+        warningBox.textContent = '⚠️ Das Datum liegt in der Vergangenheit.';
+        warningBox.style.display = 'block';
+    } else if (selected > farAhead) {
+        warningBox.textContent = '⚠️ Das Datum liegt weit in der Zukunft.';
+        warningBox.style.display = 'block';
+    } else {
+        warningBox.textContent = '';
+        warningBox.style.display = 'none';
     }
 }
