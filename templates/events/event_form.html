@@ -93,7 +93,6 @@
 
         <div id="date-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none"></div>
 
-
         <label for="startTime">Startzeit:</label>
         <input type="time" name="start_time" id="startTime" required value="{{ start_time }}">
 
@@ -128,6 +127,11 @@
         <button type="submit" id="requestButton" style="display:none; background: rgb(84, 199, 189);">
             Buchung mit Kollision anfragen!
         </button>
+
+        <div id="collision-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none">
+            Bei der Prüfung wurden Tische deaktiviert. <br>
+            Wähle sie erneut an, um eine Kollision anzufragen.
+        </div>
 
         <script>
             document.getElementById('requestButton').addEventListener('click', function() {

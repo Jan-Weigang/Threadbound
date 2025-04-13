@@ -21,7 +21,7 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Data validation in Buchformular triggers on scrolling?
+# api/resolve_overlap 404 error?
 
 # Abgesagt ignorieren wenn gelöscht oder nicht published
 

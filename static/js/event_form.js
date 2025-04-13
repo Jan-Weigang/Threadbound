@@ -63,6 +63,18 @@ document.querySelector('form').addEventListener('submit', function(event) {
     }
 });
 
+window.updateSelectedTables = function() {
+    let selectedTableIds = Array.from(document.querySelectorAll('.table-button.selected'))
+        .map(button => button.getAttribute('data-table-id'));
+    hiddenInput.value = selectedTableIds.join(',');
+
+    // Set the data attribute on the submit button
+    let submitButton = document.getElementById('submitButton');
+    submitButton.setAttribute('data-tables', selectedTableIds.length > 0 ? 'true' : 'false');
+
+    // Run the checker function
+    updateSubmitButton();
+}
 
 // Triggers after all is loaded and saves data (user-leave popup check))
 window.addEventListener('load', () => {
@@ -160,6 +172,10 @@ function initializeAvailabilityChecking() {
                     if (!tableData.available) {
                         // button.disabled = true;
 
+                        // A Collision happened during Check
+                        const collisionWarning = document.getElementById('collision-warning');
+                        collisionWarning.style.display = 'block';
+
                         button.select = false; // if it was selected, add flash effect
                         if (button.classList.contains('selected')) {
                             button.classList.remove('selected');
@@ -222,6 +238,7 @@ function initializeTableButtons() {
             
             // Update the hidden input with selected table IDs
             updateSelectedTables();
+            updateRequestButton();
         });
     });
 }
@@ -337,28 +354,12 @@ function updateSelectIcon(selectElement, iconElement) {
     }
 }
 
-window.updateSelectedTables = function() {
-    console.log("updating selected tabels");
-    let selectedTableIds = Array.from(document.querySelectorAll('.table-button.selected'))
-        .map(button => button.getAttribute('data-table-id'));
-    hiddenInput.value = selectedTableIds.join(',');
-
-    // Set the data attribute on the submit button
-    let submitButton = document.getElementById('submitButton');
-    submitButton.setAttribute('data-tables', selectedTableIds.length > 0 ? 'true' : 'false');
-
-    // Run the checker function
-    updateSubmitButton();
-    
-}
-
 function updateSubmitButton() {
     const submitButton = document.getElementById('submitButton');
-    const requestButton = document.getElementById('requestButton');
+    
     let tablesSelected = submitButton.getAttribute('data-tables') === 'true';
     let availabilityChecked = submitButton.getAttribute('data-availability-checked') === 'true';
-    let collisionCheck = submitButton.getAttribute('data-collision') === 'true';
-
+    
     if (tablesSelected && availabilityChecked) {
         submitButton.removeAttribute('disabled'); // Explicitly remove the disabled attribute
         submitButton.classList.remove('unavailable');
@@ -369,11 +370,24 @@ function updateSubmitButton() {
         submitButton.classList.add('unavailable');
         submitButton.textContent = "Prüfe, bevor du buchen kannst";
     }
+    updateRequestButton();
+}
 
+function updateRequestButton() {
+    const requestButton = document.getElementById('requestButton');
+    const collisionWarning = document.getElementById('collision-warning');
+                        
+
+    let collisionCheck = Array.from(tableButtons).some(button =>
+        button.classList.contains('selected') && button.classList.contains('unavailable')
+    );
     if (collisionCheck) {
         requestButton.style.display = 'block';
+        collisionWarning.style.display = 'none';
+
     } else {
         requestButton.style.display = 'none';
+        collisionWarning.style.display = 'block';
     }
 }
 
