@@ -456,6 +456,12 @@ class EventManager:
         
         event.set_publish_state()       # Sets to published
 
+
+        logging.info(f"I just published event {event.name}")
+        message_id = self.discord_handler.post_to_discord(event)
+        if message_id:
+            event.discord_post_id = message_id
+
         if event.is_published and event.attend_self:
             from blueprints.api_routes import mark_attendance_by_user_and_event  
             mark_attendance_by_user_and_event(
@@ -464,11 +470,6 @@ class EventManager:
                 event=event,
                 action="attend"
             )
-
-        logging.info(f"I just published event {event.name}")
-        message_id = self.discord_handler.post_to_discord(event, action="update")
-        if message_id:
-            event.discord_post_id = message_id
         
 
         # Delete those that the new event overlaps.

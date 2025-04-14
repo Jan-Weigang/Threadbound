@@ -27,8 +27,8 @@ class GameCategoryView(ModelView):
     form_columns = ('name', 'icon', 'channel') 
 
 class DiscordChannelView(ModelView):
-    column_list = ('id', 'discord_channel_id', 'name')
-    form_columns = ('discord_channel_id', 'name')
+    column_list = ('id', 'discord_channel_id', 'name', 'server_id')
+    form_columns = ('discord_channel_id', 'name', 'server_id')
 
 class EventView(ModelView):
 #     column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id')
