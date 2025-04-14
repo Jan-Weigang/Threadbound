@@ -113,6 +113,7 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
 
                 from tt_calendar.models import EventState
                 new_event.state_size = EventState.APPROVED
+                new_event.is_published = True
 
                 event_manager.exclude_date_from_template(template, dt_start.date())
 

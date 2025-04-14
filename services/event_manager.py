@@ -295,13 +295,14 @@ class EventManager:
         This get's triggered by creating, editing, deleting and event or a discord interaction.
         """
         try:
-            if event.is_template or event.template_id:
+            if event.is_template:
                 return
             followup_events = event.get_all_overlapping_events()
 
             logging.info(f"Running the event state handler for {event.name}")
             self.update_event_state_size(event)
-            self.update_event_state_overlap(event)
+            if not event.template_id:
+                self.update_event_state_overlap(event)
             self.handle_event_states(event)
 
 
@@ -348,6 +349,7 @@ class EventManager:
         """
         Check Overlaps. Opens Chat in Discord
         """
+        logging.info(f"Running event state overlap for {event}")
         current_overlapped_events = Overlap.query.filter_by(requesting_event_id=event.id).all()
         current_overlaps = {o.existing_event_id: o for o in current_overlapped_events}
 
@@ -465,15 +467,6 @@ class EventManager:
         """
         Find overlapping events based on time and table reservations.
         """
-        overlapping_events = Event.get_regular_events().filter(
-            Event.id != event.id,
-            Event.deleted == False,
-            Event.start_time < event.end_time,
-            Event.end_time > event.start_time,
-            Event.reservations.any(Reservation.table_id.in_(
-                [r.table_id for r in event.reservations]
-            ))
-        ).all()
 
         # Find templates whose rrules overlap with this
 
@@ -497,5 +490,14 @@ class EventManager:
                     create_events_from_templates(start_dt.date(), end_dt.date(), False)
                     break  # Only one needed
 
+        overlapping_events = Event.get_regular_events().filter(
+            Event.id != event.id,
+            Event.deleted == False,
+            Event.start_time < event.end_time,
+            Event.end_time > event.start_time,
+            Event.reservations.any(Reservation.table_id.in_(
+                [r.table_id for r in event.reservations]
+            ))
+        ).all()
 
         return overlapping_events
