@@ -52,8 +52,6 @@ class EventManager:
         start_dt_utc = utils.convert_to_utc(form_data['start_datetime'])
         end_dt_utc = utils.convert_to_utc(form_data['end_datetime'])
 
-        attend_self = form_data['attend_self'] == 'on'
-
         return self.create_event_in_db(
             user,
             name=form_data['name'],
@@ -64,7 +62,7 @@ class EventManager:
             start_time=start_dt_utc,
             end_time=end_dt_utc,
             table_ids=form_data['table_ids'],
-            attend_self=attend_self
+            attend_self=form_data['attend_self']
         )
     
     def create_template_from_form(self, user: User, form_data: dict) -> Event:

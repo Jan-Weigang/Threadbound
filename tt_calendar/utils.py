@@ -91,6 +91,7 @@ def extract_event_form_data(request) -> dict | None:
     end_time = request.form['end_time']  # End time in 'HH:MM' format
     table_ids_str = request.form['table_ids']
     table_ids = list(map(int, table_ids_str.split(',')))
+    attend_self = request.form.get('attend_self') == 'on'
 
     try:
         start_datetime = datetime.strptime(f"{date}T{start_time}", '%Y-%m-%dT%H:%M')
@@ -112,7 +113,8 @@ def extract_event_form_data(request) -> dict | None:
         'publicity_id': publicity_id,
         'start_datetime': start_datetime,
         'end_datetime': end_datetime,
-        'table_ids': table_ids
+        'table_ids': table_ids,
+        'attend_self': attend_self
     }
 
 
