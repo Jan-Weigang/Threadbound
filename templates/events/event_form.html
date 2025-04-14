@@ -50,12 +50,15 @@
         
     </style>
 </head>
-<body>
+<body style="background-color: {% if is_template %}#FAD0D0{% else %}white{% endif %};">
     {% include 'std_elements/body.html' %}
 
     
-    
-    <h1>{% if event %}Buchung bearbeiten{% else %}Tische buchen{% endif %}</h1>
+    {% if is_template %}
+        <h1>Einen Stammtisch eintragen!</h1>
+    {% else %}
+        <h1>{% if event %}Buchung bearbeiten{% else %}Tische buchen{% endif %}</h1>
+    {% endif %}
 
     <form 
     action="{% if is_template %}

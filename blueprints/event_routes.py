@@ -81,7 +81,7 @@ def edit_event(event_id):
     event = Event.query.get_or_404(event_id)
 
     # Ensure the user is the creator of the event
-    if event.user_id != user.id: # type:ignore
+    if event.user_id != user.id and not session.get('is_vorstand'): # type:ignore
         flash('You are not authorized to edit this event.', 'error')
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 

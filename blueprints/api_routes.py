@@ -177,7 +177,9 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         
 
         if view_type == 'template':
-            reservations = Reservation.get_template_reservations().all()
+            # reservations = Reservation.get_template_reservations().all()
+            reservations = Reservation.get_template_children().all()
+
         elif view_type == 'regular':
             reservations = Reservation.get_regular_reservations().all()
         elif view_type == 'public':
@@ -237,7 +239,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
 
-    if view_type == 'regular':
+    if view_type == 'regular' or view_type == 'template':
         existing_events = [r.associated_event for r in reservations]
         virtual_reservations = generate_virtual_reservations_from_templates(start_date.date(), end_date.date(), existing_events)
         reservation_data.extend(virtual_reservations)

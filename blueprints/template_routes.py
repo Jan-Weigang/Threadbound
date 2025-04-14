@@ -5,6 +5,8 @@ from tt_calendar import decorators, utils
 from datetime import datetime
 import pytz
 
+from flask import session
+
 
 template_bp = Blueprint("template_bp", __name__)
 
@@ -14,6 +16,13 @@ template_bp = Blueprint("template_bp", __name__)
 def create_template():
     user_manager = current_app.config['user_manager']
     user = user_manager.get_or_create_user()
+
+    # Check if the user is allowed to create a template (Beirat or Vorstand roles)
+    if not session.get('is_beirat') and not session.get('is_vorstand'):
+        flash("You do not have permission to create a template.", "danger")
+        return redirect(url_for("cal_bp.view", view_type="regular"))
+    
+    print(f"Template creating is {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
 
     if request.method == "POST":
         form_data = utils.extract_template_form_data(request)
@@ -42,7 +51,7 @@ def create_template():
         template_event = event_manager.create_template_from_form(user, form_data)
 
         flash("Template created successfully.", "success")
-        return redirect(url_for("cal_bp.view", view_type="template"))
+        return redirect(url_for("cal_bp.view", view_type="regular"))
     
     # Preload form values
     requested_table_id = request.args.get("table_id")

@@ -301,6 +301,10 @@ class Reservation(db.Model):
     def get_template_reservations(cls):
         return cls.query.join(Event).filter(cls.is_template==True, Event.deleted==False)
     
+    @classmethod
+    def get_template_children(cls):
+        return cls.query.join(Event).filter(cls.is_template==False, Event.deleted==False, Event.template_id.isnot(None))
+    
 
 
 class Overlap(db.Model):

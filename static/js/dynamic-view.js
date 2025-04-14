@@ -438,7 +438,11 @@ function set_up_tableHeaders() {
                 const timeOffset = e.changedTouches[0].clientX - calendar.getBoundingClientRect().left;
                 const time = get_hover_event_time(timeOffset)
                 const selectedDate = dateInput.value; 
-                window.location.href = `/events/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+                
+                const viewTypeSelect = document.getElementById('viewTypeSelect');
+                const viewtype = viewTypeSelect.value;
+                const blueprint = viewtype === 'template' ? 'templates' : 'events';
+                window.location.href = `/${blueprint}/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
 
             }
 
@@ -461,7 +465,13 @@ function set_up_tableHeaders() {
             const timeOffset = e.clientX - calendar.getBoundingClientRect().left;
             const time = get_hover_event_time(timeOffset)
             const selectedDate = dateInput.value; 
-            window.location.href = `/events/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+
+            const viewTypeSelect = document.getElementById('viewTypeSelect');
+            const viewtype = viewTypeSelect.value;
+            const blueprint = viewtype === 'template' ? 'templates' : 'events';
+            window.location.href = `/${blueprint}/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+
+            //window.location.href = `/events/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
         });
 
         // Add hover effect to show a faded reservation block

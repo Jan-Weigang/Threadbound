@@ -21,11 +21,7 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# Bug in mark attendance. Wenn ein Event erzeugt wird 
-# und man sich selbst eintragen will wird ein Discord Post erzeugt. 
-# Auch wenn das Event eigentlich noch in der Schwebe steht.
 
-# TODO Stammtische erzeugen mehrere Doppelbuchungen wenn sie überlappt werden.
 
 # TODO Stammtische darstellen und nicht hovern
 # TODO Stammtisch, eigene Termine nicht anzeigen, nur virtuelle
