@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Stammtische erzeugen mehrere Doppelbuchungen wenn sie überlappt werden.
+
 # TODO Stammtische darstellen und nicht hovern
 # TODO Stammtisch, eigene Termine nicht anzeigen, nur virtuelle
 # TODO Stammtische editieren in popup richtig festlegen.

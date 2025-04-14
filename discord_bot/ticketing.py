@@ -13,6 +13,8 @@ from discord import ButtonStyle
 
 from .config import *
 
+from tt_calendar.models import Event
+
 
 # ====================================================================================================================
 # ====================================================================================================================
@@ -110,7 +112,7 @@ async def get_member_safely(guild, uid):
 
 
 
-async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None): # type: ignore
+async def create_ticket(bot, creator_id: int, overlapped_member_id: int | None = None, new_event: Event | None = None, existing_event: Event | None = None):
     """
     Creates a system ticket channel with the given participants.
 
@@ -121,7 +123,8 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
     :param category_id: Discord category ID to create the channel under.
     :param ping_role: Optional role to mention (e.g. Vorstand).
     """
-
+    assert new_event
+    assert existing_event
     guild = bot.get_guild(guild_id)
     category = guild.get_channel(int(ticket_category_id))
     creator = await get_member_safely(guild, creator_id)
@@ -143,10 +146,17 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int = None):
         overlapped_member = await get_member_safely(guild, overlapped_member_id)
 
         channel_name = f"doppelbuchung-{creator.name.lower()}-{timestamp}"
-        description = (
-            f"{creator.name} möchte gerne ein überschneidendes Event anlegen.\n"
-            "Bitte besprecht hier, welche Änderungen nötig sind, damit beide stattfinden können, oder ob das bisherige Event überschrieben werden soll."
-        )
+        description = f"""
+{creator.name} möchte ein überschneidendes Event anlegen.
+
+🆕 Neues Event: **{new_event.name}**
+📅 {new_event.start_time.strftime('%d.%m.%Y %H:%M')} – {new_event.end_time.strftime('%H:%M')}
+
+🛑 Bestehendes Event: **{existing_event.name}**
+📅 {existing_event.start_time.strftime('%d.%m.%Y %H:%M')} – {existing_event.end_time.strftime('%H:%M')}
+
+Bitte besprecht hier, ob das Event verschoben werden soll, ob das bestehende Event ersetzt werden kann oder beide bestehen bleiben können.
+"""
 
         overwrites[overlapped_member] = discord.PermissionOverwrite(read_messages=True)
 

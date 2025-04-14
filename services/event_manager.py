@@ -385,7 +385,9 @@ class EventManager:
                 overlap = event.add_overlap(oevent)
                 channel_id = self.discord_handler.open_ticket_for_overlap(
                     creator_id=event.user.discord_id,
-                    overlapped_user_id=oevent.user.discord_id
+                    overlapped_user_id=oevent.user.discord_id,
+                    new_event=event,
+                    existing_event=oevent
                 )
 
                 overlap.request_discord_channel_id = channel_id
