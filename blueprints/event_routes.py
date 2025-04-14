@@ -32,7 +32,7 @@ def create_event():
 
         # Create the event and reservations
         event_manager = current_app.config['event_manager']
-        new_event = event_manager.create_event_in_db(user, form_data)
+        new_event = event_manager.create_event_from_form(user, form_data)
 
         attend_self = request.form.get('attend_self') == 'on'
         if attend_self:
@@ -108,7 +108,7 @@ def edit_event(event_id):
         
         try:
             event_manager = current_app.config['event_manager']
-            event_manager.update_event_in_db(event, user, form_data)
+            event_manager.update_event_from_form(event, user, form_data)
         except Exception as e:
             flash(f"An error occurred while updating the event: {e}", "danger")
             return redirect(url_for('event_bp.edit_event', event_id=event.id))
