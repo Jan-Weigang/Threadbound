@@ -6,6 +6,8 @@ from flask import flash
 from datetime import datetime, timedelta
 import pytz
 
+from dateutil.rrule import rrulestr
+
 
 def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id=None):
     """
@@ -41,6 +43,35 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
         for table_id in table_ids:
             if any(reservation.table_id == table_id for reservation in conflicting_event.reservations):
                 return False, table_id
+
+
+    # 2. Check for future template occurrences that would conflict
+    templates = Event.get_template_events().filter(
+        Event.recurrence_rule.isnot(None),
+        Event.reservations.any(Reservation.table_id.in_(table_ids))
+    ).all()
+
+    for template in templates:
+        try:
+            duration = template.end_time - template.start_time
+            local_start = convert_to_berlin_time(template.start_time)
+            rule = rrulestr(template.recurrence_rule, dtstart=local_start)
+            planned = rule.between(start_datetime, end_datetime, inc=True)
+        except Exception as e:
+            continue  # skip broken rule
+
+        for occ in planned:
+            occ_start = localize_to_berlin_time(occ)
+            occ_end = occ_start + duration
+            occ_start_utc = convert_to_utc(occ_start)
+            occ_end_utc = convert_to_utc(occ_end)
+
+            # Check time overlap
+            if occ_start_utc < end_datetime and occ_end_utc > start_datetime:
+                for res in template.reservations:
+                    if res.table_id in table_ids:
+                        return False, res.table_id
+
 
     return True, None
 
