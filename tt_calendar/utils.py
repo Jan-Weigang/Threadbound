@@ -8,6 +8,8 @@ import pytz
 
 from dateutil.rrule import rrulestr
 
+import logging
+
 
 def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id=None):
     """
@@ -58,7 +60,8 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
             rule = rrulestr(template.recurrence_rule, dtstart=local_start)
             planned = rule.between(start_datetime, end_datetime, inc=True)
         except Exception as e:
-            continue  # skip broken rule
+            logging.error(f"RRULE broken in {template.id} — blocking availability check.")
+            return False, -1
 
         for occ in planned:
             occ_start = localize_to_berlin_time(occ)
