@@ -190,6 +190,13 @@ class Event(db.Model, SoftDeleteMixin):
     size_request_discord_channel_id = db.Column(db.BigInteger, unique=True, nullable=True)
     state_overlap = db.Column(SQLAEnum(EventState), nullable=False, default=EventState.NOT_SET)
 
+    def __repr__(self):
+        return f"<Event '{self.name}' from {self.start_time} to {self.end_time}>"
+
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
+
     @classmethod
     def get_regular_events(cls):
         return cls.query.filter_by(is_template=False, deleted=False)
@@ -284,6 +291,9 @@ class Reservation(db.Model):
     # Relationships
     user = db.relationship('User', backref='reservations')
     table = db.relationship('Table', backref='reservations')
+
+    def __repr__(self):
+        return f"<Reservation for table {self.table_id} at {self.associated_event.start_time}>" # type: ignore
     
 
     @classmethod

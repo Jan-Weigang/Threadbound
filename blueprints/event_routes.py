@@ -15,7 +15,7 @@ def create_event():
 
     if request.method == 'POST':
         
-        form_data = utils.extract_form_data(request)
+        form_data = utils.extract_event_form_data(request)
         if not form_data:
             return redirect(url_for('event_bp.create_event'))
 
@@ -90,7 +90,7 @@ def edit_event(event_id):
 
 
     if request.method == 'POST':
-        form_data = utils.extract_form_data(request)
+        form_data = utils.extract_event_form_data(request)
         if not form_data:
             return redirect(url_for('event_bp.edit_event', event_id=event_id))
         

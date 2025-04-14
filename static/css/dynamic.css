@@ -219,26 +219,15 @@ body {
     line-height: 1.5em;
     box-shadow: 1px 1px 4px gray;
 }
-.reservation[data-is-marked="True"] {
-    position: absolute;
+.reservation[data-is-marked="True"], .event[data-is-marked="True"] {
     filter: saturate(10%);
     background-color: #1e2d3d;
     opacity: 50%;
-    color: black;
-    padding: 0.5rem;
     border: solid grey 0px !important;
     border-radius: 0rem !important;
-    font-size: 0.7rem;
-    min-height: 0;
-    box-sizing: border-box;
-    height: calc(100% - 1px);
-    display: flex;
-    align-items: center;
-    line-height: 1.5em;
-    box-shadow: 1px 1px 4px gray;
 }
-.reservation[data-is-template="True"] {
-    --stripe-size: 0.5rem;
+.reservation[data-is-template="True"], .event[data-is-template="True"] {
+    --stripe-size: 0.3rem;
     background-image: repeating-linear-gradient(
         30deg,
         rgba(100, 100, 100, 0.2),
@@ -250,10 +239,15 @@ body {
     border: dashed 1px gray;
     opacity: 0.9;
 }
-.reservation[data-is-marked="True"] > div *, .reservation[data-is-template="True"] > div * {
+.reservation[data-is-template="True"]:hover, .event[data-is-template="True"]:hover {
+    filter: none;
+    transform: none;
+    cursor: default;
+}
+.reservation[data-is-marked="True"] > div * {
     display: none;
 }
-.reservation[data-is-marked="True"] > div b, .reservation[data-is-template="True"] > div b {
+.reservation[data-is-marked="True"] > div b {
     display: block;
 }
 .reservation:hover {

@@ -21,6 +21,12 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Stammtische darstellen und nicht hovern
+# TODO Stammtisch, eigene Termine nicht anzeigen, nur virtuelle
+# TODO Stammtische editieren in popup richtig festlegen.
+
+# get overlapping events needs to also check virtual regulars.
+
 # TODO Bekannte Collisionen bei Check Availability ausschließen.
 
 # TODO dynamic css @Container and @media

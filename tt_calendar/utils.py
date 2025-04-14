@@ -3,7 +3,7 @@ from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Eve
 from sqlalchemy import or_, and_  # Import SQLAlchemy functions if needed
 import discord
 from flask import flash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 
 from dateutil.rrule import rrulestr
@@ -26,8 +26,10 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
       and the second element is the conflicting table ID (or None if no conflict).
     """
 
-    start_datetime = localize_to_berlin_time(start_datetime)
-    end_datetime = localize_to_berlin_time(end_datetime)
+    if start_datetime.tzinfo is None:
+        start_datetime = localize_to_berlin_time(start_datetime)
+    if end_datetime.tzinfo is None:
+        end_datetime = localize_to_berlin_time(end_datetime)
 
     query = Event.get_regular_events().filter(
         Event.start_time < end_datetime,
@@ -54,14 +56,9 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
     ).all()
 
     for template in templates:
-        try:
-            duration = template.end_time - template.start_time
-            local_start = convert_to_berlin_time(template.start_time)
-            rule = rrulestr(template.recurrence_rule, dtstart=local_start)
-            planned = rule.between(start_datetime, end_datetime, inc=True)
-        except Exception as e:
-            logging.error(f"RRULE broken in {template.id} — blocking availability check.")
-            return False, -1
+        planned = get_planned_occurrences(template, start_datetime, end_datetime)
+        if planned == []:
+            return True, None
         
         excluded_dates = set((template.excluded_dates or "").splitlines())
 
@@ -69,23 +66,20 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
             if occ.date().isoformat() in excluded_dates:
                 continue
 
-            occ_start = localize_to_berlin_time(occ)
-            occ_end = occ_start + duration
-            occ_start_utc = convert_to_utc(occ_start)
-            occ_end_utc = convert_to_utc(occ_end)
+            occ_start = occ
+            occ_end = occ_start + template.duration
 
             # Check time overlap
-            if occ_start_utc < end_datetime and occ_end_utc > start_datetime:
+            if occ_start < end_datetime and occ_end > start_datetime:
                 for res in template.reservations:
                     if res.table_id in table_ids:
                         return False, res.table_id
-
 
     return True, None
 
 
 
-def extract_form_data(request) -> dict | None:
+def extract_event_form_data(request) -> dict | None:
     # Gather form data
     name = request.form['name']
     description = request.form['description']
@@ -120,6 +114,33 @@ def extract_form_data(request) -> dict | None:
         'end_datetime': end_datetime,
         'table_ids': table_ids
     }
+
+
+def extract_template_form_data(request) -> dict | None:
+    base_data = extract_event_form_data(request)
+    if base_data is None:
+        return None
+
+    freq = request.form.get('frequency')
+    interval = request.form.get('interval')
+    rrule = None
+
+    if freq == "WEEKLY":
+        byday = request.form.get('byday')
+        if byday:
+            rrule = f"FREQ=WEEKLY;INTERVAL={interval};BYDAY={byday}"
+    elif freq == "MONTHLY":
+        bysetpos = request.form.get('bysetpos')
+        byday_single = request.form.get('byday_single')
+        if bysetpos and byday_single:
+            rrule = f"FREQ=MONTHLY;BYSETPOS={bysetpos};BYDAY={byday_single}"
+
+    base_data.update({
+        'is_template': True,
+        'recurrence_rule': rrule
+    })
+    return base_data
+
 
 
 
@@ -162,6 +183,32 @@ def is_event_deletable(event: Event) -> bool:
     if event.start_time <= one_month_from_now or event.attendees.count() > 0:
         return False
     return True
+
+
+
+def get_planned_occurrences(template, start, end):
+    """
+    Returns a list of valid occurrences for a given template,
+    filtered by excluded_dates.
+
+    Assumes template.start_time is already aligned and tz-aware.
+    """
+    if isinstance(start, date) and not isinstance(start, datetime):
+        start = localize_to_berlin_time(datetime.combine(start, datetime.min.time()))
+
+    if isinstance(end, date) and not isinstance(end, datetime):
+        end = localize_to_berlin_time(datetime.combine(end, datetime.max.time()))
+    try:
+        rule = rrulestr(template.recurrence_rule, dtstart=template.start_time)
+        occurrences = rule.between(start, end, inc=False)
+
+        excluded = set((template.excluded_dates or "").splitlines())
+        return [occ for occ in occurrences if occ.date().isoformat() not in excluded]
+
+    except Exception as e:
+        import logging
+        logging.warning(f"[RRULE] Invalid rule on template '{template.name}': {e}")
+        return []
 
 
 

@@ -34,8 +34,8 @@ class EventView(ModelView):
 #     column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id')
 #     form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id')
 
-    column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template')
-    form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template')
+    column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template', 'recurrence_rule')
+    form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template', 'recurrence_rule')
     
     # Custom column formatting for attendees to display usernames instead of raw user objects
     column_formatters = {

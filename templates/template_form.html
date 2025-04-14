@@ -1,0 +1,103 @@
+{% block content %}
+
+<h2>Neuen Stammtisch erstellen</h2>
+
+<form method="POST" action="{{ url_for('template_bp.create_template') }}">
+    <label>Name:</label>
+    <input type="text" name="name" required><br>
+
+    <label>Beschreibung:</label>
+    <textarea name="description"></textarea><br>
+
+    <label>Spielkategorie:</label>
+    <select name="game_category_id">
+        {% for category in game_categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>Event-Typ:</label>
+    <select name="event_type_id">
+        {% for event_type in event_types %}
+        <option value="{{ event_type.id }}">{{ event_type.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>Öffentlichkeit:</label>
+    <select name="publicity_id">
+        {% for p in publicity_levels %}
+        <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>Start-Zeit:</label>
+    <input type="time" name="start_time" value="19:00" required><br>
+
+    <label>End-Zeit:</label>
+    <input type="time" name="end_time" value="23:00" required><br>
+
+    {% set weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'] %}
+    <label>Wochentag:</label>
+    <select name="weekday">
+        {% for day in weekdays %}
+        <option value="{{ loop.index0 }}">{{ day }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label>Reservierte Tische:</label><br>
+    {% for table in tables %}
+        <label><input type="checkbox" name="table_ids" value="{{ table.id }}"> {{ table.name }}</label><br>
+    {% endfor %}
+
+    <label>Wiederholung:</label><br>
+    <select name="frequency" id="frequency-select">
+        <option value="WEEKLY">Wöchentlich</option>
+        <option value="MONTHLY">Monatlich (z. B. jeder 2. Sonntag)</option>
+    </select><br>
+
+    <label>Intervall:</label><br>
+    <input type="number" name="interval" min="1" value="1"><br>
+
+    <div id="weekly-fields">
+        <label>Wochentage:</label><br>
+        {% for val, label in [('MO','Mo'),('TU','Di'),('WE','Mi'),('TH','Do'),('FR','Fr'),('SA','Sa'),('SU','So')] %}
+        <label><input type="checkbox" name="byday" value="{{ val }}"> {{ label }}</label>
+        {% endfor %}
+    </div>
+
+    <div id="monthly-fields" style="display: none;">
+        <label>Welcher Wochentag im Monat?</label><br>
+        <select name="byday_single">
+            {% for val, label in [('MO','Montag'),('TU','Dienstag'),('WE','Mittwoch'),('TH','Donnerstag'),('FR','Freitag'),('SA','Samstag'),('SU','Sonntag')] %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label>Position im Monat:</label><br>
+        <select name="bysetpos">
+            <option value="1">1. (erster)</option>
+            <option value="2">2.</option>
+            <option value="3">3.</option>
+            <option value="4">4.</option>
+        </select><br>
+    </div>
+
+    <script>
+        const freqSelect = document.getElementById("frequency-select");
+        const weeklyFields = document.getElementById("weekly-fields");
+        const monthlyFields = document.getElementById("monthly-fields");
+
+        freqSelect.addEventListener("change", () => {
+            if (freqSelect.value === "WEEKLY") {
+                weeklyFields.style.display = "block";
+                monthlyFields.style.display = "none";
+            } else {
+                weeklyFields.style.display = "none";
+                monthlyFields.style.display = "block";
+            }
+        });
+    </script>
+
+</form>
+
+{% endblock %}

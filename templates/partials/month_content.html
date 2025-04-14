@@ -30,7 +30,10 @@
                 {% if reservation.date == day %}
                     <div class="event" 
                         style="background-color: {{ eventTypeColorMap.get(reservation.event_type_id, '#3788d8') }};"
-                        data-event-id="{{ reservation.event_id }}">
+                        data-event-id="{{ reservation.event_id }}"
+                        data-is-marked="{{ reservation.is_marked }}"
+                        data-is-template="{{ reservation.is_template }}">
+                        
                         <span class="event-name">{{ reservation['name'] }}</span>
                         <span class="event-time">{{ reservation['start_time_str'] }} - {{ reservation['end_time_str'] }}</span>
                     </div>

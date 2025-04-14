@@ -10,6 +10,7 @@ $('#endTime').mdtimepicker({
     is24hour: true
 });
 
+
 const isEditMode = document.getElementById('is-edit-mode').value === 'true';
 const tableButtons = document.querySelectorAll('.table-button');
 const hiddenInput = document.getElementById('table_ids');
@@ -75,6 +76,7 @@ window.updateSelectedTables = function() {
 
     // Set the data attribute on the submit button
     let submitButton = document.getElementById('submitButton');
+    if (!submitButton) return; // for templates
     submitButton.setAttribute('data-tables', selectedTableIds.length > 0 ? 'true' : 'false');
 
     // Run the checker function
@@ -116,23 +118,26 @@ window.addEventListener('load', () => {
 
 
 function initializeSubmitButtonChecks() {
+    let submitButton = document.getElementById('submitButton');
+    if (!submitButton) return;
     document.getElementById('date').addEventListener('change', function() {
-        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        submitButton.setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
 
     $('#startTime').on('timechanged', function(e) {
-        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        submitButton.setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
 
     $('#endTime').on('timechanged', function(e) {
-        document.getElementById('submitButton').setAttribute('data-availability-checked', 'false');
+        submitButton.setAttribute('data-availability-checked', 'false');
         updateSubmitButton();
     });
 }
 
 function initializeAvailabilityChecking() {
+    if (!checkAvailabilityButton) return; // for templates
 
     checkAvailabilityButton.addEventListener('click', function() {
         const date = document.getElementById('date').value;
@@ -240,6 +245,11 @@ function initializeTableButtons() {
             let hasUnavailableSelected = document.querySelector('.table-button.unavailable.selected') !== null;
             // Update submitButton data attribute
             let submitButton = document.getElementById('submitButton');
+            if (!submitButton) {        // for templates
+                updateSelectedTables();
+                return; 
+            }
+
             if (hasUnavailableSelected) {
                 submitButton.setAttribute('data-collision', 'true');
                 submitButton.setAttribute('data-availability-checked', 'false');
@@ -370,6 +380,7 @@ function updateSelectIcon(selectElement, iconElement) {
 
 function updateSubmitButton() {
     const submitButton = document.getElementById('submitButton');
+    if (!submitButton) return; // for templates
     
     let tablesSelected = submitButton.getAttribute('data-tables') === 'true';
     let availabilityChecked = submitButton.getAttribute('data-availability-checked') === 'true';
@@ -390,6 +401,7 @@ function updateSubmitButton() {
 function updateRequestButton() {
     const requestButton = document.getElementById('requestButton');
     const submitButton = document.getElementById('submitButton');
+    if (!submitButton) return; // for templates
     const collisionWarning = document.getElementById('collision-warning');
                         
 

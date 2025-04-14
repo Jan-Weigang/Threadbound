@@ -45,6 +45,7 @@
              data-reservation-start="{{ reservation.start_time }}"
              data-reservation-end="{{ reservation.end_time }}"
              data-is-marked="{{ reservation.is_marked }}"
+             data-is-template="{{ reservation.is_template }}"
              data-event-table-count="{{ reservation.event_table_count }}"
              hx-get="{{ url_for('cal_bp.reservation_popup', event_id=reservation.event_id) }}"
              hx-target="body"

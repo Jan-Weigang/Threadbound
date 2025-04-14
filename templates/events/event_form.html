@@ -57,7 +57,15 @@
     
     <h1>{% if event %}Buchung bearbeiten{% else %}Tische buchen{% endif %}</h1>
 
-    <form action="{{ url_for('event_bp.edit_event', event_id=event.id) if event else url_for('event_bp.create_event') }}" method="post" class="main-form">
+    <form 
+    action="{% if is_template %}
+                {{ url_for('template_bp.edit_template', event_id=event.id) if event else url_for('template_bp.create_template') }}
+            {% else %}
+                {{ url_for('event_bp.edit_event', event_id=event.id) if event else url_for('event_bp.create_event') }}
+            {% endif %}" 
+    method="post" class="main-form">
+        
+        
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" required>
 
@@ -88,9 +96,10 @@
             {% endfor %}
         </select>
 
+        {% if not is_template %}
         <label for="attend_self" id="attend_self_label"></label>
         <div id="attend_self_wrapper"><input type="checkbox" name="attend_self" id="attend_self" checked style="justify-self: start;"> Selbst teilnehmen</div>
-
+        {% endif %}
         <hr style="grid-column: 1 / -1;">
         
 
@@ -118,9 +127,6 @@
             {% endfor %}
         </div>
 
-        <label for="check-availability">Verfügbarkeit prüfen:</label>
-        <button id="check-availability" type="button">Prüfen</button>
-
         <!-- Hidden input to store selected table IDs -->
         <input type="hidden" name="table_ids" id="table_ids" required>
 
@@ -129,22 +135,89 @@
         <!-- Hidden input to track collision state -->
         <input type="hidden" name="collision" id="collision" value="false">
 
-        <button type="submit" id="submitButton" style="display:block" data-availability-checked="false" data-tables="true" data-collision="false"></button>
-        <button type="submit" id="requestButton" style="display:none; background: rgb(84, 199, 189);">
-            Buchung mit Kollision anfragen!
-        </button>
 
-        <div id="collision-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none">
-            Bei der Prüfung wurden Tische deaktiviert. <br>
-            Wähle sie erneut an, um eine Kollision anzufragen.
-        </div>
+        
+        {% if is_template %}
+            <label>Wiederholung:</label>
+            <select name="frequency" id="frequency-select">
+                <option value="WEEKLY">Wöchentlich</option>
+                <option value="MONTHLY">Monatlich (z. B. jeder 2. Sonntag)</option>
+            </select>
 
-        <script>
-            document.getElementById('requestButton').addEventListener('click', function() {
-                // Set the collision flag to true
-                document.getElementById('collision').value = "true";
-            });
-        </script>
+            <label class="weekly-field">Intervall:</label>
+            <select class="weekly-field" name="interval">
+                <option value="1">Jeden</option>
+                <option value="2">Jeden 2.</option>
+                <option value="3">Jeden 3.</option>
+                <option value="4">Jeden 4.</option>
+            </select>
+
+            <label class="weekly-field">Wochentag:</label>
+            <select class="weekly-field" name="byday">
+                {% for val, label in [('MO','Montag'),('TU','Dienstag'),('WE','Mittwwoch'),('TH','Donnerstag'),('FR','Freitag'),('SA','Samstag'),('SU','Sonntag')] %}
+                <option  value="{{ val }}"> {{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <label class="monthly-field">Position im Monat:</label>
+            <select class="monthly-field" name="bysetpos">
+                <option value="1">Jeden 1.</option>
+                <option value="2">Jeden 2.</option>
+                <option value="3">Jeden 3.</option>
+                <option value="4">Jeden 4.</option>
+            </select>
+
+            <label class="monthly-field">Wochentag?</label>
+            <select class="monthly-field" name="byday_single">
+                {% for val, label in [('MO','Montag'),('TU','Dienstag'),('WE','Mittwoch'),('TH','Donnerstag'),('FR','Freitag'),('SA','Samstag'),('SU','Sonntag')] %}
+                <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <label>ab dem Datum (s.o.)</label><br>
+
+            <button type="submit" id="templateSubmitButton" style="display:block">Stammtisch beantragen!</button>
+
+            <script>
+                const freqSelect = document.getElementById("frequency-select");
+            
+                function toggleRecurrenceFields() {
+                    const isWeekly = freqSelect.value === "WEEKLY";
+                    document.querySelectorAll(".weekly-field").forEach(el => {
+                        el.style.display = isWeekly ? "block" : "none";
+                    });
+                    document.querySelectorAll(".monthly-field").forEach(el => {
+                        el.style.display = isWeekly ? "none" : "block";
+                    });
+                }
+            
+                freqSelect.addEventListener("change", toggleRecurrenceFields);
+                document.addEventListener("DOMContentLoaded", toggleRecurrenceFields); // Ensure correct initial state
+            </script>
+            
+
+        {% else %}
+            <label for="check-availability">Verfügbarkeit prüfen:</label>
+            <button id="check-availability" type="button">Prüfen</button>
+
+            <button type="submit" id="submitButton" style="display:block" data-availability-checked="false" data-tables="true" data-collision="false"></button>
+            <button type="submit" id="requestButton" style="display:none; background: rgb(84, 199, 189);">
+                Buchung mit Kollision anfragen!
+            </button>
+
+            <div id="collision-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none">
+                Bei der Prüfung wurden Tische deaktiviert. <br>
+                Wähle sie erneut an, um eine Kollision anzufragen.
+            </div>
+
+            <script>
+                document.getElementById('requestButton').addEventListener('click', function() {
+                    // Set the collision flag to true
+                    document.getElementById('collision').value = "true";
+                });
+            </script>
+        {% endif %}
+
 
     </form>
 

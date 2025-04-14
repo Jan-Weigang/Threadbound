@@ -5,7 +5,7 @@ from tt_calendar.models import Event, Reservation, Table, db
 from tt_calendar import utils
 
 import pytz
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from dateutil.rrule import rrulestr
 
@@ -45,13 +45,18 @@ def run_daily_reminder():
             discord_handler.send_reminders_in_threads(events)
 
 
-def create_events_from_templates(weeks_ahead: int = 8) -> int:
+def create_events_from_templates(start_date: date | None = None, end_date: date | None = None) -> int:
+    """
+    Create real event instances from templates within a date range.
+    If no range is provided, it defaults to today until 8 weeks ahead.
+    """
     logging.info("♻️ Running recurring event generation...")
     app = current_app._get_current_object()     # type: ignore
 
     with app.app_context():
         today = utils.localize_to_berlin_time(datetime.now()).date()
-        max_date = today + timedelta(weeks=weeks_ahead)
+        start_date = start_date or today
+        end_date = end_date or (today + timedelta(weeks=8))
 
         templates = Event.get_template_events().all()
         event_manager = app.config['event_manager']
@@ -60,34 +65,23 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
         for template in templates:
             table_ids = [r.table_id for r in template.reservations]
             user = template.user
-            duration = template.end_time - template.start_time
-            local_start = utils.convert_to_berlin_time(template.start_time)
 
             if template.recurrence_rule:
                 # 🔁 Use RRULE
-                try:
-                    rule = rrulestr(template.recurrence_rule, dtstart=local_start)
-                    occurrences = rule.between(
-                        utils.localize_to_berlin_time(datetime.combine(today, datetime.min.time())),
-                        utils.localize_to_berlin_time(datetime.combine(max_date, datetime.max.time())),
-                        inc=True
-                    )
-                except Exception as e:
-                    logging.warning(f"Invalid RRULE for template {template.id}: {e}")
-                    continue
+                planned = utils.get_planned_occurrences(template, start_date, end_date)
             else:
                 pass
 
             excluded_dates = set((template.excluded_dates or "").splitlines())
 
-            for occ in occurrences:
+            for occ in planned:
                 if occ.date().isoformat() in excluded_dates:
                     continue
 
-                dt_start = utils.localize_to_berlin_time(occ)
-                dt_end = dt_start + duration
-                start_utc = utils.convert_to_utc(dt_start)
-                end_utc = utils.convert_to_utc(dt_end)
+                dt_start = occ
+                dt_end = dt_start + template.duration
+                start_utc = dt_start
+                end_utc = dt_end
 
                 exists = Event.get_regular_events().filter_by(template_id=template.id).filter(
                     Event.start_time == start_utc
@@ -122,7 +116,6 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
         logging.info(f"✅ Generated {created_count} new events from templates.")
         return created_count
 
-        
 
 
 

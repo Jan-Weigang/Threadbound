@@ -250,10 +250,9 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
 
 # Used in prepare reservations for jinja
 def generate_virtual_reservations_from_templates(start_date, end_date, existing_events: list[Event]) -> list[dict]:
-    from dateutil.rrule import rrulestr
     from tt_calendar.models import Event
     from tt_calendar import utils
-    import pytz
+    logging.info("generating virtual reservartions")
 
     existing_pairs = {(e.template_id, e.start_time.date()) for e in existing_events if e.template_id}
 
@@ -262,25 +261,15 @@ def generate_virtual_reservations_from_templates(start_date, end_date, existing_
     templates = Event.get_template_events().filter(Event.recurrence_rule.isnot(None)).all()
 
     for template in templates:
-        try:
-            duration = template.end_time - template.start_time
-            local_start = utils.convert_to_berlin_time(template.start_time)
-            rule = rrulestr(template.recurrence_rule, dtstart=local_start)
-            occurrences = rule.between(
-                utils.localize_to_berlin_time(datetime.combine(start_date, datetime.min.time())),
-                utils.localize_to_berlin_time(datetime.combine(end_date, datetime.max.time())),
-                inc=True
-            )
-        except Exception as e:
-            continue  # skip broken rule
+        planned = utils.get_planned_occurrences(template, start_date, end_date)
 
-        for occ in occurrences:
+        for occ in planned:
             occ_day = occ.date()
             if (template.id, occ_day) in existing_pairs:
                 continue  # Already covered
 
-            occ_start = utils.localize_to_berlin_time(occ)
-            occ_end = occ_start + duration
+            occ_start = occ
+            occ_end = occ_start + template.duration
 
             for res in template.reservations:
                 virtuals.append({
@@ -290,8 +279,8 @@ def generate_virtual_reservations_from_templates(start_date, end_date, existing_
                     'table_id': res.table_id,
                     'event_table_count': len(template.reservations),
                     'date': occ_day,
-                    'start_time': utils.convert_to_utc(occ_start).isoformat(),
-                    'end_time': utils.convert_to_utc(occ_end).isoformat(),
+                    'start_time': occ_start.isoformat(),
+                    'end_time': occ_end.isoformat(),
                     'start_time_str': occ_start.strftime('%H:%M'),
                     'end_time_str': occ_end.strftime('%H:%M'),
                     'game_category_icon': template.game_category.icon,
@@ -380,6 +369,8 @@ def check_table_availability():
             )
         ).all()
 
+        reservations = extend_with_template_reservations(reservations, start_datetime, end_datetime)
+
         earliest_available_start = datetime.combine(start_datetime.date(), time(hour=8, minute=0))
         latest_possible_end = datetime.combine(start_datetime.date(), time(hour=23, minute=59))
         
@@ -390,6 +381,7 @@ def check_table_availability():
             if events_on_date:
                 # Determine the earliest available start time and the latest possible end time for the day
                 for event in events_on_date:
+                    logging.info(event)
                     if event.end_time <= end_datetime:
                         earliest_available_start = event.end_time
                     if event.start_time >= start_datetime:
@@ -414,6 +406,66 @@ def check_table_availability():
             })
 
     return jsonify({'tables': table_availability})
+
+
+
+
+def extend_with_template_reservations(reservations, start_dt: datetime, end_dt: datetime):
+    # Create a list of synthetic Reservation-like objects
+    virtuals = []
+
+    templates = Event.get_template_events().filter(
+        Event.recurrence_rule.isnot(None),
+        Event.reservations.any()
+    ).all()
+
+    for template in templates:
+        planned = utils.get_planned_occurrences(template, start_dt, end_dt)
+
+        for occ in planned:
+
+            occ_start = occ
+            occ_end = occ_start + template.duration
+
+            for res in template.reservations:
+                # Clone only relevant reservations by table and time
+                if res.table and res.table_id:
+                    # virtuals.append(
+                    #     type('VirtualReservation', (object,), {
+                    #         'table_id': res.table_id,
+                    #         'associated_event': type('VirtualEvent', (object,), {
+                    #             'start_time': occ_start,
+                    #             'end_time': occ_end
+                    #         })()
+                    #     })()
+                    # )
+                    virtual_event = Event(
+                        id=f"virtual-{template.id}-{occ.date()}",       # type: ignore
+                        start_time=occ_start,                           # type: ignore
+                        end_time=occ_end,                               # type: ignore
+                        name=template.name,                             # type: ignore
+                        description=template.description,               # type: ignore
+                        game_category_id=template.game_category_id,     # type: ignore
+                        event_type_id=template.event_type_id,           # type: ignore
+                        publicity_id=template.publicity_id,             # type: ignore
+                        user_id=template.user_id,                       # type: ignore
+                        is_template=True                                # type: ignore
+                    )
+                    virtual_reservation = Reservation(                  # type: ignore
+                        table_id=res.table_id,                          # type: ignore
+                        user_id=template.user_id,                       # type: ignore
+                        event_id=virtual_event.id,                      # type: ignore
+                        is_template=True                                # type: ignore
+                    )
+                    virtual_reservation.associated_event = virtual_event    # type: ignore
+
+                    virtuals.append(virtual_reservation)
+                    logging.info(virtuals)
+
+    reservations.extend(virtuals)
+    return reservations
+
+
 
 
 @api.route('/attendance', methods=['POST'])

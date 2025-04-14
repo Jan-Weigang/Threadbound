@@ -6,6 +6,7 @@ from sqlalchemy import false, true
 from datetime import datetime
 import datetime as dt
 import logging
+from dateutil.rrule import rrulestr
 
 class EventManager:
     def __init__(self, discord_handler):
@@ -62,8 +63,18 @@ class EventManager:
         )
     
     def create_template_from_form(self, user: User, form_data: dict) -> Event:
-        start_dt_utc = utils.convert_to_utc(form_data['start_datetime'])
-        end_dt_utc = utils.convert_to_utc(form_data['end_datetime'])
+        start_dt = form_data['start_datetime']
+        end_dt = form_data['end_datetime']
+        rrule = form_data.get('recurrence_rule')
+
+        if rrule:
+            aligned_start = self.align_dtstart_to_byday(rrule, start_dt)
+            duration = end_dt - start_dt
+            start_dt = aligned_start
+            end_dt = start_dt + duration
+
+        start_utc = utils.convert_to_utc(start_dt)
+        end_utc = utils.convert_to_utc(end_dt)
 
         return self.create_event_in_db(
             user=user,
@@ -72,14 +83,53 @@ class EventManager:
             game_category_id=int(form_data['game_category_id']),
             event_type_id=int(form_data['event_type_id']),
             publicity_id=int(form_data['publicity_id']),
-            start_time=start_dt_utc,
-            end_time=end_dt_utc,
+            start_time=start_utc,
+            end_time=end_utc,
             table_ids=form_data['table_ids'],
             is_template=True,
             recurrence_rule=form_data.get('recurrence_rule')
         )
 
 
+    def align_dtstart_to_byday(self, rrule: str, dtstart: datetime) -> datetime:
+        """
+        Aligns dtstart to match the first recurrence based on the RRULE (e.g. 2nd Sunday of month).
+        Handles both weekly and monthly rules.
+        """
+        from dateutil.rrule import rrulestr
+        from datetime import timedelta
+
+        # Assume dtstart is UTC — make sure it's Berlin-aware first
+        local_dtstart = dtstart
+
+        try:
+            rule = rrulestr(rrule, dtstart=local_dtstart)
+            next_occurrence = rule.after(local_dtstart - timedelta(days=1), inc=True)
+            return next_occurrence
+        except Exception as e:
+            import logging
+            logging.warning(f"Failed to align RRULE {rrule} — {e}")
+            return dtstart
+            
+    # def align_dtstart_to_byday(self, rrule: str, dtstart: datetime) -> datetime:
+    #     """
+    #     Aligns dtstart to the weekday specified in BYDAY if necessary.
+    #     """
+    #     import re
+        
+    #     day_map = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
+    #     match = re.search(r'BYDAY=([A-Z]{2})', rrule)
+    #     if not match:
+    #         return dtstart  # no adjustment needed
+
+    #     target_day = match.group(1)
+    #     if target_day not in day_map:
+    #         return dtstart
+
+    #     current_weekday = dtstart.weekday()
+    #     target_weekday = day_map[target_day]
+    #     offset = (target_weekday - current_weekday) % 7
+    #     return dtstart + timedelta(days=offset)
 
 
     # def create_event_in_db(self, user, form_data):
@@ -210,9 +260,10 @@ class EventManager:
     def create_reservations(self, user, new_event, table_ids):
         for table_id in table_ids:
             reservation = Reservation(
-                user_id=user.id, # type: ignore
-                event_id=new_event.id, # type: ignore
-                table_id=table_id # type: ignore
+                user_id=user.id,                    # type: ignore
+                event_id=new_event.id,              # type: ignore
+                table_id=table_id,                  # type: ignore
+                is_template=new_event.is_template   # type: ignore
             )
             db.session.add(reservation)
         db.session.commit()
@@ -244,6 +295,8 @@ class EventManager:
         This get's triggered by creating, editing, deleting and event or a discord interaction.
         """
         try:
+            if event.is_template:
+                return
             followup_events = event.get_all_overlapping_events()
 
             logging.info(f"Running the event state handler for {event.name}")
@@ -410,7 +463,7 @@ class EventManager:
         """
         Find overlapping events based on time and table reservations.
         """
-        overlapping_events = Event.get_active_events().filter(
+        overlapping_events = Event.get_regular_events().filter(
             Event.id != event.id,
             Event.deleted == False,
             Event.start_time < event.end_time,
@@ -419,4 +472,28 @@ class EventManager:
                 [r.table_id for r in event.reservations]
             ))
         ).all()
+
+        # Find templates whose rrules overlap with this
+
+        table_ids = [r.table_id for r in event.reservations]
+        start_dt = event.start_time
+        end_dt = event.end_time
+
+        templates = Event.get_template_events().filter(
+            Event.recurrence_rule.isnot(None),
+            Event.reservations.any(Reservation.table_id.in_(table_ids))
+        ).all()
+
+        for template in templates:
+            planned = utils.get_planned_occurrences(template, start_dt, end_dt)
+
+            for occ in planned:
+                occ_end = occ + template.duration
+                if occ < end_dt and occ_end > start_dt:
+                    # Force-create this instance so it's treated like a regular event
+                    from .task_scheduler import create_events_from_templates
+                    create_events_from_templates(start_dt.date(), end_dt.date())
+                    break  # Only one needed
+
+
         return overlapping_events
