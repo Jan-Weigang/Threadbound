@@ -12,7 +12,8 @@ class EventManager:
         self.discord_handler = discord_handler
 
     def create_event_in_db(self, user: User, *, name: str, description: str | None, game_category_id: int, event_type_id: int, publicity_id: int, 
-                           start_time: datetime, end_time: datetime, table_ids: list[int], template_id: str | None = None) -> Event:
+                           start_time: datetime, end_time: datetime, table_ids: list[int], 
+                           is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None) -> Event:
         
         new_event = Event(
             name=name,                              # type: ignore
@@ -23,7 +24,9 @@ class EventManager:
             user_id=user.id,                        # type: ignore
             start_time=start_time,                  # type: ignore
             end_time=end_time,                      # type: ignore
-            template_id=template_id                 # type: ignore
+            is_template=is_template,                # type: ignore
+            template_id=template_id,                # type: ignore
+            recurrence_rule=recurrence_rule         # type: ignore
         )
         db.session.add(new_event)
         db.session.flush()
@@ -55,8 +58,27 @@ class EventManager:
             publicity_id=int(form_data['publicity_id']),
             start_time=start_dt_utc,
             end_time=end_dt_utc,
-            table_ids=form_data['table_ids']
+            table_ids=form_data['table_ids']   
         )
+    
+    def create_template_from_form(self, user: User, form_data: dict) -> Event:
+        start_dt_utc = utils.convert_to_utc(form_data['start_datetime'])
+        end_dt_utc = utils.convert_to_utc(form_data['end_datetime'])
+
+        return self.create_event_in_db(
+            user=user,
+            name=form_data['name'],
+            description=form_data['description'],
+            game_category_id=int(form_data['game_category_id']),
+            event_type_id=int(form_data['event_type_id']),
+            publicity_id=int(form_data['publicity_id']),
+            start_time=start_dt_utc,
+            end_time=end_dt_utc,
+            table_ids=form_data['table_ids'],
+            is_template=True,
+            recurrence_rule=form_data.get('recurrence_rule')
+        )
+
 
 
 
@@ -388,7 +410,7 @@ class EventManager:
         """
         Find overlapping events based on time and table reservations.
         """
-        overlapping_events = Event.get_regular_events().filter(
+        overlapping_events = Event.get_active_events().filter(
             Event.id != event.id,
             Event.deleted == False,
             Event.start_time < event.end_time,

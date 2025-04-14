@@ -147,6 +147,7 @@ def create_app():
     app.register_blueprint(blueprints.main)
     app.register_blueprint(blueprints.api, url_prefix='/api')
     app.register_blueprint(blueprints.event_bp, url_prefix='/events')
+    app.register_blueprint(blueprints.template_bp, url_prefix='/templates')
     app.register_blueprint(blueprints.cal, url_prefix='/calendar')
     app.register_blueprint(blueprints.ics, url_prefix='/ics')
 
