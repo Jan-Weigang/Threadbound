@@ -7,6 +7,8 @@ from tt_calendar import utils
 import pytz
 from datetime import datetime, timedelta
 
+from dateutil.rrule import rrulestr
+
 
 import logging
 from flask import current_app
@@ -56,18 +58,35 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
         created_count = 0
 
         for template in templates:
-            weekday = template.start_time.weekday()
-            time_start = template.start_time.time()
-            time_end = template.end_time.time()
             table_ids = [r.table_id for r in template.reservations]
             user = template.user
+            duration = template.end_time - template.start_time
+            local_start = utils.convert_to_berlin_time(template.start_time)
 
-            for day in utils.date_range(today, max_date):
-                if day.weekday() != weekday:
+            if template.recurrence_rule:
+                # 🔁 Use RRULE
+                try:
+                    rule = rrulestr(template.recurrence_rule, dtstart=local_start)
+                    occurrences = rule.between(
+                        utils.localize_to_berlin_time(datetime.combine(today, datetime.min.time())),
+                        utils.localize_to_berlin_time(datetime.combine(max_date, datetime.max.time())),
+                        inc=True
+                    )
+                except Exception as e:
+                    logging.warning(f"Invalid RRULE for template {template.id}: {e}")
                     continue
+            else:
+                # ⏰ Default to weekly by weekday
+                weekday = template.start_time.weekday()
+                occurrences = [
+                    datetime.combine(day, template.start_time.time())
+                    for day in utils.date_range(today, max_date)
+                    if day.weekday() == weekday
+                ]
 
-                dt_start = utils.localize_to_berlin_time(datetime.combine(day, time_start))
-                dt_end = utils.localize_to_berlin_time(datetime.combine(day, time_end))
+            for occ in occurrences:
+                dt_start = utils.localize_to_berlin_time(occ)
+                dt_end = dt_start + duration
                 start_utc = utils.convert_to_utc(dt_start)
                 end_utc = utils.convert_to_utc(dt_end)
 
@@ -76,6 +95,12 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
                 ).first()
 
                 if exists:
+                    continue
+
+                # ✅ Conflict check
+                available, conflict_table = utils.check_availability(start_utc, end_utc, table_ids)
+                if not available:
+                    logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
                     continue
 
                 event_manager.create_event_in_db(
