@@ -13,7 +13,7 @@ class EventManager:
         self.discord_handler = discord_handler
 
     def create_event_in_db(self, user: User, *, name: str, description: str | None, game_category_id: int, event_type_id: int, publicity_id: int, 
-                           start_time: datetime, end_time: datetime, table_ids: list[int], 
+                           start_time: datetime, end_time: datetime, table_ids: list[int], state_size: EventState = EventState.NOT_SET, attend_self: bool = False,
                            is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None) -> Event:
         
         new_event = Event(
@@ -27,7 +27,9 @@ class EventManager:
             end_time=end_time,                      # type: ignore
             is_template=is_template,                # type: ignore
             template_id=template_id,                # type: ignore
-            recurrence_rule=recurrence_rule         # type: ignore
+            recurrence_rule=recurrence_rule,        # type: ignore
+            state_size=state_size,                  # type: ignore
+            attend_self=attend_self                 # type: ignore
         )
         db.session.add(new_event)
         db.session.flush()
@@ -50,6 +52,8 @@ class EventManager:
         start_dt_utc = utils.convert_to_utc(form_data['start_datetime'])
         end_dt_utc = utils.convert_to_utc(form_data['end_datetime'])
 
+        attend_self = form_data['attend_self'] == 'on'
+
         return self.create_event_in_db(
             user,
             name=form_data['name'],
@@ -59,7 +63,8 @@ class EventManager:
             publicity_id=int(form_data['publicity_id']),
             start_time=start_dt_utc,
             end_time=end_dt_utc,
-            table_ids=form_data['table_ids']   
+            table_ids=form_data['table_ids'],
+            attend_self=attend_self
         )
     
     def create_template_from_form(self, user: User, form_data: dict) -> Event:
@@ -299,19 +304,24 @@ class EventManager:
                 return
             followup_events = event.get_all_overlapping_events()
 
-            logging.info(f"Running the event state handler for {event.name}")
+            logging.info(f"Running the size for {event.name}")
             self.update_event_state_size(event)
             if not event.template_id:
+                logging.info(f"Running overlap for {event.name}")
                 self.update_event_state_overlap(event)
+
+            logging.info(f"Running state handler for {event.name}")
             self.handle_event_states(event)
 
 
             for evt in followup_events:
                 if evt.deleted:
                     continue
-                logging.info(f"Running the event state handler on followup {evt.name}")
+                logging.info(f"Running the size on followup {evt.name}")
                 self.update_event_state_size(evt)
+                logging.info(f"Running the overlap on followup {evt.name}")
                 self.update_event_state_overlap(evt)
+                logging.info(f"Running the handleron followup {evt.name}")
                 self.handle_event_states(evt)
 
         except Exception as e:
@@ -324,6 +334,7 @@ class EventManager:
         Check size, if not checked before. Opens a chat in Discord
         """
         # Update state_size based on reservation size logic
+        logging.info(event.state_size)
         match event.state_size:
             case EventState.NOT_SET:                        # If not yet set, check for size
                 if len(event.reservations) >= 4:
@@ -342,6 +353,7 @@ class EventManager:
 
                     db.session.commit()
             case _:
+                logging.info("passing")
                 pass
 
 
@@ -445,6 +457,16 @@ class EventManager:
                 logging.info(f"reached a case where {event.name} was not published but already approved")
         
         event.set_publish_state()       # Sets to published
+
+        if event.is_published and event.attend_self:
+            from blueprints.api_routes import mark_attendance_by_user_and_event  
+            mark_attendance_by_user_and_event(
+                discord_user_id=event.user.discord_id,
+                username=event.user.username,
+                event=event,
+                action="attend"
+            )
+
         logging.info(f"I just published event {event.name}")
         message_id = self.discord_handler.post_to_discord(event, action="update")
         if message_id:
@@ -467,7 +489,7 @@ class EventManager:
         """
         Find overlapping events based on time and table reservations.
         """
-
+        logging.info(f"getting overlapping events for {event=}")
         # Find templates whose rrules overlap with this
 
         table_ids = [r.table_id for r in event.reservations]
@@ -485,11 +507,13 @@ class EventManager:
             for occ in planned:
                 occ_end = occ + template.duration
                 if occ < end_dt and occ_end > start_dt:
+                    logging.info("creating one event from templates")
                     # Force-create this instance so it's treated like a regular event
                     from .task_scheduler import create_events_from_templates
                     create_events_from_templates(start_dt.date(), end_dt.date(), False)
                     break  # Only one needed
-
+        
+        logging.info("Getting all overlapping events from db after generating new ones")
         overlapping_events = Event.get_regular_events().filter(
             Event.id != event.id,
             Event.deleted == False,

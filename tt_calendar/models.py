@@ -148,15 +148,12 @@ class Server(db.Model):
 # Event Model
 class Event(db.Model, SoftDeleteMixin):
     __tablename__ = "event"
-    # query = db.session.query_property() # type: ignore
-    # query_class = SoftDeleteQuery # type: ignore
-
     id = Column(String(21), primary_key=True, default=lambda: generate(size=12))
-    # deleted = db.Column(db.Boolean, default=False, nullable=False)
 
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     discord_post_id = db.Column(db.String(255), nullable=True)
+    attend_self = db.Column(db.Boolean, nullable=False, default=False)
 
     # Templating
     is_template = db.Column(db.Boolean, nullable=False, default=False)

@@ -97,7 +97,8 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     if not available:
                         logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
                         continue
-
+                
+                from tt_calendar.models import EventState
                 new_event = event_manager.create_event_in_db(
                     user=user,
                     name=template.name,
@@ -108,12 +109,9 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     start_time=start_utc,
                     end_time=end_utc,
                     table_ids=table_ids,
-                    template_id=template.id
+                    template_id=template.id,
+                    state_size=EventState.APPROVED
                 )
-
-                from tt_calendar.models import EventState
-                new_event.state_size = EventState.APPROVED
-                new_event.is_published = True
 
                 event_manager.exclude_date_from_template(template, dt_start.date())
 

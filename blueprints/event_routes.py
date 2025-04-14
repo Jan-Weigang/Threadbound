@@ -34,15 +34,15 @@ def create_event():
         event_manager = current_app.config['event_manager']
         new_event = event_manager.create_event_from_form(user, form_data)
 
-        attend_self = request.form.get('attend_self') == 'on'
-        if attend_self:
-            from blueprints.api_routes import mark_attendance_by_user_and_event  
-            mark_attendance_by_user_and_event(
-                discord_user_id=user.discord_id,
-                username=user.username,
-                event=new_event,
-                action="attend"
-            )
+        # attend_self = request.form.get('attend_self') == 'on'
+        # if attend_self:
+            # from blueprints.api_routes import mark_attendance_by_user_and_event  
+            # mark_attendance_by_user_and_event(
+            #     discord_user_id=user.discord_id,
+            #     username=user.username,
+            #     event=new_event,
+            #     action="attend"
+            # )
 
 
         event_date = form_data['start_datetime'].date().strftime('%Y-%m-%d')

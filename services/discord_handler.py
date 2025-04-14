@@ -204,7 +204,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             channel_id = future.result(timeout=3)
             return channel_id
         except Exception as e:
-            logging.error(f"❌ Failed to create overlap ticket for {creator_id=}: {e}")
+            logging.error(f"❌ Failed to create size ticket for {creator_id=}: {e}")
             return None
         
 
