@@ -295,7 +295,7 @@ class EventManager:
         This get's triggered by creating, editing, deleting and event or a discord interaction.
         """
         try:
-            if event.is_template:
+            if event.is_template or event.template_id:
                 return
             followup_events = event.get_all_overlapping_events()
 
@@ -494,7 +494,7 @@ class EventManager:
                 if occ < end_dt and occ_end > start_dt:
                     # Force-create this instance so it's treated like a regular event
                     from .task_scheduler import create_events_from_templates
-                    create_events_from_templates(start_dt.date(), end_dt.date())
+                    create_events_from_templates(start_dt.date(), end_dt.date(), False)
                     break  # Only one needed
 
 

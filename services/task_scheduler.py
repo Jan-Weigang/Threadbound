@@ -45,10 +45,11 @@ def run_daily_reminder():
             discord_handler.send_reminders_in_threads(events)
 
 
-def create_events_from_templates(start_date: date | None = None, end_date: date | None = None) -> int:
+def create_events_from_templates(start_date: date | None = None, end_date: date | None = None, conflict_check_needed: bool = True) -> int:
     """
     Create real event instances from templates within a date range.
     If no range is provided, it defaults to today until 8 weeks ahead.
+    These events automatically get approved for size.
     """
     logging.info("♻️ Running recurring event generation...")
     app = current_app._get_current_object()     # type: ignore
@@ -90,13 +91,14 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                 if exists:
                     continue
 
-                # ✅ Conflict check
-                available, conflict_table = utils.check_availability(start_utc, end_utc, table_ids)
-                if not available:
-                    logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
-                    continue
+                if conflict_check_needed:
+                    # ✅ Conflict check
+                    available, conflict_table = utils.check_availability(start_utc, end_utc, table_ids)
+                    if not available:
+                        logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
+                        continue
 
-                event_manager.create_event_in_db(
+                new_event = event_manager.create_event_in_db(
                     user=user,
                     name=template.name,
                     description=template.description,
@@ -109,10 +111,14 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     template_id=template.id
                 )
 
+                from tt_calendar.models import EventState
+                new_event.state_size = EventState.APPROVED
+
                 event_manager.exclude_date_from_template(template, dt_start.date())
 
                 created_count += 1
 
+        db.session.commit()
         logging.info(f"✅ Generated {created_count} new events from templates.")
         return created_count
 
