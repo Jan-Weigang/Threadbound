@@ -62,8 +62,13 @@ def check_availability(start_datetime, end_datetime, table_ids, exclude_event_id
         except Exception as e:
             logging.error(f"RRULE broken in {template.id} — blocking availability check.")
             return False, -1
+        
+        excluded_dates = set((template.excluded_dates or "").splitlines())
 
         for occ in planned:
+            if occ.date().isoformat() in excluded_dates:
+                continue
+
             occ_start = localize_to_berlin_time(occ)
             occ_end = occ_start + duration
             occ_start_utc = convert_to_utc(occ_start)

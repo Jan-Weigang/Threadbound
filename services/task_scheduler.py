@@ -76,15 +76,14 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
                     logging.warning(f"Invalid RRULE for template {template.id}: {e}")
                     continue
             else:
-                # ⏰ Default to weekly by weekday
-                weekday = template.start_time.weekday()
-                occurrences = [
-                    datetime.combine(day, template.start_time.time())
-                    for day in utils.date_range(today, max_date)
-                    if day.weekday() == weekday
-                ]
+                pass
+
+            excluded_dates = set((template.excluded_dates or "").splitlines())
 
             for occ in occurrences:
+                if occ.date().isoformat() in excluded_dates:
+                    continue
+
                 dt_start = utils.localize_to_berlin_time(occ)
                 dt_end = dt_start + duration
                 start_utc = utils.convert_to_utc(dt_start)
@@ -115,6 +114,8 @@ def create_events_from_templates(weeks_ahead: int = 8) -> int:
                     table_ids=table_ids,
                     template_id=template.id
                 )
+
+                event_manager.exclude_date_from_template(template, dt_start.date())
 
                 created_count += 1
 

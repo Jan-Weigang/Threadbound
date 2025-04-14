@@ -165,6 +165,7 @@ class Event(db.Model, SoftDeleteMixin):
 
     # Recurring Events
     recurrence_rule = db.Column(db.Text, nullable=True)  # Store RRULE string for ICS compatibility
+    excluded_dates = db.Column(db.Text, nullable=True, default="")  # newline-separated ISO dates
     
     # Datetime
     time_created = db.Column(AwareDateTime(), nullable=False, default=lambda: datetime.now(pytz.utc))

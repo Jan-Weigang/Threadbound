@@ -179,7 +179,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         if view_type == 'template':
             reservations = Reservation.get_template_reservations().all()
         elif view_type == 'regular':
-            reservations = Reservation.get_regular_reservations().all()      # type:ignore
+            reservations = Reservation.get_regular_reservations().all()
         elif view_type == 'public':
             reservations = Reservation.get_regular_reservations().filter(
                 Reservation.associated_event.has(publicity_id=3, is_published=True)).all()         # type:ignore
@@ -230,15 +230,94 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         'publicity': reservation.associated_event.publicity.name,
         'discord_link': reservation.associated_event.get_discord_message_url(),
         'is_template': reservation.associated_event.is_template,
-        'is_marked': not reservation.associated_event.is_published or reservation.associated_event.is_template
+        'is_marked': not reservation.associated_event.is_published
     } for reservation in reservations]
 
     if not discord.authorized or not session.get('is_member', False):
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
-            # del entry['attendee_count']
+
+    if view_type == 'regular':
+        existing_events = [r.associated_event for r in reservations]
+        virtual_reservations = generate_virtual_reservations_from_templates(start_date.date(), end_date.date(), existing_events)
+        reservation_data.extend(virtual_reservations)
 
     return reservation_data
+
+
+
+
+
+# Used in prepare reservations for jinja
+def generate_virtual_reservations_from_templates(start_date, end_date, existing_events: list[Event]) -> list[dict]:
+    from dateutil.rrule import rrulestr
+    from tt_calendar.models import Event
+    from tt_calendar import utils
+    import pytz
+
+    existing_pairs = {(e.template_id, e.start_time.date()) for e in existing_events if e.template_id}
+
+    virtuals = []
+
+    templates = Event.get_template_events().filter(Event.recurrence_rule.isnot(None)).all()
+
+    for template in templates:
+        try:
+            duration = template.end_time - template.start_time
+            local_start = utils.convert_to_berlin_time(template.start_time)
+            rule = rrulestr(template.recurrence_rule, dtstart=local_start)
+            occurrences = rule.between(
+                utils.localize_to_berlin_time(datetime.combine(start_date, datetime.min.time())),
+                utils.localize_to_berlin_time(datetime.combine(end_date, datetime.max.time())),
+                inc=True
+            )
+        except Exception as e:
+            continue  # skip broken rule
+
+        for occ in occurrences:
+            occ_day = occ.date()
+            if (template.id, occ_day) in existing_pairs:
+                continue  # Already covered
+
+            occ_start = utils.localize_to_berlin_time(occ)
+            occ_end = occ_start + duration
+
+            for res in template.reservations:
+                virtuals.append({
+                    'id': f'virtual-{template.id}-{res.table_id}-{occ_day}',
+                    'user_name': template.user.username,
+                    'event_id': f'virtual-{template.id}-{occ_day}',
+                    'table_id': res.table_id,
+                    'event_table_count': len(template.reservations),
+                    'date': occ_day,
+                    'start_time': utils.convert_to_utc(occ_start).isoformat(),
+                    'end_time': utils.convert_to_utc(occ_end).isoformat(),
+                    'start_time_str': occ_start.strftime('%H:%M'),
+                    'end_time_str': occ_end.strftime('%H:%M'),
+                    'game_category_icon': template.game_category.icon,
+                    'game_category': template.game_category.name,
+                    'name': template.name,
+                    'description': template.description,
+                    'event_type_id': template.event_type_id,
+                    'attendee_count': 0,
+                    'time_created': '',
+                    'time_updated': '',
+                    'publicity': template.publicity.name,
+                    'discord_link': None,
+                    'is_template': True,
+                    'is_marked': False
+                })
+
+    return virtuals
+
+
+
+
+
+
+
+
+
 
 
 # POST endpoint to add a new reservation (if needed)

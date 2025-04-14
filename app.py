@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Bekannte Collisionen bei Check Availability ausschließen.
+
 # TODO dynamic css @Container and @media
 
 # api/resolve_overlap 404 error?

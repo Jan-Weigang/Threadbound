@@ -4,6 +4,7 @@ from tt_calendar.models import User, Event, Reservation, db, EventState, Overlap
 from tt_calendar import utils
 from sqlalchemy import false, true
 from datetime import datetime
+import datetime as dt
 import logging
 
 class EventManager:
@@ -134,6 +135,24 @@ class EventManager:
             end_time=end_utc,
             table_ids=form_data['table_ids']
         )
+    
+
+    def exclude_date_from_template(self, template: Event, date: dt.date):
+        """Add a date exclusion to a recurring event template."""
+        if not template.is_template:
+            logging.warning(f"Trying to exclude date on non-template event {template.id}")
+            return
+
+        date_str = date.isoformat()
+        current_exdates = (template.excluded_dates or "").splitlines()
+
+        if date_str not in current_exdates:
+            current_exdates.append(date_str) # type: ignore
+            template.excluded_dates = "\n".join(current_exdates)
+            db.session.commit()
+            logging.info(f"📅 Excluded {date_str} for template {template.id}")
+        else:
+            logging.info(f"📅 Date {date_str} already excluded for template {template.id}")
 
 
     # def update_event_in_db(self, event, user, form_data):
