@@ -62,7 +62,7 @@
         document.body.addEventListener('htmx:timeout', function(evt) {
             if (evt.target.closest('#viewTypeForm')) {
                 document.querySelector('.calendar-container').innerHTML =
-                    "<div class='error-box'>Request timed out. Server might be offline.</div>";
+                    "<div class='error-box'>Timout-Limit erreicht. Du bist ggfls offline oder der Server war kurz busy.</div>";
             }
         });
         

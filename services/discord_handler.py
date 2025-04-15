@@ -22,7 +22,7 @@ class DiscordHandler:
 
         # Wait for the future to complete if you want to block until it's done (optional)
         try:
-            nickname = future.result(timeout=2)  # waits 2s
+            nickname = future.result(timeout=4)  # waits 2s
             return nickname
         except Exception as e:
             return None 
@@ -40,7 +40,7 @@ class DiscordHandler:
 
         try:
             # Wait for the result with a timeout
-            return future.result(timeout=3)
+            return future.result(timeout=4)
         except Exception as e:
             import traceback
             logging.error(f"Error checking membership: {e}")
@@ -74,7 +74,7 @@ class DiscordHandler:
 
         # Wait for the future to complete if you want to block until it's done (optional)
         try:
-            message_id = future.result(timeout=2)  # waits 2s
+            message_id = future.result(timeout=4)  # waits 2s
             return message_id
         except Exception as e:
             return None
@@ -120,9 +120,9 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
             try:
-                future.result(timeout=2)
+                future.result(timeout=4)
             except Exception as e:
-                logging.error(f"❌ Failed to send reminder for event {event.id}: {e}")
+                logging.exception(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
     def send_deletion_notice(self, event):
@@ -150,7 +150,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         try:
             future.result(timeout=2)
         except Exception as e:
-            logging.error(f"❌ Failed to send reminder for event {event.id}: {e}")
+            logging.exception(f"❌ Failed to send reminder for event {event.id}: {e}")
 
 
     def add_user_to_event_thread(self, event, user_discord_id: int):
@@ -174,7 +174,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         try:
             future.result(timeout=2)
         except Exception as e:
-            logging.error(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
+            logging.exception(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
 
 
     def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int, new_event=None, existing_event=None):
@@ -189,7 +189,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             channel_id = future.result(timeout=3)
             return channel_id
         except Exception as e:
-            logging.error(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
+            logging.exception(f"❌ Failed to create overlap ticket for {creator_id=} {overlapped_user_id=}: {e}")
             return None
 
 
@@ -204,7 +204,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             channel_id = future.result(timeout=3)
             return channel_id
         except Exception as e:
-            logging.error(f"❌ Failed to create size ticket for {creator_id=}: {e}")
+            logging.exception(f"❌ Failed to create size ticket for {creator_id=}")
             return None
         
 
@@ -217,11 +217,9 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:
-            future.result(timeout=3)
+            future.result(timeout=5)
         except Exception as e:
-            import traceback
-            logging.error(f"❌ Failed to replace view in channel {channel_id}: {e}")
-            traceback.print_exc()
+            logging.exception(f"❌ Failed to replace view in channel {channel_id}: {e}")
 
 
     def resolve_overlap_ticket_channel(self, overlap):
@@ -235,4 +233,4 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
         try:
             future.result(timeout=5)
         except Exception as e:
-            logging.error(f"❌ Failed to replace view in channel {channel_id}: {e}")
+            logging.exception(f"❌ Failed to replace view in channel {channel_id}: {e}")

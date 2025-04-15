@@ -5,13 +5,13 @@ import signal, os, asyncio, threading
 
 import discord_bot
 from services import *
-from services.task_scheduler import scheduler
 
 
 from tt_calendar.models import *
 from tt_calendar.admin import init_admin
 from tt_calendar.db_populate import check_and_populate_db
 
+from flask_apscheduler import APScheduler
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,7 +21,18 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Close Reqeust hat nur einen Mention.
 
+# TODO Löschen machte noch Fehler
+
+# Können User teilnehmen, die keine Mitglieder sind?
+
+# TODO Möglichkeit für keine Posts per .env Eintragung erstellen.
+# Dies dann für Kampagnen nutzen. Wenn keine Message ID gefunden, 
+# dann einfach per DM erinnern und temporary messge ID der DM für embed nutzen?
+
+# TODO Kategorien mit | o. ä. trennen und so im UI (event form) Unterkategorien erschaffen.
+# Würde dann einfach an das originale Feld drangehängt werden. Geht rein über UI/JS.
 
 # TODO Stammtische darstellen und nicht hovern
 # TODO Stammtisch, eigene Termine nicht anzeigen, nur virtuelle
@@ -113,11 +124,25 @@ load_dotenv()
 # ======================================
 def create_app():
     app = Flask(__name__)
+
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'  # Update the URI to your database
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
+
+    # ======================================
+    # ============= Scheduling =============
+    # ======================================
+
+    scheduler = APScheduler()
+    app.config['SCHEDULER_API_ENABLED'] = True
+    scheduler.init_app(app)
+    scheduler.start()
+
+    from services.task_scheduler import register_scheduler_jobs
+    register_scheduler_jobs(scheduler)
+   
     # ======================================
     # ============= Open Auth ==============
     # ======================================
@@ -185,7 +210,7 @@ if __name__ == '__main__':
 
     with app.app_context():
         check_and_populate_db()
-        scheduler.start()
+
     signal.signal(signal.SIGINT, signal_handler)
 
     # Start Flask in a separate thread

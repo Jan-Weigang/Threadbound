@@ -57,7 +57,7 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
     with app.app_context():
         today = utils.localize_to_berlin_time(datetime.now()).date()
         start_date = start_date or today
-        end_date = end_date or (today + timedelta(weeks=8))
+        end_date = end_date or (today + timedelta(weeks=4))
 
         templates = Event.get_template_events().all()
         event_manager = app.config['event_manager']
@@ -122,22 +122,18 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
         return created_count
 
 
+def register_scheduler_jobs(scheduler):
+    scheduler.add_job(
+        func=run_daily_reminder,
+        trigger=CronTrigger(hour=9, minute=0, timezone=pytz.timezone('Europe/Berlin')),
+        id="daily_reminder",
+        replace_existing=True
+    )
 
-
-
-
-
-# Setup scheduler
-scheduler = BackgroundScheduler()
-scheduler.add_job(
-    func=run_daily_reminder,
-    trigger=CronTrigger(hour=9, minute=0, timezone=pytz.timezone('Europe/Berlin')),
-    id="daily_reminder",
-    replace_existing=True
-)
-scheduler.add_job(
-    func=create_events_from_templates,
-    trigger=CronTrigger(hour=8, minute=0, timezone=pytz.timezone('Europe/Berlin')),
-    id="generating_recurring_events",
-    replace_existing=True
-)
+    from services.task_scheduler import create_events_from_templates
+    scheduler.add_job(
+        func=create_events_from_templates,
+        trigger=CronTrigger(hour=8, minute=0, timezone=pytz.timezone('Europe/Berlin')),
+        id="generating_recurring_events",
+        replace_existing=True
+    )
