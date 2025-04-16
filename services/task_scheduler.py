@@ -96,6 +96,7 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     available, conflict_table = utils.check_availability(start_utc, end_utc, table_ids)
                     if not available:
                         logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
+                        event_manager.exclude_date_from_template(template, dt_start.date())
                         continue
                 
                 from tt_calendar.models import EventState
