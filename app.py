@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO templates edit
+
 # TODO Close Reqeust hat nur einen Mention.
 
 # TODO Löschen machte noch Fehler
@@ -141,7 +143,7 @@ def create_app():
     scheduler.start()
 
     from services.task_scheduler import register_scheduler_jobs
-    register_scheduler_jobs(scheduler)
+    register_scheduler_jobs(app, scheduler)
    
     # ======================================
     # ============= Open Auth ==============

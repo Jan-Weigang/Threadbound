@@ -15,10 +15,9 @@ from flask import current_app
 
 logging.basicConfig(level=logging.INFO)
 
-def run_daily_reminder():
+def run_daily_reminder(app):
     logging.info("🔔 Running daily reminder job...")
 
-    app = current_app._get_current_object() #type: ignore
     with app.app_context:
         """Fetch events for today and send reminders to Discord."""
         berlin_tz = pytz.timezone('Europe/Berlin')
@@ -45,14 +44,15 @@ def run_daily_reminder():
             discord_handler.send_reminders_in_threads(events)
 
 
-def create_events_from_templates(start_date: date | None = None, end_date: date | None = None, conflict_check_needed: bool = True) -> int:
+def create_events_from_templates(start_date: date | None = None, end_date: date | None = None, conflict_check_needed: bool = True, app = None) -> int:
     """
     Create real event instances from templates within a date range.
     If no range is provided, it defaults to today until 8 weeks ahead.
     These events automatically get approved for size.
     """
     logging.info("♻️ Running recurring event generation...")
-    app = current_app._get_current_object()     # type: ignore
+    if not app:
+        app = current_app._get_current_object() #type: ignore
 
     with app.app_context():
         today = utils.localize_to_berlin_time(datetime.now()).date()
@@ -122,9 +122,9 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
         return created_count
 
 
-def register_scheduler_jobs(scheduler):
+def register_scheduler_jobs(app, scheduler):
     scheduler.add_job(
-        func=run_daily_reminder,
+        func=lambda: run_daily_reminder(app=app),
         trigger=CronTrigger(hour=9, minute=0, timezone=pytz.timezone('Europe/Berlin')),
         id="daily_reminder",
         replace_existing=True
@@ -132,7 +132,7 @@ def register_scheduler_jobs(scheduler):
 
     from services.task_scheduler import create_events_from_templates
     scheduler.add_job(
-        func=create_events_from_templates,
+        func=lambda: create_events_from_templates(app=app),
         trigger=CronTrigger(hour=8, minute=0, timezone=pytz.timezone('Europe/Berlin')),
         id="generating_recurring_events",
         replace_existing=True
