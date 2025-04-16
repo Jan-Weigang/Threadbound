@@ -123,8 +123,7 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int | None =
     :param category_id: Discord category ID to create the channel under.
     :param ping_role: Optional role to mention (e.g. Vorstand).
     """
-    assert new_event
-    assert existing_event
+    
     guild = bot.get_guild(guild_id)
     category = guild.get_channel(int(ticket_category_id))
     creator = await get_member_safely(guild, creator_id)
@@ -143,6 +142,8 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int | None =
     }
 
     if overlapped_member_id:
+        assert new_event
+        assert existing_event
         overlapped_member = await get_member_safely(guild, overlapped_member_id)
 
         channel_name = f"doppelbuchung-{creator.name.lower()}-{timestamp}"
