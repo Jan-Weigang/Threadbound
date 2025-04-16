@@ -182,7 +182,7 @@ def is_event_deletable(event: Event) -> bool:
     one_month_from_now = now + timedelta(days=30)
 
     # Check if the event is within one month and has attendees
-    if event.start_time <= one_month_from_now or event.attendees.count() > 0:
+    if event.start_time <= one_month_from_now or len(event.attendees) > 0: # type: ignore
         return False
     return True
 

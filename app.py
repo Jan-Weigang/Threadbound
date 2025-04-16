@@ -21,6 +21,10 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Backup db regularly. Also at start of each redeploy.
+# TODO Use Alembic
+# TODO Create Room Model.
+
 # TODO löschen checken und richtig nutzen, wenn  Overlaps resolven (z. B. Turnier über Stammtisch)
 
 # TODO templates edit
