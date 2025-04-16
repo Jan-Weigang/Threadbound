@@ -665,3 +665,22 @@ def event_manager_function(app, event_id):
     with app.app_context():
         event = Event.query.get(event_id)  # Reattach to session
         app.config['event_manager'].event_state_handler(event)
+
+
+
+@api.route('/run_state_handler', methods=['POST'])
+def api_run_event_state_handler():
+    data = request.get_json()
+    if not data or 'event_id' not in data:
+        return jsonify({'status': 'error', 'message': 'Missing event_id'}), 400
+
+    event_id = data['event_id']
+    event = Event.query.get(event_id)
+
+    if not event:
+        return jsonify({'status': 'error', 'message': f'No event found with ID {event_id}'}), 404
+
+    run_event_manager(event)
+
+    return jsonify({'status': 'success', 'message': f'Event handler triggered for {event.name}.'})
+
