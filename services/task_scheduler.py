@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 def run_daily_reminder(app):
     logging.info("🔔 Running daily reminder job...")
 
-    with app.app_context:
+    with app.app_context():
         """Fetch events for today and send reminders to Discord."""
         berlin_tz = pytz.timezone('Europe/Berlin')
         now = datetime.now(berlin_tz)
@@ -96,7 +96,8 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     available, conflict_table = utils.check_availability(start_utc, end_utc, table_ids)
                     if not available:
                         logging.info(f"⛔ Skipping {start_utc} from template {template.id} — table {conflict_table} unavailable.")
-                        event_manager.exclude_date_from_template(template, dt_start.date())
+                        # event_manager.exclude_date_from_template(template, dt_start.date())
+                        # TODO This might not be that great an idea..
                         continue
                 
                 from tt_calendar.models import EventState

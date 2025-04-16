@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO löschen checken und richtig nutzen, wenn  Overlaps resolven (z. B. Turnier über Stammtisch)
+
 # TODO templates edit
 
 # TODO Close Reqeust hat nur einen Mention.
