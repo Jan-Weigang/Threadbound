@@ -230,8 +230,8 @@ document.addEventListener('htmx:afterSwap', function(event) {
     const prevDays = document.querySelectorAll('.prev-day');
     const nextDays = document.querySelectorAll('.next-day');
 
-    const prevTime = document.querySelector('.prev-time');
-    const nextTime = document.querySelector('.next-time');
+    const prevTimes = document.querySelectorAll('.prev-time');
+    const nextTimes = document.querySelectorAll('.next-time');
     const hourSelect = document.getElementById('hourSelect');
 
     prevDays.forEach(btn => {
@@ -243,41 +243,51 @@ document.addEventListener('htmx:afterSwap', function(event) {
     });
 
     const updateButtons = () => {
-        updateTimeNavButtons(hourSelect, prevTime, nextTime);
+        updateTimeNavButtons(hourSelect, prevTimes, nextTimes);
         updateHoverDescriptions(); 
     };
     updateButtons();
 
-    if (prevTime && hourSelect) {
-        prevTime.onclick = () => {
-            const i = hourSelect.selectedIndex;
-            if (i > 0) {
-                hourSelect.selectedIndex = i - 1;
-                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        };
-    }
+    prevTimes.forEach(prevTime => {
+        if (prevTime && hourSelect) {
+            prevTime.onclick = () => {
+                const i = hourSelect.selectedIndex;
+                if (i > 0) {
+                    hourSelect.selectedIndex = i - 1;
+                    hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+        }
+    });
     
-    if (nextTime && hourSelect) {
-        nextTime.onclick = () => {
-            const i = hourSelect.selectedIndex;
-            if (i < hourSelect.options.length - 1) {
-                hourSelect.selectedIndex = i + 1;
-                hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        };
-    }
+    nextTimes.forEach(nextTime => {
+        if (nextTime && hourSelect) {
+            nextTime.onclick = () => {
+                const i = hourSelect.selectedIndex;
+                if (i < hourSelect.options.length - 1) {
+                    hourSelect.selectedIndex = i + 1;
+                    hourSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
+        }
+    });
 
     initialize_hover();
 
 });
 
-function updateTimeNavButtons(hourSelect, prevTime, nextTime) {
+function updateTimeNavButtons(hourSelect, prevTimes, nextTimes) {
     const i = hourSelect.selectedIndex;
     const max = hourSelect.options.length - 1;
+    
+    prevTimes.forEach(prevTime => {
+        prevTime.style.display = i <= 0 ? 'none' : '';
+    });
 
-    if (prevTime) prevTime.style.display = i <= 0 ? 'none' : '';
-    if (nextTime) nextTime.style.display = i >= max ? 'none' : '';
+    nextTimes.forEach(nextTime => {
+        nextTime.style.display = i >= max ? 'none' : '';
+    });
+
 }
 
 function updateHoverDescriptions() {

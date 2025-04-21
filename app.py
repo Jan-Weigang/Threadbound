@@ -21,11 +21,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-
-# TODO Check thread livablitity
-
-# TODO Restyle Overlay for small phones
-
 # TODO "Meine Termine"
 
 # TODO restyle
