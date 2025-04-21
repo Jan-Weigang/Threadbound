@@ -21,8 +21,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Add field editor? Reminder ging an mich durch Edit..
-# Or stop edit from overwriting user...
 
 # TODO Check thread livablitity
 
