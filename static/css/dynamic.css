@@ -86,6 +86,11 @@ body {
     /* pointer-events: none; Prevent clicks unless hovered */
 }
 
+.time-scale > .side-nav {
+    padding: .5rem 0;
+    width: max(25vw, 250px);
+}
+
 .side-nav.next-time, .side-nav.prev-time {
     top: -.5rem;
 }
