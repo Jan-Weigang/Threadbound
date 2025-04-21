@@ -35,7 +35,7 @@
             data-bg-regular="#fff"
             data-bg-template="#fbf8f1"
             data-bg-public="#f3eaf5">
-        {% if is_authenticated %}
+        {% if user.is_member %}
             {% if view_type == "regular" %}
                 <option value="regular" selected>Ansicht: Mitglieder</option>
             {% else %}

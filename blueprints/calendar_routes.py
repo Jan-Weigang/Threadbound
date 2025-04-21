@@ -23,11 +23,15 @@ def view(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
-    is_authenticated = session.get('is_member', False)
+    is_authenticated = False
+    if session:
+        is_authenticated = True
     print(f"Triggered route with auth: {is_authenticated}")
 
     user = {}
     user['name'] = session.get('username', None)
+    user['is_member'] = session.get('is_member', None)
+    user['member'] = "Ja" if session.get('is_member', None) else "Nein"
     user['beirat'] = "Ja" if session.get('is_beirat', None) else "Nein"
     user['vorstand'] = "Ja" if session.get('is_vorstand', None) else "Nein"
     user['admin'] = "Ja" if session.get('is_admin', None) else "Nein"

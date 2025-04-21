@@ -37,8 +37,8 @@ def login():
 
     print(f"I found user {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
 
-    if not session['is_member']:
-        flash('You are not a member and cannot be given access', 'failure')
+    # if not session['is_member']:
+    #     flash('You are not a member and cannot be given access', 'failure')
     return redirect(url_for('main.index'))  
 
 
@@ -73,7 +73,8 @@ def settings():
 @main.route('/remind')
 def remind():
     import services.task_scheduler
-    services.task_scheduler.run_daily_reminder()
+    app = current_app._get_current_object()  # type: ignore
+    services.task_scheduler.run_daily_reminder(app=app)
     return "Done"
 
 @main.route('/query')
