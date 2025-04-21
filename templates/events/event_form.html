@@ -75,8 +75,9 @@
         <label for="description">Beschreibung:</label>
         <textarea name="description" id="description"></textarea>
 
-        <label for="game_category_id">Kategorie:</label>
-        <div style="display: flex; flex-direction: row; align-items: center;">
+        <label class="{% if event %}hidden{% endif %}" for="game_category_id">Kategorie:</label>
+        <div class="{% if event %}hidden{% endif %}"
+             style="display: flex; flex-direction: row; align-items: center;">
             <select name="game_category_id" id="game_category_id">
                 {% for category in game_categories %}
                     <option value="{{ category.id }}" data-icon="{{ category.icon | safe }}">{{ category.name }}</option>
