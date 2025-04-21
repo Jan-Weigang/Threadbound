@@ -21,8 +21,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Non-Member sind eingeloggt aber login wird angezeigt, da sie keine Member sind.
-
 # TODO Add field editor? Reminder ging an mich durch Edit..
 # Or stop edit from overwriting user...
 

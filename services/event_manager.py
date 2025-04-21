@@ -35,7 +35,7 @@ class EventManager:
         db.session.flush()
 
         try:
-            self.create_reservations(user, new_event, table_ids)
+            self.create_reservations(new_event, table_ids)
 
             db.session.commit()
 
@@ -167,7 +167,7 @@ class EventManager:
     #     return new_event
 
 
-    def update_event_in_db(self, event: Event, user: User, *, name: str, description: str | None, game_category_id: int, 
+    def update_event_in_db(self, event: Event, *, name: str, description: str | None, game_category_id: int, 
                            event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime, table_ids: list[int]
     ) -> Event:
         event.name = name
@@ -175,7 +175,6 @@ class EventManager:
         event.game_category_id = game_category_id
         event.event_type_id = event_type_id
         event.publicity_id = publicity_id
-        event.user_id = user.id
         event.start_time = start_time
         event.end_time = end_time
 
@@ -183,7 +182,7 @@ class EventManager:
 
         try:
             Reservation.query.filter_by(event_id=event.id).delete()
-            self.create_reservations(user, event, table_ids)
+            self.create_reservations(event, table_ids)
             db.session.commit()
             self.event_state_handler(event)
         except Exception as e:
@@ -194,13 +193,12 @@ class EventManager:
         return event
 
 
-    def update_event_from_form(self, event: Event, user: User, form_data: dict) -> Event:
+    def update_event_from_form(self, event: Event, form_data: dict) -> Event:
         start_utc = utils.convert_to_utc(form_data['start_datetime'])
         end_utc = utils.convert_to_utc(form_data['end_datetime'])
 
         return self.update_event_in_db(
             event=event,
-            user=user,
             name=form_data['name'],
             description=form_data.get('description'),
             game_category_id=int(form_data['game_category_id']),
@@ -260,13 +258,13 @@ class EventManager:
 
     #     return event
 
-    def create_reservations(self, user, new_event, table_ids):
+    def create_reservations(self, event, table_ids):
         for table_id in table_ids:
             reservation = Reservation(
-                user_id=user.id,                    # type: ignore
-                event_id=new_event.id,              # type: ignore
-                table_id=table_id,                  # type: ignore
-                is_template=new_event.is_template   # type: ignore
+                user_id=event.user.id,          # type: ignore
+                event_id=event.id,              # type: ignore
+                table_id=table_id,              # type: ignore
+                is_template=event.is_template   # type: ignore
             )
             db.session.add(reservation)
         db.session.commit()
