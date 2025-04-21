@@ -35,9 +35,6 @@ load_dotenv()
 # Kampagnen ohne Posts
 # Testen, ob man POsts umlenken und threads neu anhängen kann.
 
-# TODO Element Pseudo Time scale
-# width: max(25vw, 250px);
-
 # TODO Forward and in thread interaction with buttons.
 
 # TODO Event overlay show event

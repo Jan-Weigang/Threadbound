@@ -87,6 +87,7 @@ async def on_message(message):
                 # Create the thread attached to the message
                 thread = await message.create_thread(
                     name=thread_name, auto_archive_duration=10080)  # 1440 is for 24-hour archive duration
+                await thread.send("Teilnahmeknöpfe für den Thread.", view=view)
             except discord.Forbidden:
                 logging.error("Bot does not have permission to create threads in this channel.")
             except discord.HTTPException as e:
@@ -146,9 +147,25 @@ async def interact_with_event(interaction, action):
 
     nickname = await get_nickname(interaction.user.id)
 
+    # Default to the button message
+    message_id = interaction.message.id
+
+    # If button message has no embed, try to get the thread's starter message
+    if not interaction.message.embeds:
+        thread = interaction.channel
+        if isinstance(thread, discord.Thread):
+            print("button was pressed on a gthread")
+            try:
+                parent = thread.parent
+                starter = await parent.fetch_message(thread.id) #type: ignore
+                message_id = starter.id
+            except discord.NotFound:
+                logging.warning("Starter message not found.")
+
+
     data = {
         "discord_user_id": interaction.user.id,
-        "message_id": interaction.message.id,
+        "message_id": message_id,
         "action": action,
         "username": nickname
     }
