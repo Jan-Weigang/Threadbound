@@ -35,6 +35,8 @@ def login():
     session['is_admin'] = discord_handler.is_role(user.discord_id, "admin") # type: ignore
     session['username'] = user.username
 
+    session.permanent = True
+
     print(f"I found user {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
 
     # if not session['is_member']:

@@ -21,6 +21,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO "Unauthorized" mit Nutzer ausstatten, damit man nachvollziehen kann
+
 # TODO "Meine Termine"
 
 # TODO restyle
@@ -34,8 +36,6 @@ load_dotenv()
 # TODO Dauertermine Kampagnen?
 # Kampagnen ohne Posts
 # Testen, ob man POsts umlenken und threads neu anhängen kann.
-
-# TODO Forward and in thread interaction with buttons.
 
 # TODO Event overlay show event
 
@@ -201,7 +201,6 @@ def create_app():
     app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')  # Replace with your actual domain or localhost for testing
     app.config['APPLICATION_ROOT'] = '/'  # Set the application root
     app.config['PREFERRED_URL_SCHEME'] = 'https'  # Use 'http' if you're testing locally
-
 
 
     # ======================================
