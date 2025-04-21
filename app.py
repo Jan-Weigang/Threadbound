@@ -21,6 +21,50 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Non-Member sind eingeloggt aber login wird angezeigt, da sie keine Member sind.
+
+# TODO Add field editor? Reminder ging an mich durch Edit..
+# Or stop edit from overwriting user...
+
+# TODO Check thread livablitity
+
+# TODO Restyle Overlay for small phones
+
+# TODO "Meine Termine"
+
+# TODO restyle
+# https://discord.com/channels/581755152609050624/1361420011599560915/1361629919637147708
+
+# Ungebundene Termine?
+
+# TODO Lageplan
+
+# TODO Post des Threads einstellbar.
+# TODO Dauertermine Kampagnen?
+# Kampagnen ohne Posts
+# Testen, ob man POsts umlenken und threads neu anhängen kann.
+
+# TODO Element Pseudo Time scale
+# width: max(25vw, 250px);
+
+# TODO Forward and in thread interaction with buttons.
+
+# TODO Event overlay show event
+
+# TODO Ticket Size better info
+
+# TODO Stammtisch edit
+
+# TODO Bottom Bar not visible in mobile phones
+# position: absolute;
+#   bottom: 1rem;
+#   background-color: white;
+#   margin:
+# auto;
+#   justify-self: center;
+
+# TODO bottom timescale not working correctly, probably needs queryAll
+
 # TODO Backup db regularly. Also at start of each redeploy.
 # TODO Use Alembic
 # TODO Create Room Model.

@@ -1,7 +1,21 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
+        <div id="flash-stack">
         {% for category, message in messages %}
-            <span class="flash {{ category }}">{{ message }}</span>
+            <div class="flash {{ category }}">{{ message }}</div>
         {% endfor %}
+        </div>
     {% endif %}
 {% endwith %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.flash').forEach(el => {
+        setTimeout(() => {
+          el.style.opacity = '0';
+          setTimeout(() => el.remove(), 500); // remove after fade
+        }, 3000);
+      });
+    });
+</script>
+    
