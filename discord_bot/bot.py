@@ -85,7 +85,8 @@ async def on_message(message):
         if isinstance(message.channel, discord.TextChannel):
             try:
                 # Create the thread attached to the message
-                thread = await message.create_thread(name=thread_name, auto_archive_duration=1440)  # 1440 is for 24-hour archive duration
+                thread = await message.create_thread(
+                    name=thread_name, auto_archive_duration=10080)  # 1440 is for 24-hour archive duration
             except discord.Forbidden:
                 logging.error("Bot does not have permission to create threads in this channel.")
             except discord.HTTPException as e:
