@@ -76,10 +76,10 @@ async def on_message(message):
         # Check if the message contains only an embed
         if message.embeds and not message.content:
             embed_title = message.embeds[0].title if message.embeds[0].title else "Discussion"
-            thread_name = f"Discussion for {embed_title[:50]}"  # Use the embed title as the thread name
+            thread_name = f"{embed_title[:50]}"  # Use the embed title as the thread name
         else:
             # Use the message content as the thread name (limit to 50 characters)
-            thread_name = f"Discussion for {message.content[:50]}" if message.content else "Discussion"
+            thread_name = f"{message.content[:50]}" if message.content else "Discussion"
 
         # Create a thread for discussion if the channel allows it
         if isinstance(message.channel, discord.TextChannel):
