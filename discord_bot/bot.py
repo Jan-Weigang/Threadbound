@@ -74,10 +74,22 @@ async def on_message(message):
         view.add_item(discord.ui.Button(label="ICS", style=discord.ButtonStyle.link, url=ics_url))
 
         # Check if the message contains only an embed
-        if message.embeds and not message.content:
-            embed_title = message.embeds[0].title if message.embeds[0].title else "Discussion"
-            thread_name = f"{embed_title[:50]}"  # Use the embed title as the thread name
+        if message.embeds:
+            print("yeyjlkej")
+            embed = message.embeds[0]
+            event_date_str = "Unbekannt"
+            event_name = message.embeds[0].title if message.embeds[0].title else "Discussion"
+
+            # Try to get the date from the first field name
+            for field in embed.fields:
+                if field.name.startswith("📅 "):
+                    event_date_str = field.name.replace("📅 ", "")
+                    break
+
+            thread_name = f"{event_date_str} – {event_name[:40]}"
+            print(thread_name)
         else:
+            print("nope")
             # Use the message content as the thread name (limit to 50 characters)
             thread_name = f"{message.content[:50]}" if message.content else "Discussion"
 

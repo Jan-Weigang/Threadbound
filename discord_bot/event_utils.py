@@ -56,7 +56,7 @@ def generate_event_embed(event, channel_id, action):
         )
     else:
             embed = discord.Embed(
-            title=f"📅 {event.name}",
+            title=f"{event.name}",
             color=get_embed_color_from_event(event),
             url=calendar_url
         )
@@ -72,8 +72,7 @@ def generate_event_embed(event, channel_id, action):
 
     embed.set_author(name=f"{event.start_time.strftime('%d.%m.%Y')} - {event.event_type.name} - {event.game_category.name}")
 
-    embed.add_field(name=f"🕒 {event.start_time.strftime('%H:%M')}", value=f"von", inline=True)
-    embed.add_field(name=f"🕒 {event.end_time.strftime('%H:%M')}", value=f"bis", inline=True)
+    embed.add_field(name=f"📅 {event.start_time.strftime('%d.%m.%Y')}", value=f"🕒 **{event.start_time.strftime('%H:%M')}** bis **{event.end_time.strftime('%H:%M')}**", inline=True)
 
     embed.add_field(name="", value="", inline=False)
 
