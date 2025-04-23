@@ -13,6 +13,8 @@ from tt_calendar.db_populate import check_and_populate_db
 
 from flask_apscheduler import APScheduler
 
+import logging
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -256,6 +258,7 @@ if __name__ == '__main__':
 
     # Start Flask in a separate thread
     flask_thread = threading.Thread(target=run_flask_app, args=(app,))
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
     flask_thread.start()
 
     # Run the Discord bot in the main asyncio event loop
