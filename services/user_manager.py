@@ -4,6 +4,8 @@ from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
 from flask import redirect, url_for
 import logging
 
+from exceptions import *
+
 
 class UserManager:
     def __init__(self, discord_handler, discord_api):
@@ -30,8 +32,10 @@ class UserManager:
         try:
             resp = self.discord_api.get('/api/users/@me')
         except TokenExpiredError:
-            # Option 1: Redirect user to re-authenticate
-            return redirect(url_for("discord.login"))
+            raise UserNotAuthenticated()
+
+        if not resp.ok:
+            raise UserNotAuthenticated()
 
         assert resp.ok, resp.text
         user_info = resp.json()
