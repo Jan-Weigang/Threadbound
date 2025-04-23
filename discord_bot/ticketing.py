@@ -164,11 +164,28 @@ Bitte besprecht hier, ob das Event verschoben werden soll, ob das bestehende Eve
         view = OverlapTicketView(bot)
 
     else:
+        assert new_event
         channel_name = f"vereinsevent-{creator.name.lower()}-{timestamp}"
+        event_date = new_event.start_time.strftime('%Y-%m-%d')
+        event_time = f"{new_event.start_time.strftime('%H:%M')}–{new_event.end_time.strftime('%H:%M')}"
+        creator_name = new_event.user.username.lower().replace(" ", "-")
+        short_name = new_event.name.lower().replace(" ", "-")[:30]
+        
         description = (
-            "Für diese Reservierung wurden mehr als 3 Tische ausgewählt.\n"
-            "Dies muss vom Vorstand genehmigt werden. Erkläre hier kurz dein Event."
+            f"{new_event.name}\n"
+            f"{new_event.description}\n"
+            f"\n"
+            f"\n"
+            f"🗓️ {event_date}\n"
+            f"🕒 {event_time}\n"
+            f"👤 {new_event.user.username}\n"
+            f"🔓 {new_event.publicity.name}\n"                                            # type: ignore
+            f"🪑 {', '.join([r.table.name for r in new_event.reservations]) or 'Keine'}\n\n"    # type: ignore
+            f"**Begründungspflicht:**\n"
+            f"Dieses Event beansprucht mehr als drei Tische und muss vom Vorstand bestätigt werden.\n"
+            f"Bitte beschreibe hier den Rahmen und Zweck des Events."
         )
+
         view = SizeTicketView(bot)
 
 

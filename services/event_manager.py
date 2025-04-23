@@ -336,9 +336,10 @@ class EventManager:
                 if len(event.reservations) >= 4:
                     event.state_size = EventState.REQUESTED  # Needs approval by Vorstand
                     channel_id = self.discord_handler.open_ticket_for_size(
-                        creator_id=event.user.discord_id
+                        creator_id=event.user.discord_id,
+                        new_event=event
                     )
-
+                    # TODO If channel_id None rollback
                     event.size_request_discord_channel_id = channel_id
                     db.session.commit()
 
@@ -399,7 +400,7 @@ class EventManager:
                     new_event=event,
                     existing_event=oevent
                 )
-
+                # TODO If channel_id None rollback
                 overlap.request_discord_channel_id = channel_id
                 logging.info(f"{overlap.id} triggered a new channel")
                 db.session.commit()

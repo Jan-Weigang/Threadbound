@@ -177,7 +177,7 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             logging.exception(f"❌ Failed to add user {user_discord_id} to event thread {event.id}: {e}")
 
 
-    def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int, new_event=None, existing_event=None):
+    def open_ticket_for_overlap(self, creator_id: int, overlapped_user_id: int, new_event, existing_event):
         """
         Creates a Discord ticket for overlapping events between two users.
         """
@@ -193,11 +193,11 @@ Eingetragen sind {len(event.attendees)} Personen: {attendees}
             return None
 
 
-    def open_ticket_for_size(self, creator_id: int):
+    def open_ticket_for_size(self, creator_id: int, new_event):
         """
         Creates a Discord ticket for overlapping events between two users.
         """
-        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id)
+        coroutine = create_ticket(bot=discord_bot.bot, creator_id=creator_id, new_event=new_event)
         future = asyncio.run_coroutine_threadsafe(coroutine, self.main_event_loop)
 
         try:

@@ -23,10 +23,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Namen der Threads kürzen und mit Datum. 
-
-# TODO "Unauthorized" mit Nutzer ausstatten, damit man nachvollziehen kann
-
 # TODO "Meine Termine"
 
 # TODO restyle
