@@ -154,7 +154,7 @@ async def interact_with_event(interaction, action):
     if not interaction.message.embeds:
         thread = interaction.channel
         if isinstance(thread, discord.Thread):
-            print("button was pressed on a gthread")
+            logging.info("button was pressed on a thread")
             try:
                 parent = thread.parent
                 starter = await parent.fetch_message(thread.id) #type: ignore

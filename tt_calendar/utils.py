@@ -147,7 +147,7 @@ def extract_template_form_data(request) -> dict | None:
 
 
 def get_rounded_event_times(requested_start) -> tuple[str, str]:
-    print(f"trying to get rounded event times with {requested_start}")
+    logging.info(f"trying to get rounded event times with {requested_start}")
     # Round requested start time to nearest half hour and calculate end time
     if requested_start:
         requested_start_time = datetime.strptime(requested_start, "%H:%M")
@@ -299,7 +299,7 @@ def get_occupancy_by_day(reservation_data, tables):
 
         # Ensure the table exists before proceeding
         if not table:
-            print(f"Table with ID {reservation['table_id']} not found.")
+            logging.error(f"Table with ID {reservation['table_id']} not found.")
             continue  # Skip this reservation if the table is not found
 
         # Initialize hourly bookings for the day if not already present

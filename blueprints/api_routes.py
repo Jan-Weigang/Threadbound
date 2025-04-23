@@ -15,143 +15,9 @@ import logging
 
 api = Blueprint('api_bp', __name__)
 
-# @api.route('/users', methods=['GET'])
-# @decorators.login_required
-# def api_get_users():
-#     users = User.query.all()
-#     user_data = [{'id': user.id, 'discord_id': user.discord_id, 'username': user.username} for user in users]
-#     # print(json.dumps(user_data, indent=4))
-#     return jsonify({'users': user_data})
-
-# # POST endpoint to add a user (if needed)
-# @api.route('/users', methods=['POST'])
-# def api_create_user():
-#     data = request.get_json()
-#     new_user = User(discord_id=data['discord_id'], username=data['username']) # type: ignore
-#     db.session.add(new_user)
-#     db.session.commit()
-#     return jsonify({'message': 'User created successfully'}), 201
-
-# @api.route('/game-categories', methods=['GET'])
-# def api_get_game_categories():
-#     categories = GameCategory.query.all()
-#     category_data = [{'id': category.id, 'name': category.name, 'icon': category.icon} for category in categories]
-#     # print(json.dumps(category_data, indent=4))
-#     return jsonify({'game_categories': category_data})
-
-# # POST endpoint to add a new game category (if needed)
-# @api.route('/game-categories', methods=['POST'])
-# def api_create_game_category():
-#     data = request.get_json()
-#     new_category = GameCategory(name=data['name'], icon=data['icon']) # type: ignore
-#     db.session.add(new_category)
-#     db.session.commit()
-#     return jsonify({'message': 'Game Category created successfully'}), 201
-
-# @api.route('/event-types', methods=['GET'])
-# def api_get_event_types():
-#     event_types = EventType.query.all()
-#     event_type_data = [{'id': event_type.id, 'name': event_type.name, 'color': event_type.color} for event_type in event_types]
-#     # print(json.dumps(event_type_data, indent=4))
-#     return jsonify({'event_types': event_type_data})
-
-# # POST endpoint to add a new event type (if needed)
-# @api.route('/event-types', methods=['POST'])
-# def api_create_event_type():
-#     data = request.get_json()
-#     new_event_type = EventType(name=data['name'], color=data['color']) # type: ignore
-#     db.session.add(new_event_type)
-#     db.session.commit()
-#     return jsonify({'message': 'Event Type created successfully'}), 201
-
-# @api.route('/publicities', methods=['GET'])
-# def api_get_publicities():
-#     publicities = Publicity.query.all()
-#     publicity_data = [{'id': publicity.id, 'name': publicity.name} for publicity in publicities]
-#     # print(json.dumps(publicity_data, indent=4))
-#     return jsonify({'publicities': publicity_data})
-
-# # POST endpoint to add new publicity (if needed)
-# @api.route('/publicities', methods=['POST'])
-# def api_create_publicity():
-#     data = request.get_json()
-#     new_publicity = Publicity(name=data['name']) # type: ignore
-#     db.session.add(new_publicity)
-#     db.session.commit()
-#     return jsonify({'message': 'Publicity created successfully'}), 201
-
-# @api.route('/events', methods=['GET'])
-# @decorators.login_required
-# def api_get_events():
-#     events = Event.get_regular_events().all()
-#     event_data = [{
-#         'id': event.id,
-#         'name': event.name,
-#         'description': event.description,
-#         'game_category_id': event.game_category_id,
-#         'event_type_id': event.event_type_id,
-#         'publicity_id': event.publicity_id,
-#         'start_time': event.start_time.isoformat(),
-#         'end_time': event.end_time.isoformat(),
-#         'discord_post_id': event.discord_post_id,
-#         'time_created': event.time.isoformat(),
-#     } for event in events]
-#     # print(json.dumps(event_data, indent=4))
-#     return jsonify({'events': event_data})
-
-
-# @api.route('/events', methods=['POST'])
-# def api_create_event():
-#     data = request.get_json()
-
-#     # Check table availability before creating the event
-#     start_datetime = datetime.fromisoformat(data['start_time'])
-#     end_datetime = datetime.fromisoformat(data['end_time'])
-#     table_ids = data['table_ids']
-
-#     available, conflicting_table = utils.check_availability(start_datetime, end_datetime, table_ids)
-#     if not available:
-#         return jsonify({'error': f'Table {conflicting_table} is already reserved for the selected time.'}), 409
-
-#     # Create the event
-#     new_event = Event(
-#         name=data['name'], # type: ignore
-#         description=data.get('description', None), # type: ignore
-#         game_category_id=int(data['game_category_id']), # type: ignore
-#         event_type_id=int(data['event_type_id']), # type: ignore
-#         publicity_id=int(data['publicity_id']), # type: ignore
-#         start_time=start_datetime, # type: ignore
-#         end_time=end_datetime, # type: ignore
-#         discord_post_id=data.get('discord_post_id', None), # type: ignore
-#         time_created=datetime.utcnow() # type: ignore
-#     )
-#     db.session.add(new_event)
-#     db.session.commit()
-#     return jsonify({'message': 'Event created successfully'}), 201
-
-
-# @api.route('/tables', methods=['GET'])
-# def api_get_tables():
-#     tables = Table.query.all()
-#     table_data = [{'id': table.id, 'name': table.name, 'type': table.type, 'capacity': table.capacity} for table in tables]
-#     # print(json.dumps(table_data, indent=4))
-#     return jsonify({'tables': table_data})
-
-# # POST endpoint to add a new table (if needed)
-# @api.route('/tables', methods=['POST'])
-# def api_create_table():
-#     data = request.get_json()
-#     new_table = Table(name=data['name'], type=data['type'], capacity=data['capacity']) # type: ignore
-#     db.session.add(new_table)
-#     db.session.commit()
-#     return jsonify({'message': 'Table created successfully'}), 201
-
-
-
 # ======================================
 # ========== App API Stuff =============
 # ======================================
-
 
 
 @api.route('/reservations/<string:view_type>', methods=['GET'])
@@ -162,12 +28,11 @@ def api_get_reservations(view_type=None):
 
     reservation_data = prepare_reservations_for_jinja(date_param=date_param, end_date_param=end_date_param, view_type=view_type)
     
-    # print(json.dumps(reservation_data, indent=4))
     return jsonify({'reservations': reservation_data})
 
 
 def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
-    print(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
+    # logging.info(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
     if discord.authorized is None:
         # If the user is not authenticated, only load events with publicity 3
         reservations = Reservation.get_regular_reservations().filter(Reservation.associated_event.has(publicity_id=3)).all() # type:ignore
@@ -196,12 +61,10 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
 
             reservations = [r for r in reservations if start_date.date() <= r.associated_event.start_time.date() <= end_date.date()]
         
-            # selected_date = datetime.strptime(date_param, '%Y-%m-%d')  # Expected format: 'YYYY-MM-DD'
-            # reservations = [r for r in reservations if r.associated_event.start_time.date() == selected_date.date()]
         except ValueError:
             return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
         
-    # **Sort by date and start_time**
+    # Sort by date and start_time
     reservations.sort(key=lambda r: r.associated_event.start_time)
 
     from collections import defaultdict
@@ -245,8 +108,6 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         reservation_data.extend(virtual_reservations)
 
     return reservation_data
-
-
 
 
 
@@ -344,26 +205,19 @@ def check_table_availability():
     start_datetime = utils.localize_to_berlin_time(start_datetime)
     end_datetime = utils.localize_to_berlin_time(end_datetime)
 
-    # print(f"checkinc availability on date {date}")
-
     tables = Table.query.all()
     table_availability = []
 
 
     for table in tables:
-        # print(f"Testing table: {table.id}")
-        # Build the conditions
         conditions = [
             Event.start_time < end_datetime,
             Event.end_time > start_datetime
         ]
         
-        # Conditionally add the exclude_event_id check if it's provided
         if exclude_event_id:
             conditions.append(Event.id != exclude_event_id)
-            # print(f"Excluding event with id {exclude_event_id}")
 
-        # Filter reservations based on the conditions
         reservations = Reservation.get_regular_reservations().filter(
             Reservation.table_id == table.id,
             Reservation.associated_event.has( # type: ignore
@@ -383,7 +237,6 @@ def check_table_availability():
             if events_on_date:
                 # Determine the earliest available start time and the latest possible end time for the day
                 for event in events_on_date:
-                    logging.info(event)
                     if event.end_time <= end_datetime:
                         earliest_available_start = event.end_time
                     if event.start_time >= start_datetime:
@@ -480,7 +333,8 @@ def handle_attendance():
     message_id = data.get('message_id')
     action = data.get('action')
 
-    print(f"user id {discord_user_id}  message id {message_id}   action {action}")
+    logging.info(f"Called Attendance with {discord_user_id=} {message_id=} {action=}")
+
     try:
         event = Event.get_regular_events().filter_by(discord_post_id=message_id).first()
         if not event:
@@ -516,7 +370,7 @@ def mark_attendance_by_user_and_event(discord_user_id: str, username: str, event
 
 
 def run_discord_post_update(event, user_id):
-    logging.info(f"running discord post update")
+    # logging.info(f"running discord post update")
     app = current_app._get_current_object()  # type: ignore
     event_id = event.id
     thread = threading.Thread(
@@ -530,7 +384,7 @@ def post_update_function(app, event_id, user_discord_id=None):
     with app.app_context():
         event = Event.query.get(event_id)
         if not event:
-            print(f"⚠️ Event {event_id} not found during post_update_function.")
+            logging.error(f"⚠️ Event {event_id} not found during post_update_function.")
             return
 
         discord_handler = app.config['discord_handler']

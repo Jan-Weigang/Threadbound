@@ -60,11 +60,9 @@ def create_event():
     requested_table_id = request.args.get('table_id')
     requested_start = request.args.get('time')
     requested_date = request.args.get('date')
-    print(f"requested date is {requested_date}")
     
     requested_start_time, requested_end_time = utils.get_rounded_event_times(requested_start)
 
-    print(f"optional arguments received: {requested_table_id} and {requested_start_time} and {requested_end_time}")
     game_categories = GameCategory.query.all()
     event_types = EventType.query.all()
     publicity_levels = Publicity.query.all()
@@ -95,9 +93,7 @@ def edit_event(event_id):
         flash('You are not authorized to edit this event.', 'error')
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
-    print(f"event is {event} with date: {event.start_time}")
     tables = Table.query.all()
-
 
     if request.method == 'POST':
         form_data = utils.extract_event_form_data(request)
@@ -157,7 +153,6 @@ def delete_event(event_id):
     event_date = event.start_time.date().strftime('%Y-%m-%d')
 
     action = request.form.get('action', 'cancel')
-    print(f"Action: {action}, Type: {type(action)}")
 
     # Ensure the user is the creator of the event
     if event.user_id != user.id: # type:ignore

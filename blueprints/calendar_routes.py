@@ -6,7 +6,7 @@ from tt_calendar import utils
 
 from datetime import datetime, timezone
 
-import json
+import json, logging
 
 
 cal = Blueprint('cal_bp', __name__)
@@ -26,7 +26,6 @@ def view(view_type):
     is_authenticated = False
     if session:
         is_authenticated = True
-    print(f"Triggered route with auth: {is_authenticated}")
 
     user = {}
     user['name'] = session.get('username', None)
@@ -35,6 +34,8 @@ def view(view_type):
     user['beirat'] = "Ja" if session.get('is_beirat', None) else "Nein"
     user['vorstand'] = "Ja" if session.get('is_vorstand', None) else "Nein"
     user['admin'] = "Ja" if session.get('is_admin', None) else "Nein"
+
+    logging.info(f"Calendar opened by {user['name']}, {user['is_member']=}")
 
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()

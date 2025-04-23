@@ -27,7 +27,7 @@ def run_daily_reminder(app):
         start_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 0, 0, 0))
         end_of_day = berlin_tz.localize(datetime(now.year, now.month, now.day, 23, 59, 59))
 
-        print(f"Running Event Remeinder for today: {start_of_day} to {end_of_day}")
+        logging.info(f"Running Event Remeinder for today: {start_of_day} to {end_of_day}")
 
         with current_app.app_context():
             events = Event.get_regular_events().filter(

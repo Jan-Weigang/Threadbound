@@ -7,6 +7,8 @@ from tt_calendar import utils
 
 from exceptions import *
 
+import logging
+
 main = Blueprint('main', __name__)
 
 def get_user_manager():
@@ -42,7 +44,7 @@ def login():
 
     session.permanent = True
 
-    print(f"I found user {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
+    logging.info(f"I logged in user {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
 
     # if not session['is_member']:
     #     flash('You are not a member and cannot be given access', 'failure')
@@ -84,22 +86,6 @@ def remind():
     services.task_scheduler.run_daily_reminder(app=app)
     return "Done"
 
-@main.route('/query')
-def myquery():
-    tests = Event.get_regular_events() # type: ignore
-    print("Getting events by query")
-    for test in tests:
-        print(test)
-
-    print("getting events with filter")
-
-    tests = Event.query.filter(Event.deleted==False).all()
-    for test in tests:
-        print(test)
-
-    
-    return "Done"
-
 
 # ======================================
 # ============ DB Routes ===============
@@ -107,7 +93,7 @@ def myquery():
 
 @main.route('/thumbnail/<filename>')
 def serve_thumbnail(filename):
-    print(f"serving {filename}")
+    logging.info(f"serving {filename}")
     return send_from_directory('static/images', filename)
 
 
