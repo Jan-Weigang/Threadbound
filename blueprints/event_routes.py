@@ -84,7 +84,10 @@ def create_event():
 @decorators.login_required
 def edit_event(event_id):
     user_manager = current_app.config['user_manager']
-    user = user_manager.get_or_create_user()
+    try:
+        user = user_manager.get_or_create_user()
+    except UserNotAuthenticated:
+        return redirect(url_for("discord.login"))
     event = Event.query.get_or_404(event_id)
 
     # Ensure the user is the creator of the event
@@ -146,7 +149,10 @@ def edit_event(event_id):
 def delete_event(event_id):
     user_manager = current_app.config['user_manager']
     event_manager = current_app.config['event_manager']
-    user = user_manager.get_or_create_user()
+    try:
+        user = user_manager.get_or_create_user()
+    except UserNotAuthenticated:
+        return redirect(url_for("discord.login"))
     event = Event.query.get_or_404(event_id)
     event_date = event.start_time.date().strftime('%Y-%m-%d')
 

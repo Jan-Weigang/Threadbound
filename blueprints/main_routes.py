@@ -5,6 +5,8 @@ from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservat
 from tt_calendar import decorators
 from tt_calendar import utils
 
+from exceptions import *
+
 main = Blueprint('main', __name__)
 
 def get_user_manager():
@@ -26,7 +28,10 @@ def login():
             return redirect(url_for('discord.login'))
 
     user_manager = get_user_manager()
-    user = user_manager.get_or_create_user()
+    try:
+        user = user_manager.get_or_create_user()
+    except UserNotAuthenticated:
+        return redirect(url_for("discord.login"))
     discord_handler = get_discord_handler()
     session['is_member'] = discord_handler.is_role(user.discord_id, "member") # type: ignore
     session['is_beirat'] = discord_handler.is_role(user.discord_id, "beirat") # type: ignore

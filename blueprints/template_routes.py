@@ -5,6 +5,8 @@ from tt_calendar import decorators, utils
 from datetime import datetime
 import pytz
 
+from exceptions import *
+
 from flask import session
 
 
@@ -15,7 +17,10 @@ template_bp = Blueprint("template_bp", __name__)
 @decorators.login_required
 def create_template():
     user_manager = current_app.config['user_manager']
-    user = user_manager.get_or_create_user()
+    try:
+        user = user_manager.get_or_create_user()
+    except UserNotAuthenticated:
+        return redirect(url_for("discord.login"))
 
     # Check if the user is allowed to create a template (Beirat or Vorstand roles)
     if not session.get('is_beirat') and not session.get('is_vorstand'):
