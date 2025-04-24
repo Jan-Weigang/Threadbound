@@ -85,7 +85,7 @@ async def on_message(message):
                 event_date_str = field.name.replace("📅 ", "")
                 break
 
-        thread_name = f"{event_date_str} – {event_name[:40]}"
+        thread_name = f"📅 {event_date_str} – {event_name[:40]}"
         print(thread_name)
     else:
         print("nope")
