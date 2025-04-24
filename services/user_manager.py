@@ -44,6 +44,8 @@ class UserManager:
         nickname = self.discord_handler.get_nickname(discord_id)
         username = nickname or user_info['username']
 
+        # TODO this should probably also overwrite if username changed?
+        
         user = User.query.filter_by(discord_id=discord_id).first()
         if not user:
             user = User(discord_id=discord_id, username=username)  # type: ignore

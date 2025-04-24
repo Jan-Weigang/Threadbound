@@ -23,6 +23,11 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
+
+# TODO make bot use db instead of env for channels. 
+# probably pass in channel 
+
 # TODO "Meine Termine"
 
 # TODO restyle
@@ -39,22 +44,12 @@ load_dotenv()
 
 # TODO Event overlay show event
 
-# TODO Ticket Size better info
-
 # TODO Stammtisch edit
-
-# TODO Bottom Bar not visible in mobile phones
-# position: absolute;
-#   bottom: 1rem;
-#   background-color: white;
-#   margin:
-# auto;
-#   justify-self: center;
 
 # TODO bottom timescale not working correctly, probably needs queryAll
 
 # TODO Backup db regularly. Also at start of each redeploy.
-# TODO Use Alembic
+# TODO Delete Alembic
 # TODO Create Room Model.
 
 # TODO löschen checken und richtig nutzen, wenn  Overlaps resolven (z. B. Turnier über Stammtisch)
