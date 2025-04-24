@@ -82,13 +82,13 @@ def generate_event_embed(event, channel_id, action):
     if not action == 'cancel':
         embed.add_field(name=f"👤 {event.user.username}", value=event.publicity.name, inline=True)
         reserved_tables = ', '.join([reservation.table.name for reservation in event.reservations]) or 'N/A'
-        embed.add_field(name="reserviert", value=reserved_tables, inline=True)
+        embed.add_field(name="", value=reserved_tables, inline=True)
 
         embed.add_field(name="", value="", inline=False)
 
         # Attendees: Add the list of attendees for the event
         attendees_list = ', '.join([attendee.username for attendee in event.attendees]) or 'Keine Teilnehmer'  # If no attendees, show "Keine Teilnehmer"
-        embed.add_field(name="Teilnehmer", value=attendees_list, inline=False)
+        embed.add_field(name=f"{len(event.attendees)} Teilnehmer:", value=attendees_list, inline=False)
     
     embed.set_footer(text=f"Event ID: {event.id} - Erstellt:")
     embed.timestamp = event.time_created

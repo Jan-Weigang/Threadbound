@@ -58,10 +58,6 @@ load_dotenv()
 
 # TODO Close Reqeust hat nur einen Mention.
 
-# TODO Löschen machte noch Fehler
-
-# Können User teilnehmen, die keine Mitglieder sind?
-
 # TODO Möglichkeit für keine Posts per .env Eintragung erstellen.
 # Dies dann für Kampagnen nutzen. Wenn keine Message ID gefunden, 
 # dann einfach per DM erinnern und temporary messge ID der DM für embed nutzen?
