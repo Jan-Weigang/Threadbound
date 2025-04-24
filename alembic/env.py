@@ -23,6 +23,9 @@ from app import db, create_app
 from tt_calendar.models import *  # Import all models
 target_metadata = db.metadata
 
+print("Loaded tables:", list(target_metadata.tables.keys()))
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -52,4 +55,3 @@ if context.is_offline_mode():
         context.run_migrations()
 else:
     run_migrations_online()
-
