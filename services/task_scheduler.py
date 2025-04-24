@@ -122,6 +122,30 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
         db.session.commit()
         logging.info(f"✅ Generated {created_count} new events from templates.")
         return created_count
+    
+
+def create_discord_posts_ahead_of_events(app):
+    logging.info("📅 Running scheduled task: Create Discord posts ahead of events")
+
+    with app.app_context():
+        events = Event.get_published_regular_events().filter(
+            Event.discord_post_id.is_(None),
+            Event.discord_post_days_ahead.isnot(None)
+        ).all()
+
+        discord_handler = current_app.config['discord_handler']
+        posted_count = 0
+
+        for event in events:
+            msg_id = discord_handler.post_to_discord(event, action="create")
+            if msg_id:
+                event.discord_post_id = msg_id
+                posted_count += 1
+
+        db.session.commit()
+        logging.info(f"✅ Created Discord posts for {posted_count} events.")
+
+
 
 
 def register_scheduler_jobs(app, scheduler):
@@ -132,10 +156,16 @@ def register_scheduler_jobs(app, scheduler):
         replace_existing=True
     )
 
-    from services.task_scheduler import create_events_from_templates
     scheduler.add_job(
         func=lambda: create_events_from_templates(app=app),
         trigger=CronTrigger(hour=8, minute=0, timezone=pytz.timezone('Europe/Berlin')),
         id="generating_recurring_events",
+        replace_existing=True
+    )
+
+    scheduler.add_job(
+        func=lambda: create_discord_posts_ahead_of_events(app=app),
+        trigger=CronTrigger(hour=8, minute=30, timezone=pytz.timezone('Europe/Berlin')),
+        id="create_discord_posts_ahead_of_events",
         replace_existing=True
     )

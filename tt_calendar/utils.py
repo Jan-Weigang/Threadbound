@@ -92,6 +92,10 @@ def extract_event_form_data(request) -> dict | None:
     table_ids_str = request.form['table_ids']
     table_ids = list(map(int, table_ids_str.split(',')))
     attend_self = request.form.get('attend_self') == 'on'
+    discord_post_days_ahead = (
+        int(request.form['discord_post_days_ahead'])
+        if request.form.get('discord_post_days_ahead') else None
+    )
 
     try:
         start_datetime = datetime.strptime(f"{date}T{start_time}", '%Y-%m-%dT%H:%M')
@@ -114,7 +118,8 @@ def extract_event_form_data(request) -> dict | None:
         'start_datetime': start_datetime,
         'end_datetime': end_datetime,
         'table_ids': table_ids,
-        'attend_self': attend_self
+        'attend_self': attend_self,
+        'discord_post_days_ahead': discord_post_days_ahead
     }
 
 

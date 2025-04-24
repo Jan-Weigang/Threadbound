@@ -14,7 +14,7 @@ class EventManager:
 
     def create_event_in_db(self, user: User, *, name: str, description: str | None, game_category_id: int, event_type_id: int, publicity_id: int, 
                            start_time: datetime, end_time: datetime, table_ids: list[int], state_size: EventState = EventState.NOT_SET, attend_self: bool = False,
-                           is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None) -> Event:
+                           is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None, days_ahead: int | None = None) -> Event:
         
         new_event = Event(
             name=name,                              # type: ignore
@@ -29,7 +29,8 @@ class EventManager:
             template_id=template_id,                # type: ignore
             recurrence_rule=recurrence_rule,        # type: ignore
             state_size=state_size,                  # type: ignore
-            attend_self=attend_self                 # type: ignore
+            attend_self=attend_self,                # type: ignore
+            discord_post_days_ahead=days_ahead      # type: ignore
         )
         db.session.add(new_event)
         db.session.flush()
@@ -62,7 +63,8 @@ class EventManager:
             start_time=start_dt_utc,
             end_time=end_dt_utc,
             table_ids=form_data['table_ids'],
-            attend_self=form_data['attend_self']
+            attend_self=form_data['attend_self'],
+            days_ahead=form_data['discord_post_days_ahead']
         )
     
     def create_template_from_form(self, user: User, form_data: dict) -> Event:
@@ -90,7 +92,8 @@ class EventManager:
             end_time=end_utc,
             table_ids=form_data['table_ids'],
             is_template=True,
-            recurrence_rule=form_data.get('recurrence_rule')
+            recurrence_rule=form_data.get('recurrence_rule'),
+            days_ahead=form_data['discord_post_days_ahead']
         )
 
 
@@ -113,62 +116,11 @@ class EventManager:
             import logging
             logging.warning(f"Failed to align RRULE {rrule} — {e}")
             return dtstart
-            
-    # def align_dtstart_to_byday(self, rrule: str, dtstart: datetime) -> datetime:
-    #     """
-    #     Aligns dtstart to the weekday specified in BYDAY if necessary.
-    #     """
-    #     import re
-        
-    #     day_map = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
-    #     match = re.search(r'BYDAY=([A-Z]{2})', rrule)
-    #     if not match:
-    #         return dtstart  # no adjustment needed
-
-    #     target_day = match.group(1)
-    #     if target_day not in day_map:
-    #         return dtstart
-
-    #     current_weekday = dtstart.weekday()
-    #     target_weekday = day_map[target_day]
-    #     offset = (target_weekday - current_weekday) % 7
-    #     return dtstart + timedelta(days=offset)
-
-
-    # def create_event_in_db(self, user, form_data):
-    #     form_data['start_datetime_utc'] = utils.convert_to_utc(form_data['start_datetime'])
-    #     form_data['end_datetime_utc'] = utils.convert_to_utc(form_data['end_datetime'])
-
-    #     new_event = Event(
-    #         name=form_data['name'], # type: ignore
-    #         description=form_data['description'], # type: ignore
-    #         game_category_id=int(form_data['game_category_id']), # type: ignore
-    #         event_type_id=int(form_data['event_type_id']), # type: ignore
-    #         publicity_id=int(form_data['publicity_id']), # type: ignore
-    #         start_time=form_data['start_datetime_utc'], # type: ignore
-    #         end_time=form_data['end_datetime_utc'], # type: ignore
-    #         user_id=user.id, # type: ignore
-    #     )
-    #     db.session.add(new_event)
-
-        # try:
-        #     Reservation.query.filter_by(event_id=new_event.id).delete() # uneecessary?
-        #     self.create_reservations(user, new_event, form_data['table_ids'])
-
-        #     db.session.commit()
-
-        #     self.event_state_handler(new_event)
-
-        # except Exception as e:
-        #     db.session.rollback()
-        #     logging.error(f"Error during event creation: {e}")
-        #     raise
-
-    #     return new_event
 
 
     def update_event_in_db(self, event: Event, *, name: str, description: str | None, game_category_id: int, 
-                           event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime, table_ids: list[int]
+                           event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime, 
+                           table_ids: list[int], days_ahead: int
     ) -> Event:
         event.name = name
         event.description = description
@@ -177,6 +129,7 @@ class EventManager:
         event.publicity_id = publicity_id
         event.start_time = start_time
         event.end_time = end_time
+        event.discord_post_days_ahead = days_ahead
 
         event.is_published = False
 
@@ -206,7 +159,8 @@ class EventManager:
             publicity_id=int(form_data['publicity_id']),
             start_time=start_utc,
             end_time=end_utc,
-            table_ids=form_data['table_ids']
+            table_ids=form_data['table_ids'],
+            days_ahead=form_data['discord_post_days_ahead']
         )
     
 
@@ -227,36 +181,6 @@ class EventManager:
         else:
             logging.info(f"📅 Date {date_str} already excluded for template {template.id}")
 
-
-    # def update_event_in_db(self, event, user, form_data):
-    #     form_data['start_datetime_utc'] = utils.convert_to_utc(form_data['start_datetime'])
-    #     form_data['end_datetime_utc'] = utils.convert_to_utc(form_data['end_datetime'])
-
-    #     event.name = form_data['name']
-    #     event.description = form_data['description']
-    #     event.game_category_id = int(form_data['game_category_id'])
-    #     event.event_type_id = int(form_data['event_type_id'])
-    #     event.publicity_id = int(form_data['publicity_id'])
-    #     event.start_time = form_data['start_datetime_utc']
-    #     event.end_time = form_data['end_datetime_utc']
-    #     event.user_id = user.id
-
-    #     event.is_published = False
-
-    #     try:
-    #         Reservation.query.filter_by(event_id=event.id).delete()
-    #         self.create_reservations(user, event, form_data['table_ids'])
-
-    #         db.session.commit()
-
-    #         self.event_state_handler(event)
-
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         logging.error(f"Error during event update: {e}")
-    #         raise
-
-    #     return event
 
     def create_reservations(self, event, table_ids):
         for table_id in table_ids:

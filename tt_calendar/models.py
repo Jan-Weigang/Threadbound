@@ -100,7 +100,6 @@ class EventType(db.Model):
     color = db.Column(db.String(7), nullable=False)
     should_not_post_to_discord = db.Column(db.Boolean, nullable=False, default=False)
 
-
 class Publicity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
@@ -156,6 +155,7 @@ class Event(db.Model, SoftDeleteMixin):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     discord_post_id = db.Column(db.String(255), nullable=True)
+    discord_post_days_ahead = db.Column(db.Integer, nullable=True, default=6)
     attend_self = db.Column(db.Boolean, nullable=False, default=False)
 
     # Templating
@@ -204,6 +204,10 @@ class Event(db.Model, SoftDeleteMixin):
     @classmethod
     def get_active_events(cls):
         return cls.query.filter_by(deleted=False)
+    
+    @classmethod
+    def get_published_regular_events(cls):
+        return cls.query.filter_by(is_template=False, deleted=False, is_published=True)
     
     @classmethod
     def get_template_events(cls):

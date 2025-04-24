@@ -4,7 +4,8 @@ import discord_bot
 from discord_bot.ticketing import create_ticket, change_resolved_ticket_view  # adjust path as needed
 
 import asyncio
-import datetime, pytz
+import pytz
+from datetime import datetime
 import logging
 
 # discord_handler.py
@@ -59,9 +60,23 @@ class DiscordHandler:
             logging.info(f"Skipping Discord post: publicity level '{event.publicity.name}' blocks posting.")
             return
         
+        # Skip if discord_post_days_ahead is set and not yet due
+        if event.discord_post_days_ahead:
+            event_date = event.start_time.date()
+            today = datetime.now(pytz.utc).date()
+            days_until = (event_date - today).days
+            if days_until > event.discord_post_days_ahead:
+                logging.info(f"Skipping post: event {event.name} is in {days_until} days, threshold is {event.discord_post_days_ahead}")
+                return
+        else:
+            logging.info(f"Skipping post: event {event.name} has requested to not post on discord.")
+            return
+
+                
+        # Skip if no channel is set
         channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
         if not channel_id:
-            logging.info("can't create post")
+            logging.error("can't create post")
             return
         
         logging.info(f"discord handling with action {action}")
