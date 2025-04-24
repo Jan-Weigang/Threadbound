@@ -23,6 +23,29 @@
                 </select>
             </div>
         {% endfor %}
+
+
+        <h2>Event Types (Block Posting)</h2>
+        {% for etype in event_types %}
+            <div>
+                <label>
+                    <input type="checkbox" name="etype_block_{{ etype.id }}" {% if etype.should_not_post_to_discord %}checked{% endif %}>
+                    {{ etype.name }}
+                </label>
+            </div>
+        {% endfor %}
+
+        <h2>Publicity Levels (Block Posting)</h2>
+        {% for publicity in publicities %}
+            <div>
+                <label>
+                    <input type="checkbox" name="publicity_block_{{ publicity.id }}" {% if publicity.should_not_post_to_discord %}checked{% endif %}>
+                    {{ publicity.name }}
+                </label>
+            </div>
+        {% endfor %}
+
+        
         <button type="submit">Save Settings</button>
     </form>
 

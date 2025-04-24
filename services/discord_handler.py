@@ -49,6 +49,16 @@ class DiscordHandler:
 
 
     def post_to_discord(self, event, action='update'):
+        # Skip if the event type blocks posting
+        if event.event_type and event.event_type.should_not_post_to_discord:
+            logging.info(f"Skipping Discord post: event type '{event.event_type.name}' blocks posting.")
+            return
+
+        # Skip if the publicity level blocks posting
+        if event.publicity and event.publicity.should_not_post_to_discord:
+            logging.info(f"Skipping Discord post: publicity level '{event.publicity.name}' blocks posting.")
+            return
+        
         channel_id = event.game_category.channel.discord_channel_id if event.game_category and event.game_category.channel else None
         if not channel_id:
             logging.info("can't create post")

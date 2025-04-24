@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, session, render_template, request, flash, send_from_directory, current_app
 from flask_dance.contrib.discord import discord
 
-from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservation
+from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservation, EventType, Publicity
 from tt_calendar import decorators
 from tt_calendar import utils
 
@@ -64,14 +64,34 @@ def settings():
             game_category = db.session.get(GameCategory, category_id)
             if game_category and channel_id.isdigit():
                 game_category.discord_channel_id = int(channel_id)
+
+        # Update EventType "should_not_post_to_discord"
+        for etype in EventType.query.all():
+            key = f"etype_block_{etype.id}"
+            etype.should_not_post_to_discord = key in request.form
+
+        # Update Publicity "should_not_post_to_discord"
+        for publicity in Publicity.query.all():
+            key = f"publicity_block_{publicity.id}"
+            publicity.should_not_post_to_discord = key in request.form
+
         db.session.commit()
         flash('Settings updated successfully!', 'success')
         return redirect(url_for('main.settings'))
 
-    # Load data for GET request
+    # Load data for GET
     game_categories = GameCategory.query.all()
     discord_channels = DiscordChannel.query.all()
-    return render_template('settings.html', game_categories=game_categories, discord_channels=discord_channels)
+    event_types = EventType.query.all()
+    publicities = Publicity.query.all()
+
+    return render_template(
+        'settings.html',
+        game_categories=game_categories,
+        discord_channels=discord_channels,
+        event_types=event_types,
+        publicities=publicities
+    )
 
 
 # ======================================

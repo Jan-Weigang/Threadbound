@@ -97,12 +97,15 @@ class EventType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     events = db.relationship('Event', backref='event_type', lazy=True)
-    color = db.Column(db.String(7), nullable=False) 
+    color = db.Column(db.String(7), nullable=False)
+    should_not_post_to_discord = db.Column(db.Boolean, nullable=False, default=False)
+
 
 class Publicity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     events = db.relationship('Event', backref='publicity', lazy=True)
+    should_not_post_to_discord = db.Column(db.Boolean, nullable=False, default=False)
 
 class Table(db.Model):
     id = db.Column(db.Integer, primary_key=True)

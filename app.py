@@ -25,9 +25,6 @@ load_dotenv()
 
 # TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
 
-# TODO make bot use db instead of env for channels. 
-# probably pass in channel 
-
 # TODO "Meine Termine"
 
 # TODO restyle
@@ -50,8 +47,6 @@ load_dotenv()
 # TODO Delete Alembic
 # TODO Create Room Model.
 
-# TODO löschen checken und richtig nutzen, wenn  Overlaps resolven (z. B. Turnier über Stammtisch)
-
 # TODO templates edit
 
 # TODO Close Reqeust hat nur einen Mention.
@@ -70,8 +65,6 @@ load_dotenv()
 # get overlapping events needs to also check virtual regulars.
 
 # TODO Bekannte Collisionen bei Check Availability ausschließen.
-
-# TODO dynamic css @Container and @media
 
 # api/resolve_overlap 404 error?
 
@@ -99,9 +92,6 @@ load_dotenv()
 # TODO Erstellt man einen Zukunftstermin, kann man den über Stammtische hinwegplanen und das Programm erstellt dann das Event und verlinkt den Stammtisch-Organisator. Der kann dann direkt in Discord zustimmen (sodass der Stammtisch in der Woche entfällt), oder ablehnen (womit das Event gelöscht wird). So könnte man größere Vereinsevents direkt zur Absprache führen und die drichtigen Personen per Chat zusammenbringen
 
 # TODO Models anpassen mit "Template_ID" als Link, nullbar, default null.
-
-
-# TODO (1) Alembic - für Migration Changes und ICS Recurrence
 
 
 # TODO auto archive old threads of events
@@ -136,8 +126,6 @@ load_dotenv()
 # TODO DSGVO Datenabfrage?
 
 # Feedback 10.4.2025
-
-# Bei Event erstellung (Ansicht) eine Checkbox für teilnehmen, die standardmäßig an ist?
 
 # Bei Editieren eine falsche Anzeige? Rollenspiel aber mit BrettspielwürfeL?
 # Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
