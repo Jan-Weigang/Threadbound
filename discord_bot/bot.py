@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 
-from .config import discord_token, kalender_channels, guild_id, guild_roles
+from .config import discord_token, guild_id, guild_roles
 from .ticketing import OverlapTicketView, SizeTicketView, CloseOnlyTicketView, reaction_close_check
 
 
@@ -51,69 +51,68 @@ async def on_message(message):
     if message.author != bot.user:
         return  # Skip processing if the message is from the bot itself
 
-    if message.channel.id in kalender_channels.values():
-        event_id = None
-        if message.embeds:
-            embed = message.embeds[0]
-            footer_text = embed.footer.text
-            if footer_text and "Event ID: " in footer_text:
-                event_id = footer_text.split("Event ID: ")[-1][:12]  # Get the 12 characters after "Event ID: "
+    event_id = None
+    if message.embeds:
+        embed = message.embeds[0]
+        footer_text = embed.footer.text
+        if footer_text and "Event ID: " in footer_text:
+            event_id = footer_text.split("Event ID: ")[-1][:12]  # Get the 12 characters after "Event ID: "
 
-        if not event_id:
-            logging.info("Event ID not found in the embed footer.")
-            return
+    if not event_id:
+        logging.info("Event ID not found in the embed footer.")
+        return
 
-        # Create the buttons
-        view = discord.ui.View()  # View holds all the interactive components
-        view.add_item(discord.ui.Button(label="Ich bin dabei!", style=discord.ButtonStyle.success, custom_id="attend"))
-        # view.add_item(discord.ui.Button(label="Nur vielleicht...", style=discord.ButtonStyle.success, custom_id="maybe"))
-        view.add_item(discord.ui.Button(label="Ich kann nicht.", style=discord.ButtonStyle.primary, custom_id="not_attend"))
+    # Create the buttons
+    view = discord.ui.View()  # View holds all the interactive components
+    view.add_item(discord.ui.Button(label="Ich bin dabei!", style=discord.ButtonStyle.success, custom_id="attend"))
+    # view.add_item(discord.ui.Button(label="Nur vielleicht...", style=discord.ButtonStyle.success, custom_id="maybe"))
+    view.add_item(discord.ui.Button(label="Ich kann nicht.", style=discord.ButtonStyle.primary, custom_id="not_attend"))
 
-        server_name = os.getenv('SERVER_NAME')
-        ics_url = f"https://{server_name}/ics/event/{event_id}"
-        view.add_item(discord.ui.Button(label="ICS", style=discord.ButtonStyle.link, url=ics_url))
+    server_name = os.getenv('SERVER_NAME')
+    ics_url = f"https://{server_name}/ics/event/{event_id}"
+    view.add_item(discord.ui.Button(label="ICS", style=discord.ButtonStyle.link, url=ics_url))
 
-        # Check if the message contains only an embed
-        if message.embeds:
-            print("yeyjlkej")
-            embed = message.embeds[0]
-            event_date_str = "Unbekannt"
-            event_name = message.embeds[0].title if message.embeds[0].title else "Discussion"
+    # Check if the message contains only an embed
+    if message.embeds:
+        print("yeyjlkej")
+        embed = message.embeds[0]
+        event_date_str = "Unbekannt"
+        event_name = message.embeds[0].title if message.embeds[0].title else "Discussion"
 
-            # Try to get the date from the first field name
-            for field in embed.fields:
-                if field.name.startswith("📅 "):
-                    event_date_str = field.name.replace("📅 ", "")
-                    break
+        # Try to get the date from the first field name
+        for field in embed.fields:
+            if field.name.startswith("📅 "):
+                event_date_str = field.name.replace("📅 ", "")
+                break
 
-            thread_name = f"{event_date_str} – {event_name[:40]}"
-            print(thread_name)
-        else:
-            print("nope")
-            # Use the message content as the thread name (limit to 50 characters)
-            thread_name = f"{message.content[:50]}" if message.content else "Discussion"
+        thread_name = f"{event_date_str} – {event_name[:40]}"
+        print(thread_name)
+    else:
+        print("nope")
+        # Use the message content as the thread name (limit to 50 characters)
+        thread_name = f"{message.content[:50]}" if message.content else "Discussion"
 
-        # Create a thread for discussion if the channel allows it
-        if isinstance(message.channel, discord.TextChannel):
-            try:
-                # Create the thread attached to the message
-                thread = await message.create_thread(
-                    name=thread_name, auto_archive_duration=10080)  # 1440 is for 24-hour archive duration
-                await thread.send("Teilnahmeknöpfe für den Thread.", view=view)
-            except discord.Forbidden:
-                logging.error("Bot does not have permission to create threads in this channel.")
-            except discord.HTTPException as e:
-                logging.error(f"Failed to create thread: {e}")
+    # Create a thread for discussion if the channel allows it
+    if isinstance(message.channel, discord.TextChannel):
+        try:
+            # Create the thread attached to the message
+            thread = await message.create_thread(
+                name=thread_name, auto_archive_duration=10080)  # 1440 is for 24-hour archive duration
+            await thread.send("Teilnahmeknöpfe für den Thread.", view=view)
+        except discord.Forbidden:
+            logging.error("Bot does not have permission to create threads in this channel.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to create thread: {e}")
 
-        # Create a thread for discussion if the channel allows it
-        if isinstance(message.channel, discord.TextChannel):
-            try:
-                # Create the thread attached to the message
-                await message.edit(view=view)
-            except discord.Forbidden:
-                logging.error("Bot does not have permission to create threads in this channel.")
-            except discord.HTTPException as e:
-                logging.error(f"Failed to create thread: {e}")
+    # Create a thread for discussion if the channel allows it
+    if isinstance(message.channel, discord.TextChannel):
+        try:
+            # Create the thread attached to the message
+            await message.edit(view=view)
+        except discord.Forbidden:
+            logging.error("Bot does not have permission to create threads in this channel.")
+        except discord.HTTPException as e:
+            logging.error(f"Failed to create thread: {e}")
 
 
 

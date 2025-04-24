@@ -15,16 +15,6 @@ if not discord_token_str or not isinstance(discord_token_str, str):
 discord_token = str(discord_token_str)
 
 
-# Parsing CHANNELS as JSON from ENV
-kalender_channels_json = os.getenv('CHANNELS')
-if not kalender_channels_json:
-    raise EnvironmentError("CHANNELS must be defined and cannot be empty")
-try:
-    kalender_channels = json.loads(kalender_channels_json)
-except json.JSONDecodeError:
-    raise ValueError("CHANNELS must be valid JSON")
-
-
 # Validating necessary intergers from ENV
 guild_id_str = os.getenv('GUILD_ID')
 if not guild_id_str or not guild_id_str.isdigit():

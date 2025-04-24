@@ -46,8 +46,6 @@ load_dotenv()
 
 # TODO Stammtisch edit
 
-# TODO bottom timescale not working correctly, probably needs queryAll
-
 # TODO Backup db regularly. Also at start of each redeploy.
 # TODO Delete Alembic
 # TODO Create Room Model.
