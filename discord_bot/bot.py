@@ -77,7 +77,7 @@ async def on_message(message):
         print("yeyjlkej")
         embed = message.embeds[0]
         event_date_str = "Unbekannt"
-        event_name = message.embeds[0].title if message.embeds[0].title else "Discussion"
+        event_name = message.embeds[0].title if message.embeds[0].title else "Event"
 
         # Try to get the date from the first field name
         for field in embed.fields:
@@ -85,7 +85,7 @@ async def on_message(message):
                 event_date_str = field.name.replace("📅 ", "")
                 break
 
-        thread_name = f"📅 {event_date_str} – {event_name[:40]}"
+        thread_name = f"📅 {event_date_str[:6]} – {event_name[:40]}"
         print(thread_name)
     else:
         print("nope")
