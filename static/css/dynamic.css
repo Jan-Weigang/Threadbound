@@ -58,6 +58,12 @@ body {
 }
 .layout-wrapper > .layout-footer {
     grid-area: footer;
+    position: absolute;
+    bottom: 1rem;
+    background-color: white;
+    margin: auto;
+    justify-self: center;
+
 }
 .calendar-container {
     display: flex;
