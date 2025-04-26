@@ -23,14 +23,9 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Eigene Events oben Stammtische anzeigen
+
 # TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
-
-# TODO "Meine Termine"
-
-# TODO restyle
-# https://discord.com/channels/581755152609050624/1361420011599560915/1361629919637147708
-
-# Ungebundene Termine?
 
 # TODO Lageplan
 

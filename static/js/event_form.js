@@ -25,10 +25,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isEditMode) {
         setFieldsForEditing();
         const attendCheckBox = document.getElementById('attend_self_wrapper');
+        if (attendCheckBox) {
+            attendCheckBox.style.display = 'none';
+            attendCheckBox.checked = false;
+        }
         const attendLabel = document.getElementById('attend_self_label');
-        attendCheckBox.style.display = 'none';
-        attendLabel.style.display = 'none';
-        attendCheckBox.checked = false;
+        if (attendLabel) {
+            attendLabel.style.display = 'none';
+        }
+        
+        
+        
     }
 
     checkDateWarning();
@@ -321,7 +328,6 @@ function setFieldsForEditing() {
     document.getElementById('startTime').value = eventData.getAttribute('data-start-time');
     document.getElementById('endTime').value = eventData.getAttribute('data-end-time');
 
-    
     // Set selected game category
     var gameCategoryId = eventData.getAttribute('data-game-category-id');
     if (gameCategoryId) {

@@ -109,6 +109,7 @@ def reservation_popup(event_id):
         'id': reservation.id,
         'user_name': reservation.user.username,
         'event_id': reservation.event_id,
+        'template_id': reservation.associated_event.template_id,
         'date': reservation.associated_event.start_time.strftime('%d.%m.%Y'),
         'start_time': reservation.associated_event.start_time.strftime('%H:%M'),
         'end_time': reservation.associated_event.end_time.strftime('%H:%M'),

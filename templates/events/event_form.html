@@ -191,10 +191,21 @@
 
             <label>ab dem Datum (s.o.)</label><br>
 
+            <label for="end_template" id="end_template_label"></label>
+            <div id="end_template_wrapper"><input type="checkbox" name="end_template" id="end_template" checked style="justify-self: start;"> Ende des Stammtisches planen</div>
+
+            <label for="end-date" class="end-field">Endet am:</label>
+            <input type="date" name="end-date" id="end-date" class="end-field">
+
             <button type="submit" id="templateSubmitButton" style="display:block">Stammtisch beantragen!</button>
 
             <script>
                 const freqSelect = document.getElementById("frequency-select");
+                const intervalSelect = document.querySelector('select[name="interval"]');
+                const bydaySelect = document.querySelector('select[name="byday"]');
+                const bydaySingleSelect = document.querySelector('select[name="byday_single"]');
+                const bysetposSelect = document.querySelector('select[name="bysetpos"]');
+
             
                 function toggleRecurrenceFields() {
                     const isWeekly = freqSelect.value === "WEEKLY";
@@ -205,10 +216,76 @@
                         el.style.display = isWeekly ? "none" : "block";
                     });
                 }
+
+                const endTemplate = document.getElementById('end_template');
+                const endDate = document.getElementById('end-date');
+
+                function toggleEndFields() {
+                    const showEndFields = endTemplate.checked;
+                    document.querySelectorAll(".end-field").forEach(el => {
+                        el.style.display = showEndFields ? "block" : "none";
+                    });
+                }
             
                 freqSelect.addEventListener("change", toggleRecurrenceFields);
-                document.addEventListener("DOMContentLoaded", toggleRecurrenceFields); // Ensure correct initial state
+                endTemplate.addEventListener("change", toggleEndFields);
+                document.addEventListener("DOMContentLoaded", () => {
+                    toggleRecurrenceFields();
+                    toggleEndFields();
+                });
             </script>
+
+
+            {% if event and event.recurrence_rule %}
+            <script>
+                (function() {
+                    const rruleParts = "{{ event.recurrence_rule }}".split(';').reduce((acc, part) => {
+                        const [key, value] = part.split('=');
+                        if (key && value) acc[key] = value;
+                        return acc;
+                    }, {});
+
+                    if (rruleParts['FREQ']) {
+                        freqSelect.value = rruleParts['FREQ'];
+                    }
+                    if (rruleParts['INTERVAL']) {
+                        intervalSelect.value = rruleParts['INTERVAL'];
+                    }
+                    if (rruleParts['BYDAY']) {
+                        const byday = rruleParts['BYDAY'];
+                        const match = byday.match(/^([1-4]?)(MO|TU|WE|TH|FR|SA|SU)$/);
+
+                        if (match) {
+                            const [, number, day] = match;
+                            if (number) {
+                                // Has a number → monthly
+                                bysetposSelect.value = number;
+                                bydaySingleSelect.value = day;
+                            } else {
+                                // No number → weekly
+                                bydaySelect.value = day;
+                            }
+                        }
+                    }
+                    if (rruleParts['UNTIL']) {
+                        endTemplate.checked = true;
+                        if (rruleParts['UNTIL'].length >= 8) {
+                            const untilRaw = rruleParts['UNTIL'].slice(0, 8); // get '20240623'
+                            const formattedUntil = `${untilRaw.slice(0,4)}-${untilRaw.slice(4,6)}-${untilRaw.slice(6,8)}`;
+                            endDate.value = formattedUntil;
+                        }
+                    } else {
+                        endTemplate.checked = false;
+                    }
+                    toggleRecurrenceFields();
+                    toggleEndFields();
+                })();
+
+            </script>
+            {% endif %}
+
+
+
             
 
         {% else %}

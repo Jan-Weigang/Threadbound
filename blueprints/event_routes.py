@@ -7,6 +7,8 @@ from flask import session
 
 from exceptions import *
 
+import logging
+
 
 event_bp = Blueprint('event_bp', __name__)
 
@@ -40,8 +42,10 @@ def create_event():
         # Create the event and reservations
         event_manager = current_app.config['event_manager']
         new_event = event_manager.create_event_from_form(user, form_data)
+        logging.info(f"Created event {new_event.name}")
 
         event_date = form_data['start_datetime'].date().strftime('%Y-%m-%d')
+        flash("Template created successfully.", "success")
         return redirect(url_for('cal_bp.view', date=event_date))
 
 
@@ -56,6 +60,7 @@ def create_event():
     event_types = EventType.query.all()
     publicity_levels = Publicity.query.all()
     tables = Table.query.all()
+
     return render_template('events/event_form.html', 
                            game_categories=game_categories, 
                            event_types=event_types, 
@@ -118,6 +123,7 @@ def edit_event(event_id):
     requested_start_time = event.start_time.strftime('%H:%M')
     requested_end_time = event.end_time.strftime('%H:%M')
     requested_date = event.start_time.date()
+
     return render_template('events/event_form.html', 
                            event=event, 
                            game_categories=game_categories, 
@@ -157,6 +163,5 @@ def delete_event(event_id):
         return redirect(url_for('cal_bp.view', date=event_date))
     except Exception as e:
         # If there is an error, roll back the transaction
-        db.session.rollback()
         flash(f"An error occurred while deleting the event: {e}", "danger")
         return redirect(url_for('event_bp.edit_event', event_id=event_id))

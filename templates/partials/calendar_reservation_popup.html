@@ -47,6 +47,11 @@
             <div class="popup-footer-buttons">
                 <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
                 <button class="edit-popup" onclick="window.location.href='{{ url_for('ics_bp.get_event_ics', event_id=reservation.event_id) }}'">ICS Laden</button>
+                {% if reservation.template_id %}
+                    <button class="edit-popup" onclick="window.location.href='{{ url_for('template_bp.edit_template', event_id=reservation.template_id) }}'">
+                        Vorlage bearbeiten
+                    </button>
+                {% endif %}
                 <button class="close-popup" onclick="this.closest('.popup-overlay').remove()">Schließen</button>
             </div>
         </div>

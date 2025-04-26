@@ -120,8 +120,9 @@ class EventManager:
 
     def update_event_in_db(self, event: Event, *, name: str, description: str | None, game_category_id: int, 
                            event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime, 
-                           table_ids: list[int], days_ahead: int
+                           table_ids: list[int], days_ahead: int, rrule=None
     ) -> Event:
+        logging.info(f"Updating Event {event.name} {event.is_template=} with rrule {event.recurrence_rule}")
         event.name = name
         event.description = description
         event.game_category_id = game_category_id
@@ -130,6 +131,11 @@ class EventManager:
         event.start_time = start_time
         event.end_time = end_time
         event.discord_post_days_ahead = days_ahead
+
+        if event.is_template:
+            if not rrule:
+                raise ValueError(f"Template event {event.id} must have a recurrence rule.")
+            event.recurrence_rule = rrule
 
         event.is_published = False
 
@@ -149,19 +155,34 @@ class EventManager:
     def update_event_from_form(self, event: Event, form_data: dict) -> Event:
         start_utc = utils.convert_to_utc(form_data['start_datetime'])
         end_utc = utils.convert_to_utc(form_data['end_datetime'])
-
-        return self.update_event_in_db(
-            event=event,
-            name=form_data['name'],
-            description=form_data.get('description'),
-            game_category_id=int(form_data['game_category_id']),
-            event_type_id=int(form_data['event_type_id']),
-            publicity_id=int(form_data['publicity_id']),
-            start_time=start_utc,
-            end_time=end_utc,
-            table_ids=form_data['table_ids'],
-            days_ahead=form_data['discord_post_days_ahead']
-        )
+        
+        if event.is_template:
+            return self.update_event_in_db(
+                event=event,
+                name=form_data['name'],
+                description=form_data.get('description'),
+                game_category_id=int(form_data['game_category_id']),
+                event_type_id=int(form_data['event_type_id']),
+                publicity_id=int(form_data['publicity_id']),
+                start_time=start_utc,
+                end_time=end_utc,
+                table_ids=form_data['table_ids'],
+                days_ahead=form_data['discord_post_days_ahead'],
+                rrule=form_data['recurrence_rule']
+            )
+        else:
+            return self.update_event_in_db(
+                event=event,
+                name=form_data['name'],
+                description=form_data.get('description'),
+                game_category_id=int(form_data['game_category_id']),
+                event_type_id=int(form_data['event_type_id']),
+                publicity_id=int(form_data['publicity_id']),
+                start_time=start_utc,
+                end_time=end_utc,
+                table_ids=form_data['table_ids'],
+                days_ahead=form_data['discord_post_days_ahead']
+            )
     
 
     def exclude_date_from_template(self, template: Event, date: dt.date):
