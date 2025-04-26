@@ -31,24 +31,12 @@ load_dotenv()
 
 # TODO Event overlay show event
 
-# TODO Stammtisch edit
-
 # TODO Create Room Model.
-
-# TODO templates edit
 
 # TODO Close Reqeust hat nur einen Mention.
 
-# TODO Möglichkeit für keine Posts per .env Eintragung erstellen.
-# Dies dann für Kampagnen nutzen. Wenn keine Message ID gefunden, 
-# dann einfach per DM erinnern und temporary messge ID der DM für embed nutzen?
-
 # TODO Kategorien mit | o. ä. trennen und so im UI (event form) Unterkategorien erschaffen.
 # Würde dann einfach an das originale Feld drangehängt werden. Geht rein über UI/JS.
-
-# TODO Stammtische darstellen und nicht hovern
-# TODO Stammtisch, eigene Termine nicht anzeigen, nur virtuelle
-# TODO Stammtische editieren in popup richtig festlegen.
 
 # get overlapping events needs to also check virtual regulars.
 

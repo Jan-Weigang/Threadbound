@@ -166,4 +166,9 @@ def popup_userevents():
         (Event.attendees.any(id=user.id))
     ).order_by(Event.start_time).all()
 
-    return render_template('partials/popup_userevents.html', events=events, current_user_id=user.id)
+    # Fetch own templates
+    templates = Event.get_template_events().filter(
+        Event.user_id == user.id
+    )
+
+    return render_template('partials/popup_userevents.html', events=events, templates=templates, current_user_id=user.id)

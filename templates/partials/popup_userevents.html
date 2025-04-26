@@ -15,6 +15,36 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for event in templates %}
+                        <tr class="{{ 'created-event' if event.user_id == current_user_id }}">
+                            <td>{{ event.start_time.strftime('%a') }}</td>
+                            <td>{{ event.start_time.strftime('%d.%m.%Y') }}</td>
+                            <td>{{ event.start_time.strftime('%H:%M') }}</td>
+                            <td>{{ event.name }}</td>
+                            <td>
+                                {% if event.get_discord_message_url() %}
+                                    <a href="https://{{ event.get_discord_message_url() }}" target="_blank" style="font-size: 0.9em;">
+                                        Discord-Post
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if event.user_id == current_user_id %}
+                                    <a href="{{ url_for('template_bp.edit_template', event_id=event.id) }}" class="edit-link">
+                                        Bearbeiten
+                                    </a>
+                                {% else %}
+                                    –
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Keine Veranstaltungen gefunden.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
                     {% for event in events %}
                         <tr class="{{ 'created-event' if event.user_id == current_user_id }}">
                             <td>{{ event.start_time.strftime('%a') }}</td>
@@ -24,14 +54,14 @@
                             <td>
                                 {% if event.get_discord_message_url() %}
                                     <a href="https://{{ event.get_discord_message_url() }}" target="_blank" style="font-size: 0.9em;">
-                                        🔗 Discord-Post
+                                        Discord-Post
                                     </a>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if event.user_id == current_user_id %}
                                     <a href="{{ url_for('event_bp.edit_event', event_id=event.id) }}" class="edit-link">
-                                        ✏️ Bearbeiten
+                                        Bearbeiten
                                     </a>
                                 {% else %}
                                     –
