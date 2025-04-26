@@ -213,6 +213,15 @@ class Event(db.Model, SoftDeleteMixin):
     def get_template_events(cls):
         return cls.query.filter_by(is_template=True, deleted=False)
     
+    @classmethod
+    def get_events_linked_to_template(cls, template_id):
+        """Get all non-deleted events linked to a specific template."""
+        return cls.query.filter(
+            cls.template_id == template_id,
+            cls.deleted == False
+        )
+
+    
     def get_discord_message_url(self):
         if self.discord_post_id and self.game_category and self.game_category.channel: # type: ignore
             server_id = self.game_category.channel.server.discord_server_id # type: ignore
