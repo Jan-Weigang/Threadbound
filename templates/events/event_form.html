@@ -153,18 +153,18 @@
 
         
         {% if is_template %}
-            <label>Wiederholung:</label>
+            <label>Rhythmus:</label>
             <select name="frequency" id="frequency-select">
                 <option value="WEEKLY">Wöchentlich</option>
-                <option value="MONTHLY">Monatlich (z. B. jeder 2. Sonntag)</option>
+                <option value="MONTHLY">Monatlich</option>
             </select>
 
             <label class="weekly-field">Intervall:</label>
             <select class="weekly-field" name="interval">
-                <option value="1">Jeden</option>
-                <option value="2">Jeden 2.</option>
-                <option value="3">Jeden 3.</option>
-                <option value="4">Jeden 4.</option>
+                <option value="1">Alle Wochen</option>
+                <option value="2">Alle 2 Wochen</option>
+                <option value="3">Alle 3 Wochen</option>
+                <option value="4">Alle 4 Wochen</option>
             </select>
 
             <label class="weekly-field">Wochentag:</label>
@@ -174,12 +174,12 @@
                 {% endfor %}
             </select>
 
-            <label class="monthly-field">Position im Monat:</label>
+            <label class="monthly-field">Lage im Monat:</label>
             <select class="monthly-field" name="bysetpos">
-                <option value="1">Jeden 1.</option>
-                <option value="2">Jeden 2.</option>
-                <option value="3">Jeden 3.</option>
-                <option value="4">Jeden 4.</option>
+                <option value="1">Jeden 1. im Monat</option>
+                <option value="2">Jeden 2. im Monat</option>
+                <option value="3">Jeden 3. im Monat</option>
+                <option value="4">Jeden 4. im Monat</option>
             </select>
 
             <label class="monthly-field">Wochentag?</label>
