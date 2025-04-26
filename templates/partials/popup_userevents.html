@@ -1,0 +1,91 @@
+<div class="popup-overlay" style="inset: 0; margin: 0; position: fixed; backdrop-filter: blur(3px);">
+    <div class="reservation-popup">
+        <div class="popup-content">
+            <div class="popup-heading">📅 Deine Veranstaltungen</div><br>
+
+            <table class="events-table">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Datum</th>
+                        <th>Start</th>
+                        <th>Event</th>
+                        <th>Link</th>
+                        <th>Editieren</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr class="{{ 'created-event' if event.user_id == current_user_id }}">
+                            <td>{{ event.start_time.strftime('%a') }}</td>
+                            <td>{{ event.start_time.strftime('%d.%m.%Y') }}</td>
+                            <td>{{ event.start_time.strftime('%H:%M') }}</td>
+                            <td>{{ event.name }}</td>
+                            <td>
+                                {% if event.get_discord_message_url() %}
+                                    <a href="https://{{ event.get_discord_message_url() }}" target="_blank" style="font-size: 0.9em;">
+                                        🔗 Discord-Post
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if event.user_id == current_user_id %}
+                                    <a href="{{ url_for('event_bp.edit_event', event_id=event.id) }}" class="edit-link">
+                                        ✏️ Bearbeiten
+                                    </a>
+                                {% else %}
+                                    –
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Keine Veranstaltungen gefunden.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        <div class="popup-footer">
+            <div class="popup-footer-buttons">
+                <button class="close-popup" onclick="this.closest('.popup-overlay').remove()">Schließen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    grid-column: span 2;
+}
+.events-table th, .events-table td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: left;
+}
+.events-table .created-event {
+    background-color: #e1bc2d55; /* Light highlight */
+    font-weight: bold;
+}
+</style>
+
+<script>
+document.addEventListener('click', function(event) {
+    const overlay = document.querySelector('.popup-overlay');
+    const popup = document.querySelector('.reservation-popup');
+
+    if (overlay && popup && !popup.contains(event.target)) {
+        overlay.remove();
+    }
+});
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelector('.popup-overlay')?.remove();
+    }
+});
+</script>

@@ -4,7 +4,7 @@ from flask_dance.contrib.discord import discord
 from tt_calendar.models import *
 from tt_calendar import utils
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import json, logging
 
@@ -34,6 +34,7 @@ def view(view_type):
     user['beirat'] = "Ja" if session.get('is_beirat', None) else "Nein"
     user['vorstand'] = "Ja" if session.get('is_vorstand', None) else "Nein"
     user['admin'] = "Ja" if session.get('is_admin', None) else "Nein"
+    user['id'] = session.get('user_id', None)
 
     logging.info(f"Calendar opened by {user['name']}, {user['is_member']=}")
 
@@ -145,3 +146,23 @@ def popup_shortcuts():
 @cal.route('/tutorial')
 def popup_tutorial():
     return render_template('partials/popup_tutorial.html')
+
+
+@cal.route('/calendar/popup-userevents')
+def popup_userevents():
+    user = User.query.get(session['user_id'])
+    assert user
+
+    now = datetime.now(pytz.timezone('Europe/Berlin'))
+    week_ago = now - timedelta(days=7)
+    week_later = now + timedelta(days=7)
+
+    events = Event.query.filter(
+        Event.start_time.between(week_ago, week_later),
+        Event.deleted == False,
+    ).filter(
+        (Event.user_id == user.id) | 
+        (Event.attendees.any(id=user.id))
+    ).order_by(Event.start_time).all()
+
+    return render_template('partials/popup_userevents.html', events=events, current_user_id=user.id)

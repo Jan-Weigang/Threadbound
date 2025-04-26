@@ -38,7 +38,6 @@ load_dotenv()
 
 # TODO Stammtisch edit
 
-# TODO Backup db regularly. Also at start of each redeploy.
 # TODO Create Room Model.
 
 # TODO templates edit

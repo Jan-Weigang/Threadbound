@@ -312,7 +312,7 @@ body {
     z-index: 1000;
     width: clamp(30ch,50vw,80ch);
     /* white-space: pre-wrap; */
-    max-height: 100%;
+    max-height: 80%;
     border-radius: .5rem;
 
     overflow-y: auto;

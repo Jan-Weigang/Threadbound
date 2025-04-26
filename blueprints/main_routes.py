@@ -41,6 +41,7 @@ def login():
     session['is_vorstand'] = discord_handler.is_role(user.discord_id, "vorstand") # type: ignore
     session['is_admin'] = discord_handler.is_role(user.discord_id, "admin") # type: ignore
     session['username'] = user.username
+    session['user_id'] = user.id
 
     session.permanent = True
 

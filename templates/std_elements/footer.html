@@ -25,6 +25,7 @@
                         <div>Beirat:</div>     <div>{{ user.beirat }}</div>
                         <div>Vorstand:</div>   <div>{{ user.vorstand }}</div>
                         <div>Admin:</div>      <div>{{ user.admin }}</div>
+                        <div>ID:</div>      <div>{{ user.id }}</div>
                     </div>
 
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem;">{% if not user.is_member %}Gast:{% else %}Nutzer: {% endif %}</span>
@@ -34,6 +35,10 @@
                     </span>
 
                 </div>
+                <form hx-get="{{ url_for('cal_bp.popup_userevents') }}" method="GET" hx-target="body" hx-swap="beforeend">
+                    <input hidden value="{{ user.id }}">
+                    <button type="submit">Meine Events</button>
+                </form>
             {% endif %}
         {% else %}
             <form action="{{ url_for('main.login') }}" method="GET">
