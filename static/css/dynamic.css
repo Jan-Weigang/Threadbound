@@ -38,6 +38,7 @@ body {
     grid-gap: 1rem;
     overflow: hidden;
     /* max-height: 45rem; */
+    background-color: inherit;
 }
 .layout-wrapper > * {
     position: relative;
@@ -58,12 +59,11 @@ body {
 }
 .layout-wrapper > .layout-footer {
     grid-area: footer;
-    position: absolute;
+    position: sticky;
     bottom: 1rem;
-    background-color: white;
+    background-color: inherit;
     margin: auto;
     justify-self: center;
-
 }
 .calendar-container {
     display: flex;
