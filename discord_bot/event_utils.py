@@ -70,7 +70,7 @@ def generate_event_embed(event, channel_id, action):
     thumbnail_url = url_for('main.serve_thumbnail', filename='thumbnail.png', _external=True)
     embed.set_thumbnail(url=thumbnail_url)
 
-    embed.set_author(name=f"{event.start_time.strftime('%d.%m.%Y')} - {event.event_type.name} - {event.game_category.name}")
+    embed.set_author(name=f"{event.event_type.name} - {event.game_category.name}")
 
     embed.add_field(name=f"📅 {event.start_time.strftime('%d.%m.%Y')}", value=f"🕒 **{event.start_time.strftime('%H:%M')}** bis **{event.end_time.strftime('%H:%M')}**", inline=True)
 
