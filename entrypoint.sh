@@ -2,6 +2,16 @@
 
 set -e
 
+DB_PATH="instance/calendar.db"   # <<== YOUR actual database file here
+BACKUP_PATH="${DB_PATH%.*}_$(date +%F).${DB_PATH##*.}"
+
+if [ -f "$DB_PATH" ]; then
+    echo "🗄️  Backing up database..."
+    cp "$DB_PATH" "$BACKUP_PATH"
+else
+    echo "⚠️  No database found to backup. Skipping backup."
+fi
+
 echo "🔧 Running Alembic migrations..."
 alembic upgrade head
 
