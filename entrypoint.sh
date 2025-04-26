@@ -3,7 +3,7 @@
 set -e
 
 DB_PATH="instance/calendar.db"   # <<== YOUR actual database file here
-BACKUP_PATH="${DB_PATH%.*}_$(date +%F).${DB_PATH##*.}"
+BACKUP_PATH="instance/calendar_$(date +%F_%H-%M-%S).db"
 
 if [ -f "$DB_PATH" ]; then
     echo "🗄️  Backing up database..."
