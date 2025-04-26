@@ -97,6 +97,8 @@ def fetch_month():
 
 @cal.route('/fetch/reservation/<string:event_id>')
 def reservation_popup(event_id):
+    user_id = session['user_id']
+
     # Fetch reservation and related data from the database
     reservation = Reservation.query.filter_by(event_id=event_id).first()
 
@@ -108,6 +110,7 @@ def reservation_popup(event_id):
     reservation_data = {
         'id': reservation.id,
         'user_name': reservation.user.username,
+        'user_id': reservation.user.id,
         'event_id': reservation.event_id,
         'template_id': reservation.associated_event.template_id,
         'date': reservation.associated_event.start_time.strftime('%d.%m.%Y'),
@@ -138,7 +141,8 @@ def reservation_popup(event_id):
     return render_template('partials/calendar_reservation_popup.html', 
                            reservation=reservation_data, 
                            event_type=event_type, 
-                           relatedTablesInfo=relatedTablesInfo)
+                           relatedTablesInfo=relatedTablesInfo,
+                           user_id=user_id)
 
 @cal.route('/shortcuts')
 def popup_shortcuts():

@@ -45,12 +45,53 @@
                 <span style="text-align: right;">{{ "Editiert am " + reservation.time_updated if reservation.time_updated else "Erstellt am " + reservation.time_created }}</span>
             </div>
             <div class="popup-footer-buttons">
-                <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
+                
+
+                <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+                <button 
+                    class="edit-popup" 
+                    hx-post="/api/attendance"
+                    hx-ext="json-enc"
+                    hx-vals='{
+                        "discord_user_id": "{{ session.discord_user_id }}",
+                        "username": "{{ session.username }}",
+                        "event_id": "{{ reservation.event_id }}",
+                        "action": "attend"
+                    }'
+                    hx-headers='{"Content-Type": "application/json"}'
+                    hx-trigger="click"
+                    hx-swap="none">
+                    Zusagen
+                </button>
+
+                <button 
+                    class="edit-popup" 
+                    hx-post="/api/attendance"
+                    hx-ext="json-enc"
+                    hx-vals='{
+                        "discord_user_id": "{{ session.discord_user_id }}",
+                        "username": "{{ session.username }}",
+                        "event_id": "{{ reservation.event_id }}",
+                        "action": "not_attend"
+                    }'
+                    hx-headers='{"Content-Type": "application/json"}'
+                    hx-trigger="click"
+                    hx-swap="none">
+                    Absagen
+                </button>
+
                 <button class="edit-popup" onclick="window.location.href='{{ url_for('ics_bp.get_event_ics', event_id=reservation.event_id) }}'">ICS Laden</button>
-                {% if reservation.template_id %}
-                    <button class="edit-popup" onclick="window.location.href='{{ url_for('template_bp.edit_template', event_id=reservation.template_id) }}'">
-                        Vorlage bearbeiten
-                    </button>
+                
+            </div>
+            <br>
+            <div class="popup-footer-buttons" style="margin-top: 1rem;">
+                {% if reservation.user_id == user_id %}
+                    <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
+                    {% if reservation.template_id %}
+                        <button class="edit-popup" onclick="window.location.href='{{ url_for('template_bp.edit_template', event_id=reservation.template_id) }}'">
+                            Vorlage bearbeiten
+                        </button>
+                    {% endif %}
                 {% endif %}
                 <button class="close-popup" onclick="this.closest('.popup-overlay').remove()">Schließen</button>
             </div>

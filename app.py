@@ -23,7 +23,9 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Eigene Events oben Stammtische anzeigen
+# TODO show edit button in reservation popup only if posible to edit
+
+# ? teilnehmen klicken im Kalender, sofern eingeloggt.
 
 # TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
 
@@ -42,29 +44,18 @@ load_dotenv()
 
 # TODO Bekannte Collisionen bei Check Availability ausschließen.
 
-# api/resolve_overlap 404 error?
-
-# Abgesagt ignorieren wenn gelöscht oder nicht published
-
-# in tickets infos des events
-
-# ? teilnehmen klicken im Kalender, sofern eingeloggt.
 
 # possible: Remove the DB logic from the api Calls and put them in their own module
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
 
 # Je nach GameCategory & Publicity in Event Form Discord Post Einstellung ausgrauen
 
-# TODO auto archive old threads of events
 # TODO nfc & qr zum scannen des tisches. 
 # App sucht raus und lässt anwesend markieren oder neues event erstellen.
-# TODO spieltreff oder geschlossebe gruppen nicht auf discord packen oder optional machen
-# TODO morgens um 9 eine erinnerung an event ersteller, ob stattfindet oder gelöscht werden soll. Normalfall: bleibt bestehen. Bei leuten, die seltener anwesend markieren und nicht kommen als ihre termine wahrnehmen dann auto-aktion löschung, wenn nicht bestätigt wird. Oder erinnerung optional..
 # TODO embed mit wochenevents in einem main channel?
 
 # Feadback
 # TODO Ersteller im Embed verlinken (mit @ und echtem Namen?)
-# TODO Abgesagte Events deutlicher markieren, indem das Logo ausgetauscht wird mit einem roten X
 
 # TODO event_forms POST - on failure resend arguments to re-fill form
 # TODO event_forms Abbrechen Knopf, um zum gewählten Tag zurückzugelangen. (Back geht nicht immer, bei Post fehlern)
@@ -81,12 +72,8 @@ load_dotenv()
 # Feedback 10.4.2025
 
 # Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
-# "Heute" farbig hervorheben.
-# Fehlende Berechtigungen zum Löschen des 3TH Kalender Bots
-# Admins können noch nicht editieren, events
 
 # Neu Laden auf dem Handy springt zu falschem Datum?
-# für Termine in Vergangenheit keine Threads!
 
 # ======================================
 # ============= APP SETUP ==============

@@ -330,13 +330,17 @@ def handle_attendance():
         return jsonify({"status": "error", "message": "No data in request."}), 500
     
     discord_user_id = data.get('discord_user_id')
+    event_id = data.get('event_id')
     message_id = data.get('message_id')
     action = data.get('action')
 
-    logging.info(f"Called Attendance with {discord_user_id=} {message_id=} {action=}")
+    logging.info(f"Called Attendance with {discord_user_id=} {message_id=} {action=} {event_id=}")
 
     try:
-        event = Event.get_regular_events().filter_by(discord_post_id=message_id).first()
+        if (event_id):
+            event = Event.query.get(event_id)
+        else:
+            event = Event.get_regular_events().filter_by(discord_post_id=message_id).first()
         if not event:
             return jsonify({"status": "error", "message": "Event not found"}), 404
 

@@ -672,6 +672,7 @@ function shortenLinksInPopup(popup) {
     const urlPattern = /(https?:\/\/|discord:\/\/|www\.)[^\s]+/g;
 
     popupDivs.forEach(div => {
+        if (div.querySelector('a')) return;
         div.innerHTML = div.innerHTML.replace(urlPattern, (url) => {
             let displayURL, href, target;
 
