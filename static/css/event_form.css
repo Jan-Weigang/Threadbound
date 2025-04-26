@@ -178,3 +178,51 @@ label {
 .table-button.flash-unselect {
     animation: tableUnselectFlash 2s ease-out;
 }
+
+#check-availability {
+    position: relative;
+    overflow: hidden;
+}
+
+  
+#check-availability::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 188, 45, 0.3) 50%,
+      rgba(255, 255, 255, 0.1) 75%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    animation: shine 10s infinite;
+    overflow: hidden;
+}
+  
+ 
+@keyframes shine {
+    0%, 69% {
+      transform: translateX(-150%) skewX(-25deg);
+      opacity: 0;
+    }
+    70% {
+      opacity: 1;
+    }
+    99% {
+      transform: translateX(150%) skewX(-25deg);
+    }
+    100% {
+      transform: translateX(150%) skewX(-25deg);
+      opacity: 0;
+    }
+}
+  

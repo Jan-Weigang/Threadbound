@@ -74,32 +74,17 @@ load_dotenv()
 
 # ? teilnehmen klicken im Kalender, sofern eingeloggt.
 
-# TODO make templates visible in calendar.
-
 # possible: Remove the DB logic from the api Calls and put them in their own module
-# Possibly add other hovering buttons for time scale movements (left right)
-
-# TODO Templates als Stammtsichkalender
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
-# Ghost-Reservation für Stammtische, die durch attendees gefüllt wird? Dann einen Array, der sich merkt, welcher Tisch zuerst angeklickt wurde in JS und DB. So werden die Tische dann automatisch gefüllt. Aber das würde auch spezifische Capacities brauchen. Das ist mega umständlich
 
-# DONE? Attending als Nutzer über eine API-Route machen, die Nutzer mit Nicknamen erstellt, ohne, dass man member sein muss. Damit sich Gäste in DC mit eintragen können.
-# Reminder am Vortag oder Tag des events per pn.
-
-# TODO Idee:
-# TODO Stammtische schattiert einzeichnen, damit man Belegungen in der Tagesansicht sieht. 
-# TODO Dann Stammtische immer wöchentlich einen Monat im Voraus erstellen und mit dem Template verlinken. Ist in der Woche ein Termin des Templates, wird es nicht angezeigt. 
-# TODO Erstellt man einen Zukunftstermin, kann man den über Stammtische hinwegplanen und das Programm erstellt dann das Event und verlinkt den Stammtisch-Organisator. Der kann dann direkt in Discord zustimmen (sodass der Stammtisch in der Woche entfällt), oder ablehnen (womit das Event gelöscht wird). So könnte man größere Vereinsevents direkt zur Absprache führen und die drichtigen Personen per Chat zusammenbringen
-
-# TODO Models anpassen mit "Template_ID" als Link, nullbar, default null.
-
+# Je nach GameCategory & Publicity in Event Form Discord Post Einstellung ausgrauen
 
 # TODO auto archive old threads of events
-# TODO nfc & qr zum scannen des tisches. App sucht raus und lässt anwesend markieren oder neues event erstellen.
+# TODO nfc & qr zum scannen des tisches. 
+# App sucht raus und lässt anwesend markieren oder neues event erstellen.
 # TODO spieltreff oder geschlossebe gruppen nicht auf discord packen oder optional machen
 # TODO morgens um 9 eine erinnerung an event ersteller, ob stattfindet oder gelöscht werden soll. Normalfall: bleibt bestehen. Bei leuten, die seltener anwesend markieren und nicht kommen als ihre termine wahrnehmen dann auto-aktion löschung, wenn nicht bestätigt wird. Oder erinnerung optional..
 # TODO embed mit wochenevents in einem main channel?
-# TODO container-name für reservations nutzen
 
 # Feadback
 # TODO Ersteller im Embed verlinken (mit @ und echtem Namen?)
