@@ -66,8 +66,10 @@ def generate_event_embed(event, channel_id, action):
         if guild.icon:
             embed.set_author(name=guild.name, icon_url=guild.icon.url)
 
-        
-    thumbnail_url = url_for('main.serve_thumbnail', filename='thumbnail.png', _external=True)
+    if action == "cancel" or action == "delete":
+        thumbnail_url = url_for('main.serve_thumbnail', filename='cancelled.png', _external=True)
+    else:
+        thumbnail_url = url_for('main.serve_thumbnail', filename='thumbnail.png', _external=True)
     embed.set_thumbnail(url=thumbnail_url)
 
     embed.set_author(name=f"{event.event_type.name} - {event.game_category.name}")
