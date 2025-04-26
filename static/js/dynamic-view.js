@@ -175,6 +175,7 @@ calendarContainer.addEventListener('htmx:afterSwap', function(event) {
     const currentDate = new Date(dateInput.value);
     const heading = document.getElementById('viewHeading');
     const formattedDate = new Intl.DateTimeFormat('de-DE', {
+        weekday: 'short', 
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
