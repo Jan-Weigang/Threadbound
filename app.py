@@ -34,11 +34,6 @@ load_dotenv()
 
 # TODO Lageplan
 
-# TODO Post des Threads einstellbar.
-# TODO Dauertermine Kampagnen?
-# Kampagnen ohne Posts
-# Testen, ob man POsts umlenken und threads neu anhängen kann.
-
 # TODO Event overlay show event
 
 # TODO Stammtisch edit
@@ -90,10 +85,6 @@ load_dotenv()
 # TODO Ersteller im Embed verlinken (mit @ und echtem Namen?)
 # TODO Abgesagte Events deutlicher markieren, indem das Logo ausgetauscht wird mit einem roten X
 
-# TODO Wochentag in Tagesansicht anzeigen
-
-# TODO In event_forms Prüfen farbig hevorheben, dann grau, wenn geprüft. Reset on form change. 
-# TODO In event_forms Nachricht über fail prüfung farbig hervorheben und "Gewählte Tische nicht verfügbar!" ändern
 # TODO event_forms POST - on failure resend arguments to re-fill form
 # TODO event_forms Abbrechen Knopf, um zum gewählten Tag zurückzugelangen. (Back geht nicht immer, bei Post fehlern)
 
@@ -103,16 +94,11 @@ load_dotenv()
 
 # TODO Popup QR for ics
 
-# TODO Konflikte als Channels in Discord, Konfliktmarker als Merker für Änderungen
-
-# TODO Stammtischleiter in DB / Beiräte
-
 # TODO Löschantrag für eigene ID zu löschen.
 # TODO DSGVO Datenabfrage?
 
 # Feedback 10.4.2025
 
-# Bei Editieren eine falsche Anzeige? Rollenspiel aber mit BrettspielwürfeL?
 # Eigene Termine mit gesondertem Symbol oder Rahmen in der normalen Ansicht.
 # "Heute" farbig hervorheben.
 # Fehlende Berechtigungen zum Löschen des 3TH Kalender Bots
