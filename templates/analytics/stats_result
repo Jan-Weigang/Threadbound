@@ -1,0 +1,30 @@
+<div class="stats-summary">
+    <h2>Statistik Übersicht</h2>
+    <p>Gesamtzahl Events: {{ stats.total_events }}</p>
+    <p>Durchschnittliche Teilnehmerzahl: {{ stats.average_attendees }}</p>
+
+    <h3>Events pro User</h3>
+    <ul>
+        {% for user, count in stats.events_per_user %}
+            <li>{{ user }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Events pro Event-Typ</h3>
+    <ul>
+        {% for type, count in stats.events_per_event_type %}
+            <li>{{ type }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Events pro Kategorie</h3>
+    <ul>
+        {% for category, count in stats.events_per_game_category %}
+            <li>{{ category }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Templates vs Ad-Hoc</h3>
+    <p>Stammtische (Vorlagen): {{ stats.template_event_count }}</p>
+    <p>Ad-Hoc Events: {{ stats.ad_hoc_event_count }}</p>
+</div>

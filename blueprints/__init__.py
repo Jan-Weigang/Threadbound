@@ -5,3 +5,4 @@ from .calendar_routes import cal
 from .ics_routes import ics
 from .main_routes import main
 from .template_routes import template_bp
+from .analytics_routes import analytics_bp

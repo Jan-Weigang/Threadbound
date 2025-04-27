@@ -138,6 +138,7 @@ def create_app():
     app.register_blueprint(blueprints.template_bp, url_prefix='/templates')
     app.register_blueprint(blueprints.cal, url_prefix='/calendar')
     app.register_blueprint(blueprints.ics, url_prefix='/ics')
+    app.register_blueprint(blueprints.analytics_bp, url_prefix='/analytics')
 
     return app
 
