@@ -136,12 +136,12 @@
 
     // This is the login process with popup
     function openLoginPopup() {
-        const popup = window.open('{{ url_for('main.login') }}', 'discordLogin', 'width=700,height=900');
+        const popup = window.open('{{ url_for('main.login', _external=True) }}', 'discordLogin', 'width=700,height=900');
     
         window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
             if (event.data === 'login_success') {
-                window.location.href = '/calendar/regular';
+                window.location.href = '{{ url_for('cal_bp.view', _external=True) }}';
             }
         });
     }

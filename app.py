@@ -118,6 +118,10 @@ def create_app():
     app.config['APPLICATION_ROOT'] = '/'  # Set the application root
     app.config['PREFERRED_URL_SCHEME'] = 'https'  # Use 'http' if you're testing locally
 
+    from werkzeug.middleware.proxy_fix import ProxyFix
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 
     # ======================================
     # ======== Database Populating =========
