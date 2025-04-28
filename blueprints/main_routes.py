@@ -50,7 +50,8 @@ def login():
 
     # if not session['is_member']:
     #     flash('You are not a member and cannot be given access', 'failure')
-    return redirect(url_for('main.index'))  
+    # return redirect(url_for('main.index'))  
+    return render_template('partials/login_success.html')
 
 
 @main.route('/')

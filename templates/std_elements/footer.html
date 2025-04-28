@@ -62,9 +62,10 @@
                 </div>
             {% endif %}
         {% else %}
-            <form action="{{ url_for('main.login') }}" method="GET">
+            <!-- <form action="{{ url_for('main.login') }}" method="GET">
                 <button id="loginButton" type="submit">Login</button>
-            </form>
+            </form> -->
+            <button id="loginButton" type="button" onclick="openLoginPopup()">Login</button>
                 <div class="user-status" style="display: flex; flex-direction: column;">
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem;"><i>Nicht eingeloggt</i></span>
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem; 
@@ -131,6 +132,18 @@
     function toggleFooterSheet() {
         const sheet = document.getElementById('footer-sheet');
         sheet.classList.toggle('active');
+    }
+
+    // This is the login process with popup
+    function openLoginPopup() {
+        const popup = window.open('{{ url_for('main.login') }}', 'discordLogin', 'width=700,height=900');
+    
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data === 'login_success') {
+                window.location.href = '/calendar/regular';
+            }
+        });
     }
 
     // Observe changes in the document to add hover events dynamically

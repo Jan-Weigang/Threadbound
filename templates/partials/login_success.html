@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login erfolgreich</title>
+    <style>
+        body {
+            background: #f5f5f5;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .spinner {
+            border: 6px solid #ddd;
+            border-top: 6px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        p {
+            color: #555;
+            font-size: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="spinner"></div>
+    <h2>Login erfolgreich!</h2>
+    <p>Weiterleitung erfolgt...</p>
+
+    <script>
+        if (window.opener) {
+            window.opener.postMessage('login_success', window.location.origin);
+            setTimeout(() => {
+                window.close();
+            }, 1000);
+        } else {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
