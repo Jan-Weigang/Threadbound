@@ -21,3 +21,5 @@ GUILD_ID=
 MEMBER_ROLE_ID=
 CHANNELS='{"channel_id1": 123456789123456789}'
 ```
+
+Der aktuelle Branch der Entwicklung ist "htmx"
