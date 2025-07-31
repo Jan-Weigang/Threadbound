@@ -6,6 +6,7 @@ import signal, os, asyncio, threading
 import discord_bot
 from services import *
 
+from flask_compress import Compress
 
 from tt_calendar.models import *
 from tt_calendar.admin import init_admin
@@ -88,8 +89,12 @@ load_dotenv()
 # ======================================
 # ============= APP SETUP ==============
 # ======================================
+compress = Compress()
+
 def create_app():
     app = Flask(__name__)
+    compress.init_app(app)
+    
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'  # Update the URI to your database

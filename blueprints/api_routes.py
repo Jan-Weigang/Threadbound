@@ -5,10 +5,13 @@ from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Eve
 from datetime import datetime, time, timedelta
 import pytz
 from sqlalchemy import or_, and_
+from sqlalchemy.orm import joinedload
+
 
 from tt_calendar import utils
 import threading
 import logging
+import time as performancetime
 
 # ======================================
 # ========== API Endpoints =============
@@ -32,7 +35,7 @@ def api_get_reservations(view_type=None):
     return jsonify({'reservations': reservation_data})
 
 
-def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
+def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_id=None):
     # logging.info(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
 
     # Filter reservations by the date if provided
@@ -53,7 +56,6 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         if not view_type:
             view_type = 'regular' 
         
-
         if view_type == 'template':
             # reservations = Reservation.get_template_reservations().all()
             reservations = Reservation.get_template_children()
@@ -66,13 +68,28 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
         else:
             reservations = Reservation.get_regular_reservations()
 
+    # Always filter by date range first
     reservations = reservations.filter(
         Event.start_time >= start_date_for_sql,
         Event.start_time < end_date_for_sql
-    ).all()
+    )
 
-    print(reservations)
-        
+    # Only join + filter by room if needed
+    if room_id is not None:
+        reservations = reservations.join(Table).filter(Table.room_id == room_id)
+
+    # joined Loading makes dict creation and jinja preparation faster
+    reservations = reservations.options(
+        joinedload(Reservation.associated_event),
+        joinedload(Reservation.associated_event).joinedload(Event.game_category),
+        joinedload(Reservation.associated_event).joinedload(Event.publicity),
+        joinedload(Reservation.associated_event).joinedload(Event.attendees),
+        joinedload(Reservation.user),
+        joinedload(Reservation.table)
+    )
+
+    reservations = reservations.all()
+
     # Sort by date and start_time
     reservations.sort(key=lambda r: r.associated_event.start_time)
 
@@ -82,30 +99,66 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
     for reservation in reservations:
         event_to_table_count[reservation.event_id].add(reservation.table_id)
     
+    # reservation_data = [{
+    #     'id': reservation.id,
+    #     'user_name': reservation.user.username,
+    #     'event_id': reservation.event_id,
+    #     'table_id': reservation.table_id,
+    #     'event_table_count': len(event_to_table_count[reservation.event_id]),
+    #     'date': reservation.associated_event.start_time.date(),
+    #     'start_time': reservation.associated_event.start_time.isoformat(),
+    #     'end_time': reservation.associated_event.end_time.isoformat(),
+    #     'start_time_str': reservation.associated_event.start_time.strftime('%H:%M'),
+    #     'end_time_str': reservation.associated_event.end_time.strftime('%H:%M'),
+    #     'game_category_icon': reservation.associated_event.game_category.icon,
+    #     'game_category': reservation.associated_event.game_category.name,
+    #     'name': reservation.associated_event.name,
+    #     'description': reservation.associated_event.description,
+    #     'event_type_id': reservation.associated_event.event_type_id,
+    #     'attendee_count': len(reservation.associated_event.attendees),
+    #     'time_created': reservation.associated_event.time_created.strftime('%d.%m.%Y %H:%M'),
+    #     'time_updated': reservation.associated_event.time_updated.strftime('%d.%m.%Y %H:%M') if reservation.associated_event.time_updated else None,
+    #     'publicity': reservation.associated_event.publicity.name,
+    #     'discord_link': reservation.associated_event.get_discord_message_url(),
+    #     'is_template': reservation.associated_event.is_template,
+    #     'is_marked': not reservation.associated_event.is_published
+    # } for reservation in reservations]
+
+    # Build per-event shared cache
+    event_cache = {}
+    for res in reservations:
+        e = res.associated_event
+        if e.id not in event_cache:
+            event_cache[e.id] = {
+                'event_id': e.id,
+                'event_table_count': len(event_to_table_count[e.id]),
+                'date': e.start_time.date(),
+                'start_time': e.start_time.isoformat(),
+                'end_time': e.end_time.isoformat(),
+                'start_time_str': e.start_time.strftime('%H:%M'),
+                'end_time_str': e.end_time.strftime('%H:%M'),
+                'game_category_icon': e.game_category.icon,
+                'game_category': e.game_category.name,
+                'name': e.name,
+                'description': e.description,
+                'event_type_id': e.event_type_id,
+                'attendee_count': len(e.attendees),
+                'time_created': e.time_created.strftime('%d.%m.%Y %H:%M'),
+                'time_updated': e.time_updated.strftime('%d.%m.%Y %H:%M') if e.time_updated else None,
+                'publicity': e.publicity.name,
+                'discord_link': e.get_discord_message_url(),
+                'is_template': e.is_template,
+                'is_marked': not e.is_published
+            }
+
+    # Final reservation_data build using cache
     reservation_data = [{
-        'id': reservation.id,
-        'user_name': reservation.user.username,
-        'event_id': reservation.event_id,
-        'table_id': reservation.table_id,
-        'event_table_count': len(event_to_table_count[reservation.event_id]),
-        'date': reservation.associated_event.start_time.date(),
-        'start_time': reservation.associated_event.start_time.isoformat(),
-        'end_time': reservation.associated_event.end_time.isoformat(),
-        'start_time_str': reservation.associated_event.start_time.strftime('%H:%M'),
-        'end_time_str': reservation.associated_event.end_time.strftime('%H:%M'),
-        'game_category_icon': reservation.associated_event.game_category.icon,
-        'game_category': reservation.associated_event.game_category.name,
-        'name': reservation.associated_event.name,
-        'description': reservation.associated_event.description,
-        'event_type_id': reservation.associated_event.event_type_id,
-        'attendee_count': len(reservation.associated_event.attendees),
-        'time_created': reservation.associated_event.time_created.strftime('%d.%m.%Y %H:%M'),
-        'time_updated': reservation.associated_event.time_updated.strftime('%d.%m.%Y %H:%M') if reservation.associated_event.time_updated else None,
-        'publicity': reservation.associated_event.publicity.name,
-        'discord_link': reservation.associated_event.get_discord_message_url(),
-        'is_template': reservation.associated_event.is_template,
-        'is_marked': not reservation.associated_event.is_published
-    } for reservation in reservations]
+        'id': res.id,
+        'user_name': res.user.username,
+        'table_id': res.table_id,
+        **event_cache[res.event_id]
+    } for res in reservations]
+
 
     if not discord.authorized or not session.get('is_member', False):
         for entry in reservation_data:

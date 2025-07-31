@@ -133,9 +133,9 @@
         <div id="tisch-container" class="tisch-container">
             {% for table in tables %}
                 {% if table.type == "Halb" %}
-                    <button type="button" class="table-button half-button" data-table-id="{{ table.id }}">
+                    <button type="button" class="table-button half-button" data-table-id="{{ table.id }}" data-room-id="{{ table.room_id }}">
                 {% else %}
-                    <button type="button" class="table-button" data-table-id="{{ table.id }}">
+                    <button type="button" class="table-button" data-table-id="{{ table.id }}" data-room-id="{{ table.room_id }}">
                 {% endif %}
                      {{ table.name }} <!-- <i style="font-size: 0.6rem; color:#bbbcc4;">({{ table.type }})</i> -->
                 </button>

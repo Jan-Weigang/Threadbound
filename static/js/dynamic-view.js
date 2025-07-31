@@ -73,8 +73,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const selectionBox = document.getElementById('viewTypeSelect');
+    const viewTypeSelect = document.getElementById('viewTypeSelect');
     viewTypeSelect.addEventListener('change', function() {
+        loadNewMonth();
+    });
+
+    const roomSelect = document.getElementById('roomSelect');
+    roomSelect.addEventListener('change', function() {
         loadNewMonth();
     });
 });
@@ -82,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadNewMonth() {
     const viewTypeSelect = document.getElementById('viewTypeSelect');
     const viewType = viewTypeSelect ? viewTypeSelect.value : 'public';
-    htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}&view_type=${encodeURIComponent(viewType)}`, { target: '#calendar-grid' });
+    const roomSelect = document.getElementById('roomSelect');
+    const roomId = roomSelect?.value ?? '';
+    htmx.ajax('GET', `/calendar/fetch/month?date=${encodeURIComponent(dateInput.value)}&view_type=${encodeURIComponent(viewType)}&room_id=${encodeURIComponent(roomId)}`, { target: '#calendar-grid' });
 }
 
 
@@ -185,10 +192,12 @@ calendarContainer.addEventListener('htmx:afterSwap', function(event) {
 
     const calendar = document.getElementById('calendar');
 
-    update_time_labels();
-    set_up_tableHeaders();
-    set_up_reservations();
-    combine_reservations(calendar);
+    requestAnimationFrame(() => {
+        update_time_labels();
+        set_up_tableHeaders();
+        set_up_reservations();
+        combine_reservations(calendar);
+    });
     // initialize_hover(); not calling this here anymore as it is being called on every after htmx
 });
 

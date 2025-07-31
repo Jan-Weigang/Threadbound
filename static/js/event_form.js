@@ -246,6 +246,15 @@ function initializeAvailabilityChecking() {
 function initializeTableButtons() {
     tableButtons.forEach(button => {
         button.addEventListener('click', function() {
+            const currentRoom = button.getAttribute('data-room-id');
+            const selectedInOtherRoom = Array.from(document.querySelectorAll('.table-button.selected'))
+                .filter(b => b.getAttribute('data-room-id') !== currentRoom);
+
+            if (selectedInOtherRoom.length > 0) {
+                // Deselect all from other rooms
+                selectedInOtherRoom.forEach(b => b.classList.remove('selected'));
+            }
+            
             // Toggle the selected class
             button.classList.toggle('selected');
 

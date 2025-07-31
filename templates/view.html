@@ -42,7 +42,7 @@
         <form id="viewTypeForm"
                 hx-get="{{ url_for('cal_bp.fetch_day')}}"
                 hx-target=".calendar-container"
-                hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect, change from:#hourSelect"
+                hx-trigger="load, change from:#dateInput, change from:#viewTypeSelect, change from:#hourSelect, change from:#roomSelect"
                 hx-request='{"timeout": 800}'
                 class="layout-header">
 

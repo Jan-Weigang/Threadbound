@@ -31,6 +31,14 @@
         <option value="12">mittags</option>
         <option value="16" selected>abends</option>
     </select>
+
+    <select id="roomSelect" name="room_id" data-disable-scroll>
+        {% for room in rooms %}
+            <option value="{{ room.id }}">{{ room.name }}</option>
+        {% endfor %}
+    </select>
+
+
     <select id="viewTypeSelect" name="view_type" data-disable-scroll
             data-bg-regular="#fff"
             data-bg-template="#fbf8f1"

@@ -7,7 +7,7 @@ from tt_calendar import utils
 from datetime import datetime, timezone, timedelta
 
 import json, logging
-
+import time
 
 cal = Blueprint('cal_bp', __name__)
 
@@ -41,7 +41,9 @@ def view(view_type):
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated, user=user)
+    rooms = Room.query.order_by(Room.id).all()
+
+    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated, user=user, rooms=rooms)
 
 
 
@@ -53,9 +55,10 @@ def fetch_day():
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     view_type = request.args.get('view_type', 'public')
+    room_id = request.args.get('room_id', type=int)
 
-    reservations = prepare_reservations_for_jinja(view_type, date_str, date_str)
-    tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
+    reservations = prepare_reservations_for_jinja(view_type, date_str, date_str, room_id=room_id)
+    tables = Table.query.filter_by(room_id=room_id).order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
     return render_template('partials/calendar_content.html', 
                            date=date, 
@@ -67,21 +70,23 @@ def fetch_day():
 #This takes no argument since they come from an html form.
 @cal.route('/fetch/month')
 def fetch_month():
+    t0 = time.perf_counter()
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     view_type = request.args.get('view_type', 'public')
+    room_id = request.args.get('room_id', type=int)
 
     week_start, week_end = utils.get_end_days_of_week(date)
     date_range, first_date_str, last_date_str = utils.get_end_days_of_month(date)
-    reservations = prepare_reservations_for_jinja(view_type, first_date_str, last_date_str)
-
-    tables = Table.query.order_by(Table.id).all() # Table ID must be ordered
+    reservations = prepare_reservations_for_jinja(view_type, first_date_str, last_date_str, room_id=room_id)
+    tables = Table.query.filter_by(room_id=room_id).order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
 
     occupancy_by_day = utils.get_occupancy_by_day(reservations, tables)
 
     today = datetime.now(timezone.utc).date()
-    
+    t1 = time.perf_counter()
+    print(f"[prep] month total:           {(t1 - t0)*1000:.1f}ms")
     return render_template('partials/month_content.html', 
                            date=date, 
                            tables=tables, 

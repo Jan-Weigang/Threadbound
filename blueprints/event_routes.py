@@ -45,7 +45,7 @@ def create_event():
         logging.info(f"Created event {new_event.name}")
 
         event_date = form_data['start_datetime'].date().strftime('%Y-%m-%d')
-        flash("Template created successfully.", "success")
+        flash("Event created successfully.", "success")
         return redirect(url_for('cal_bp.view', date=event_date))
 
 
@@ -60,16 +60,19 @@ def create_event():
     event_types = EventType.query.all()
     publicity_levels = Publicity.query.all()
     tables = Table.query.all()
+    rooms = Room.query.all()
 
     return render_template('events/event_form.html', 
                            game_categories=game_categories, 
                            event_types=event_types, 
                            publicity_levels=publicity_levels, 
                            tables=tables,
+                           rooms=rooms,
                            table_id=requested_table_id,
                            start_time=requested_start_time,
                            end_time=requested_end_time,
-                           requested_date=requested_date)
+                           requested_date=requested_date
+                           )
 
 
 @event_bp.route('/edit/<string:event_id>', methods=['GET', 'POST'])
@@ -88,6 +91,7 @@ def edit_event(event_id):
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
     tables = Table.query.all()
+    rooms = Room.query.all()
 
     if request.method == 'POST':
         form_data = utils.extract_event_form_data(request)
@@ -130,6 +134,7 @@ def edit_event(event_id):
                            event_types=event_types, 
                            publicity_levels=publicity_levels,
                            tables=tables,
+                           rooms=rooms,
                            start_time=requested_start_time,
                            end_time=requested_end_time,
                            requested_date=requested_date)
