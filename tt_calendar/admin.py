@@ -1,6 +1,6 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from tt_calendar.models import db, User, EventType, Publicity, Table, GameCategory, DiscordChannel, Event, Overlap  # Adjust paths as needed
+from tt_calendar.models import db, User, EventType, Publicity, Table, Room, GameCategory, DiscordChannel, Event, Overlap  # Adjust paths as needed
 
 # Initialize Admin instance (assuming it will be used in app.py)
 admin = Admin(name='TableTop Admin', template_mode='bootstrap4')
@@ -19,8 +19,17 @@ class PublicityView(ModelView):
     form_columns = ('name',)
 
 class TableView(ModelView):
-    column_list = ('id', 'name', 'type', 'capacity')
-    form_columns = ('name', 'type', 'capacity')
+    column_list = ['id', 'name', 'capacity', 'room_id', 'type']
+    form_columns = ['name', 'capacity', 'room_id', 'type']
+    column_filters = ['room_id']
+    column_searchable_list = ['name']
+    column_default_sort = ('room_id', True)
+
+class RoomView(ModelView):
+    column_list = ['id', 'name']
+    form_columns = ['name']
+    column_searchable_list = ['name']
+    column_default_sort = 'name'
 
 class GameCategoryView(ModelView):
     column_list = ('id', 'name', 'channel_name', 'icon')
@@ -31,9 +40,6 @@ class DiscordChannelView(ModelView):
     form_columns = ('discord_channel_id', 'name', 'server_id')
 
 class EventView(ModelView):
-#     column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user_id', 'discord_post_id')
-#     form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user_id', 'discord_post_id')
-
     column_list = ('id', 'name', 'game_category_id', 'event_type_id', 'publicity_id', 'user', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template', 'recurrence_rule', 'discord_post_days_ahead')
     form_columns = ('name', 'description', 'game_category', 'event_type', 'publicity', 'user', 'discord_post_id', 'attendees', 'state_size', 'state_overlap', 'size_request_discord_channel_id', 'requested_overlaps', 'is_published', 'deleted', 'is_template', 'recurrence_rule', 'discord_post_days_ahead')
     
@@ -75,6 +81,7 @@ def init_admin(app):
     admin.add_view(EventTypeView(EventType, db.session))
     admin.add_view(PublicityView(Publicity, db.session))
     admin.add_view(TableView(Table, db.session))
+    admin.add_view(RoomView(Room, db.session))
     admin.add_view(GameCategoryView(GameCategory, db.session))
     admin.add_view(DiscordChannelView(DiscordChannel, db.session))
     admin.add_view(EventView(Event, db.session)) 

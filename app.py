@@ -31,7 +31,7 @@ load_dotenv()
 
 # TODO Veranstaltungen in Popup checken, nur 1 Woche wird getrackt
 
-# TODO Checken, wann Nicknames gespeichert werden. Siehe Glauriel.
+# TODO Checken, wann Nicknames gespeichert werden. Siehe Glauriel. Server nickname vs general.
 
 # TODO show edit button in reservation popup only if posible to edit
 

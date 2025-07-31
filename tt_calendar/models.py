@@ -107,10 +107,20 @@ class Publicity(db.Model):
     should_not_post_to_discord = db.Column(db.Boolean, nullable=False, default=False)
 
 class Table(db.Model):
+    __tablename__ = 'table'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(50), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
+
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=True)
+
+class Room(db.Model):
+    __tablename__ = 'room'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False, unique=True)
+
+    tables = db.relationship('Table', backref='room', lazy=True)
 
 class GameCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
