@@ -2,7 +2,8 @@ from flask import session, request, jsonify
 from flask import request, Blueprint, current_app
 from flask_dance.contrib.discord import discord
 from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Event, Table, Reservation, Overlap, EventState
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
+import pytz
 from sqlalchemy import or_, and_
 
 from tt_calendar import utils
@@ -33,9 +34,21 @@ def api_get_reservations(view_type=None):
 
 def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
     # logging.info(f"Triggered prepare with {view_type}, {date_param}, {end_date_param}")
+
+    # Filter reservations by the date if provided
+    if date_param and end_date_param:
+        try:
+            start_date = utils.to_berlin_midnight(date_param)  # Expected format: 'YYYY-MM-DD'
+            end_date = utils.to_berlin_midnight(end_date_param)
+            start_date_for_sql = start_date.astimezone(pytz.utc)
+            end_date_for_sql = end_date.astimezone(pytz.utc) + timedelta(days=1)
+        except ValueError as e:
+            logging.warning(e)
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        
     if discord.authorized is None:
         # If the user is not authenticated, only load events with publicity 3
-        reservations = Reservation.get_regular_reservations().filter(Reservation.associated_event.has(publicity_id=3)).all() # type:ignore
+        reservations = Reservation.get_regular_reservations() # type:ignore
     else:
         if not view_type:
             view_type = 'regular' 
@@ -43,26 +56,22 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param):
 
         if view_type == 'template':
             # reservations = Reservation.get_template_reservations().all()
-            reservations = Reservation.get_template_children().all()
+            reservations = Reservation.get_template_children()
 
         elif view_type == 'regular':
-            reservations = Reservation.get_regular_reservations().all()
+            reservations = Reservation.get_regular_reservations()
         elif view_type == 'public':
             reservations = Reservation.get_regular_reservations().filter(
-                Reservation.associated_event.has(publicity_id=3, is_published=True)).all()         # type:ignore
+                Reservation.associated_event.has(publicity_id=3, is_published=True))         # type:ignore
         else:
-            reservations = Reservation.get_regular_reservations().all()
+            reservations = Reservation.get_regular_reservations()
 
-    # Filter reservations by the date if provided
-    if date_param and end_date_param:
-        try:
-            start_date = datetime.strptime(date_param, '%Y-%m-%d')  # Expected format: 'YYYY-MM-DD'
-            end_date = datetime.strptime(end_date_param, '%Y-%m-%d')
+    reservations = reservations.filter(
+        Event.start_time >= start_date_for_sql,
+        Event.start_time < end_date_for_sql
+    ).all()
 
-            reservations = [r for r in reservations if start_date.date() <= r.associated_event.start_time.date() <= end_date.date()]
-        
-        except ValueError:
-            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+    print(reservations)
         
     # Sort by date and start_time
     reservations.sort(key=lambda r: r.associated_event.start_time)

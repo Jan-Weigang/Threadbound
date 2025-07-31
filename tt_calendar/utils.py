@@ -241,6 +241,12 @@ def localize_to_berlin_time(naive_time: datetime) -> datetime:
     localized_berlin_time = berlin_zone.localize(naive_time, is_dst=None)
     return localized_berlin_time
 
+def to_berlin_midnight(date_str: str) -> datetime:
+    naive = datetime.strptime(date_str, '%Y-%m-%d')
+    berlin = pytz.timezone('Europe/Berlin')
+    localized = berlin.localize(naive)
+    return localized
+
 
 def get_end_days_of_month(date):
     first_day_of_month = date.replace(day=1)
