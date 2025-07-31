@@ -23,6 +23,15 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+
+# TODO Absagen tracken
+
+# TODO Link zum Kalender präsenter machen
+
+# TODO Veranstaltungen in Popup checken, nur 1 Woche wird getrackt
+
+# TODO Checken, wann Nicknames gespeichert werden. Siehe Glauriel.
+
 # TODO show edit button in reservation popup only if posible to edit
 
 # ? teilnehmen klicken im Kalender, sofern eingeloggt.
