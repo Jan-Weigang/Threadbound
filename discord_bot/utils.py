@@ -11,7 +11,7 @@ async def get_nickname(discord_user_id):
     
     member = guild.get_member(discord_user_id)
     if member:
-        return member.nick or member.name 
+        return member.nick or member.global_name or member.name 
     else:
         return None
 

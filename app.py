@@ -23,6 +23,8 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Geschlossene Events nicht posten
+
 # TODO Terminerinnerungen erste Name nicht als Liste
 
 # TODO Template Einstellung korrekt gespeichert von wann posts live gehen?
