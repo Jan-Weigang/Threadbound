@@ -49,6 +49,7 @@ def get_embed_color_from_event(event):
 
 def generate_event_embed(event, channel_id, action):
     calendar_url = url_for('cal_bp.view', view_type='regular', _external=True, date=event.start_time.strftime('%Y-%m-%d'))
+    event_url = url_for('event_bp.edit_event', event_id=event.id, _external=True)
     if action == 'cancel':
         embed = discord.Embed(
             title=f"Abgesagt: {event.name}",
@@ -82,9 +83,10 @@ def generate_event_embed(event, channel_id, action):
 
     embed.add_field(name="", value="", inline=False)
     if not action == 'cancel':
-        embed.add_field(name=f"👤 {event.user.username}", value=event.publicity.name, inline=True)
+        embed.add_field(name="", value=f"**👤 <@{event.user.discord_id}>** \n {event.publicity.name}", inline=True)
         reserved_tables = ', '.join([reservation.table.name for reservation in event.reservations]) or 'N/A'
-        embed.add_field(name="", value=reserved_tables, inline=True)
+        room_name = event.reservations[0].table.room.name if event.reservations else None
+        embed.add_field(name="", value=f"**{room_name}**: {reserved_tables}", inline=True)
 
         embed.add_field(name="", value="", inline=False)
 
@@ -98,9 +100,11 @@ def generate_event_embed(event, channel_id, action):
         yes_emoji = random.choice(YES_EMOJIS)
         no_emoji = random.choice(NO_EMOJIS)
 
-        attendees_list = ', '.join([attendee.username for attendee in event.attendees]) or 'Keine Teilnehmer'  # If no attendees, show "Keine Teilnehmer"
-        embed.add_field(name=f"{yes_emoji} {len(event.attendees)}  | {no_emoji} {len(event.declined_attendees)}", value=attendees_list, inline=False)
-    
+        attendees_list = ', '.join([attendee.username for attendee in event.attendees]) or 'Keine'  # If no attendees, show "Keine Teilnehmer"
+        embed.add_field(name="", value=f"Teilnehmer ({yes_emoji} {total_yes}  | {no_emoji} {total_no}): \n {attendees_list}", inline=False)
+
+        embed.add_field(name="", value=f"[Kalender öffnen]({calendar_url})", inline=True)
+        embed.add_field(name="", value=f"[Event anpassen]({event_url})", inline=True)
     embed.set_footer(text=f"Event ID: {event.id} - Erstellt:")
     embed.timestamp = event.time_created
 
