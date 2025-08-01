@@ -24,8 +24,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO "Stammtisch" als name verhindern
-
 # TODO Absagen tracken
 
 # TODO Link zum Kalender präsenter machen

@@ -164,8 +164,8 @@ def popup_userevents():
     assert user
 
     now = datetime.now(pytz.timezone('Europe/Berlin'))
-    week_ago = now - timedelta(days=7)
-    week_later = now + timedelta(days=7)
+    week_ago = now - timedelta(days=1)
+    week_later = now + timedelta(days=28)
 
     events = Event.query.filter(
         Event.start_time.between(week_ago, week_later),
