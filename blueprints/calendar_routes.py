@@ -103,6 +103,7 @@ def fetch_month():
 @cal.route('/fetch/reservation/<string:event_id>')
 def reservation_popup(event_id):
     user_id = session['user_id']
+    is_admin = session.get('is_admin', False) or session.get('is_vorstand', False)
 
     # Fetch reservation and related data from the database
     reservation = Reservation.query.filter_by(event_id=event_id).first()
@@ -147,7 +148,8 @@ def reservation_popup(event_id):
                            reservation=reservation_data, 
                            event_type=event_type, 
                            relatedTablesInfo=relatedTablesInfo,
-                           user_id=user_id)
+                           user_id=user_id,
+                           is_admin=is_admin)
 
 @cal.route('/shortcuts')
 def popup_shortcuts():

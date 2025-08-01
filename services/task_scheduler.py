@@ -141,6 +141,8 @@ def create_discord_posts_ahead_of_events(app):
             if msg_id:
                 event.discord_post_id = msg_id
                 posted_count += 1
+            else:  
+                logging.info(f"Tried to post {event.name} ({event.id} but got no msg id back.)")
 
         db.session.commit()
         logging.info(f"✅ Created Discord posts for {posted_count} events.")

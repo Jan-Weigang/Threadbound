@@ -23,10 +23,6 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
-# TODO Geschlossene Events nicht posten
-
-# TODO Terminerinnerungen erste Name nicht als Liste
-
 # TODO Template Einstellung korrekt gespeichert von wann posts live gehen?
 
 # TODO debug doppelte Posts
@@ -38,8 +34,6 @@ load_dotenv()
 # TODO Checken, wann Nicknames gespeichert werden. Siehe Glauriel. Server nickname vs general.
 
 # TODO show edit button in reservation popup only if posible to edit
-
-# ? teilnehmen klicken im Kalender, sofern eingeloggt.
 
 # TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
 

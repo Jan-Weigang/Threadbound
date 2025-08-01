@@ -99,9 +99,10 @@ class DiscordHandler:
 
         # Wait for the future to complete if you want to block until it's done (optional)
         try:
-            message_id = future.result(timeout=4)  # waits 2s
+            message_id = future.result(timeout=10)  # waits 10s
             return message_id
         except Exception as e:
+            logging.warning(f"❌ Discord post failed or timed out for {event.name}: {e}")
             return None
 
 

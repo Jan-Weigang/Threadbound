@@ -85,7 +85,7 @@
             </div>
             <br>
             <div class="popup-footer-buttons" style="margin-top: 1rem;">
-                {% if reservation.user_id == user_id %}
+                {% if reservation.user_id == user_id or is_admin %}
                     <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
                     {% if reservation.template_id %}
                         <button class="edit-popup" onclick="window.location.href='{{ url_for('template_bp.edit_template', event_id=reservation.template_id) }}'">
