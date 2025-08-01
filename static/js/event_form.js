@@ -20,6 +20,8 @@ const eventData = document.getElementById('eventData');
 const dateInput = document.getElementById('date');
 const warningBox = document.getElementById('date-warning');
 
+const isTemplate = document.getElementById('templateSubmitButton');
+
 document.addEventListener('DOMContentLoaded', function() {
 
     if (isEditMode) {
@@ -32,10 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const attendLabel = document.getElementById('attend_self_label');
         if (attendLabel) {
             attendLabel.style.display = 'none';
-        }
-        
-        
-        
+        }  
     }
 
     checkDateWarning();
@@ -396,6 +395,20 @@ function updateSelectIcon(selectElement, iconElement) {
 function updateSubmitButton() {
     const submitButton = document.getElementById('submitButton');
     if (!submitButton) return; // for templates
+
+    const nameInput = document.getElementById('name');
+    const descInput = document.getElementById('description');
+
+    const regex = /stammtisch/i;
+    const hasForbiddenWord = regex.test(nameInput.value) || regex.test(descInput.value);
+
+    if (!isTemplate && hasForbiddenWord) {
+        submitButton.setAttribute('disabled', 'disabled');
+        submitButton.classList.add('unavailable');
+        submitButton.textContent = 'Falsches Formular für "Stammtisch"!';
+        updateRequestButton();
+        return;
+    }
     
     let tablesSelected = submitButton.getAttribute('data-tables') === 'true';
     let availabilityChecked = submitButton.getAttribute('data-availability-checked') === 'true';
