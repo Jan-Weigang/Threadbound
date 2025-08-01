@@ -99,30 +99,6 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_i
     for reservation in reservations:
         event_to_table_count[reservation.event_id].add(reservation.table_id)
     
-    # reservation_data = [{
-    #     'id': reservation.id,
-    #     'user_name': reservation.user.username,
-    #     'event_id': reservation.event_id,
-    #     'table_id': reservation.table_id,
-    #     'event_table_count': len(event_to_table_count[reservation.event_id]),
-    #     'date': reservation.associated_event.start_time.date(),
-    #     'start_time': reservation.associated_event.start_time.isoformat(),
-    #     'end_time': reservation.associated_event.end_time.isoformat(),
-    #     'start_time_str': reservation.associated_event.start_time.strftime('%H:%M'),
-    #     'end_time_str': reservation.associated_event.end_time.strftime('%H:%M'),
-    #     'game_category_icon': reservation.associated_event.game_category.icon,
-    #     'game_category': reservation.associated_event.game_category.name,
-    #     'name': reservation.associated_event.name,
-    #     'description': reservation.associated_event.description,
-    #     'event_type_id': reservation.associated_event.event_type_id,
-    #     'attendee_count': len(reservation.associated_event.attendees),
-    #     'time_created': reservation.associated_event.time_created.strftime('%d.%m.%Y %H:%M'),
-    #     'time_updated': reservation.associated_event.time_updated.strftime('%d.%m.%Y %H:%M') if reservation.associated_event.time_updated else None,
-    #     'publicity': reservation.associated_event.publicity.name,
-    #     'discord_link': reservation.associated_event.get_discord_message_url(),
-    #     'is_template': reservation.associated_event.is_template,
-    #     'is_marked': not reservation.associated_event.is_published
-    # } for reservation in reservations]
 
     # Build per-event shared cache
     event_cache = {}
@@ -166,7 +142,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_i
 
     if view_type == 'regular' or view_type == 'template':
         existing_events = [r.associated_event for r in reservations]
-        virtual_reservations = generate_virtual_reservations_from_templates(start_date.date(), end_date.date(), existing_events)
+        virtual_reservations = generate_virtual_reservations_from_templates(start_date.date(), end_date.date(), existing_events, room_id=room_id)
         reservation_data.extend(virtual_reservations)
 
     return reservation_data
@@ -174,7 +150,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_i
 
 
 # Used in prepare reservations for jinja
-def generate_virtual_reservations_from_templates(start_date, end_date, existing_events: list[Event]) -> list[dict]:
+def generate_virtual_reservations_from_templates(start_date, end_date, existing_events: list[Event], room_id=None) -> list[dict]:
     from tt_calendar.models import Event
     from tt_calendar import utils
     logging.info("generating virtual reservartions")
@@ -197,6 +173,8 @@ def generate_virtual_reservations_from_templates(start_date, end_date, existing_
             occ_end = occ_start + template.duration
 
             for res in template.reservations:
+                if room_id and res.table.room_id != room_id:
+                    continue
                 virtuals.append({
                     'id': f'virtual-{template.id}-{res.table_id}-{occ_day}',
                     'user_name': template.user.username,
