@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, current_app, session
+from flask import Blueprint, render_template, request, current_app, session, jsonify, redirect, url_for
 from tt_calendar.models import db, Event, Reservation, GameCategory, EventType, User
 from tt_calendar import decorators
 from tt_calendar import utils
 from datetime import datetime, timedelta
 import pytz
+
+from sqlalchemy import func
 
 analytics_bp = Blueprint('analytics_bp', __name__)
 
@@ -57,6 +59,9 @@ def view_stats():
     # Only allow user to see their own data unless admin
     user_id = session.get('user_id')
     is_admin = session.get('is_admin') or session.get('is_vorstand')
+
+    if not is_admin:
+        return redirect(url_for('cal_bp.view'))
 
     # Preload filter options
     users = User.query.all() if is_admin else [User.query.get(user_id)]
@@ -133,14 +138,166 @@ def chart_events_per_category():
     if event_type_id:
         query = query.filter(Event.event_type_id == event_type_id)
 
-    results = query.with_entities(GameCategory.name, db.func.count(Event.id))\
-        .join(GameCategory)\
-        .group_by(GameCategory.name)\
-        .order_by(db.func.count(Event.id).desc())\
-        .all()
+    results = (
+        query.join(GameCategory)
+            .join(EventType)
+            .with_entities(GameCategory.name, EventType.name, db.func.count(Event.id))
+            .group_by(GameCategory.name, EventType.name)
+            .order_by(GameCategory.name, db.func.count(Event.id).desc())
+            .all()
+    )
 
-    labels = [r[0] for r in results]
-    values = [r[1] for r in results]
+    from collections import defaultdict
 
-    return render_template('analytics/charts/events_per_category.html', labels=labels, values=values)
+    tree = defaultdict(lambda: defaultdict(int))
 
+    # Build nested dict: {category: {event_type: count}}
+    for category, event_type, count in results:
+        tree[category][event_type] += count
+        
+    # Build sunburst-style nested list
+    sunburst_data = [
+        {
+            "name": category,
+            "children": [
+                {"name": event_type, "value": count}
+                for event_type, count in types.items()
+            ]
+        } for category, types in tree.items()
+    ]
+    
+    return jsonify({"data": sunburst_data})
+
+
+
+@analytics_bp.route("/chart/events-per-week", methods=["POST"])
+def chart_events_per_week():
+    start_date = request.form.get("start_date")
+    end_date = request.form.get("end_date")
+    game_category_id = request.form.get("game_category_id")
+    user_id = request.form.get("user_id")
+    event_type_id = request.form.get("event_type_id")
+
+    if start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = utils.convert_to_berlin_time(start_date)
+    if end_date:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = utils.convert_to_berlin_time(end_date)
+
+
+    query = Event.get_regular_events()
+
+    if start_date:
+        query = query.filter(Event.start_time >= start_date)
+    if end_date:
+        query = query.filter(Event.start_time <= end_date)
+    if game_category_id:
+        query = query.filter_by(game_category_id=game_category_id)
+    if user_id:
+        query = query.filter(Event.user_id == user_id)
+    if event_type_id:
+        query = query.filter(Event.event_type_id == event_type_id)
+
+    if game_category_id:
+        results = query \
+            .with_entities(
+                func.strftime('%Y-W%W', Event.start_time).label('week'),
+                EventType.name,
+                func.count(Event.id)
+            ) \
+            .join(EventType) \
+            .group_by('week', EventType.name) \
+            .order_by('week') \
+            .all()
+    else:
+        results = query \
+            .with_entities(
+                func.strftime('%Y-W%W', Event.start_time).label('week'),
+                GameCategory.name,
+                func.count(Event.id)
+            ) \
+            .join(GameCategory) \
+            .group_by('week', GameCategory.name) \
+            .order_by('week') \
+            .all()
+
+    # Detect unique weeks and series
+    data_by_series = defaultdict(lambda: defaultdict(int))
+    week_set = set()
+
+    for week, name, count in results:
+        data_by_series[name][week] += count
+        week_set.add(week)
+
+    weeks = sorted(week_set)
+    series = []
+    for series_name, week_map in data_by_series.items():
+        series.append({
+            "name": series_name,
+            "type": "bar",
+            "data": [week_map.get(w, 0) for w in weeks]
+        })
+
+    return jsonify({"weeks": weeks, "series": series})
+
+
+@analytics_bp.route("/table/events-matrix", methods=["POST"])
+def table_events_matrix():
+    start_date = request.form.get("start_date")
+    end_date = request.form.get("end_date")
+    game_category_id = request.form.get("game_category_id")
+    user_id = request.form.get("user_id")
+    event_type_id = request.form.get("event_type_id")
+
+    if start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = utils.convert_to_berlin_time(start_date)
+    if end_date:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = utils.convert_to_berlin_time(end_date)
+
+    query = Event.get_regular_events()
+
+    if start_date:
+        query = query.filter(Event.start_time >= start_date)
+    if end_date:
+        query = query.filter(Event.start_time <= end_date)
+    if game_category_id:
+        query = query.filter_by(game_category_id=game_category_id)
+    if user_id:
+        query = query.filter(Event.user_id == user_id)
+    if event_type_id:
+        query = query.filter(Event.event_type_id == event_type_id)
+
+    results = (
+        query.join(GameCategory)
+             .join(EventType)
+             .with_entities(GameCategory.name, EventType.name, db.func.count(Event.id))
+             .group_by(GameCategory.name, EventType.name)
+             .all()
+    )
+
+    from collections import defaultdict
+    matrix = defaultdict(lambda: defaultdict(int))
+    row_totals = defaultdict(int)
+    col_totals = defaultdict(int)
+    all_categories = set()
+    all_types = set()
+
+    for cat, etype, count in results:
+        matrix[cat][etype] = count
+        row_totals[cat] += count
+        col_totals[etype] += count
+        all_categories.add(cat)
+        all_types.add(etype)
+
+    all_categories = sorted(all_categories)
+    all_types = sorted(all_types)
+
+    return render_template("analytics/event_matrix_table.html",
+                           matrix=matrix,
+                           row_totals=row_totals,
+                           col_totals=col_totals,
+                           categories=all_categories,
+                           types=all_types)

@@ -10,16 +10,11 @@
   
     <title>3TH - Statistik</title>
 </head>
-<body class="layout-wrapper" data-layout="dashboard">
+<body class="layout-wrapper" data-layout="dashboard" style="overflow: auto;">
   
     <h1>📊 Statistik-Dashboard</h1>
 
-    <form id="filters"
-        hx-post="{{ url_for('analytics_bp.chart_events_per_category') }}"
-        hx-trigger="change"
-        hx-target="#chart-events-category"
-        hx-swap="innerHTML"
-        hx-indicator="#chart-loading">
+    <form id="filters" style="display: grid; grid-template-columns: 20ch auto; grid-gap: 1rem;">
 
         <label for="start">Von:</label>
         <input type="date" name="start_date" id="start" value="{{ start_date_prefill }}">
@@ -58,8 +53,245 @@
 </form>
 
 <div id="chart-loading" style="display:none;">⏳ Lädt...</div>
-<div id="chart-events-category"></div>
+<div id="chart-events-category" style="height: 500px;"></div>
+<div id="chart-events-week" style="height: 500px"></div>
+<div id="events-table" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <h2>📋 Event-Matrix</h2>
+    <div id="event-matrix-table-container">Lädt...</div>
+</div>
 
+<script>
+const form = document.getElementById('filters');
+const chart = echarts.init(document.getElementById('chart-events-category'));
+const loader = document.getElementById('chart-loading');
+
+function fetchAndRenderChart() {
+    loader.style.display = 'block';
+
+    const formData = new FormData(form);
+
+    const start = document.getElementById("start").value;
+    const end = document.getElementById("end").value;
+    const titleRange = `Events (${start} bis ${end})`;
+
+    fetch("{{ url_for('analytics_bp.chart_events_per_category') }}", {
+        method: "POST",
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        const colors = [
+        '#5470C6', '#91CC75', '#FAC858', '#EE6666', '#73C0DE', 
+        '#3BA272', '#FC8452', '#9A60B4', '#EA7CCC'
+        ];
+
+        chart.setOption({
+            color: colors,
+            title: { text: titleRange, left: 'center' },
+            tooltip: { trigger: 'item' },
+            series: [
+                {
+                    type: 'sunburst',
+                    data: data.data,
+                    radius: [0, '90%'],
+                    label: {
+                        rotate: 'radial'
+                    }
+                }
+            ]
+        });
+    })
+    .catch(err => console.error("Fetch failed", err))
+    .finally(() => loader.style.display = 'none');
+}
+
+form.addEventListener("change", fetchAndRenderChart);
+
+// Initial load
+fetchAndRenderChart();
+
+
+const chartDom = document.getElementById('chart-events-week');
+const weeklyChart = echarts.init(chartDom);
+
+const defaultLabelOption = {
+    show: true,
+    position: 'insideBottom',
+    distance: 15,
+    align: 'left',
+    verticalAlign: 'middle',
+    rotate: 90,
+    formatter: '{name|{a}}',
+    fontSize: 16,
+    rich: { name: {} }
+};
+
+const hoverLabelOption = {
+    show: true,
+    position: 'top',
+    distance: 20,
+    align: 'center',
+    verticalAlign: 'middle',
+    rotate: 0,
+    formatter: '{c}',
+    fontSize: 16,
+    rich: { name: {} }
+};
+
+function fetchWeeklyChart() {
+    loader.style.display = 'block';
+    const formData = new FormData(form);
+
+    fetch("{{ url_for('analytics_bp.chart_events_per_week') }}", {
+        method: "POST",
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                triggerOn: 'click'
+            },
+            legend: {
+                data: data.series.map(s => s.name)
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    mark: { show: true },
+                    magicType: { show: true, type: ['line', 'bar'] },
+                    saveAsImage: { show: true }
+                }
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    axisTick: { show: false },
+                    data: data.weeks
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: data.series.map(s => ({
+                name: s.name,
+                type: 'bar',
+                barGap: 0,
+                label: defaultLabelOption,
+                emphasis: { 
+                    focus: 'series',
+                    label: hoverLabelOption
+                },
+                data: s.data
+            }))
+        };
+
+        weeklyChart.setOption(option);
+    })
+    .catch(err => console.error("Weekly chart fetch failed", err))
+    .finally(() => loader.style.display = 'none');
+}
+
+
+
+
+let activeSeriesIndex = null;
+
+chartDom.addEventListener('mousemove', (event) => {
+  const pointInPixel = [event.offsetX, event.offsetY];
+  const pointInGrid = weeklyChart.convertFromPixel({ seriesIndex: 0 }, pointInPixel);
+
+  const found = weeklyChart.containPixel('grid', pointInPixel);
+
+  if (!found) {
+    // If moved out of grid area, hide all labels if active
+    if (activeSeriesIndex !== null) {
+      toggleLabels(null);
+    }
+    return;
+  }
+
+  const hovered = weeklyChart.convertFromPixel({ seriesIndex: 0 }, pointInPixel);
+  
+  const params = weeklyChart.convertFromPixel('grid', pointInPixel);
+  // Can't get seriesIndex easily from pixel, so fallback:
+
+  // Instead use ECharts event handlers to detect hovered series:
+  // We'll use 'highlight' events on the chart instance instead of this
+
+});
+
+weeklyChart.on('mouseover', function (params) {
+  if (params.componentType === 'series') {
+    if (params.seriesIndex !== activeSeriesIndex) {
+      activeSeriesIndex = params.seriesIndex;
+      toggleLabels(activeSeriesIndex);
+    }
+  }
+});
+
+weeklyChart.on('mouseout', function (params) {
+  if (params.componentType === 'series') {
+    // Delay hiding labels to avoid flicker when moving between bars in same series
+    setTimeout(() => {
+      // If mouse is not currently over same series, hide all labels
+      if (activeSeriesIndex === params.seriesIndex) {
+        toggleLabels(null);
+        activeSeriesIndex = null;
+      }
+    }, 150);
+  }
+});
+
+function toggleLabels(seriesIndex) {
+  const option = weeklyChart.getOption();
+  option.series.forEach((s, i) => {
+    if (seriesIndex == null) {
+        s.label = defaultLabelOption
+    } else {
+        s.label = hoverLabelOption
+    }
+
+  });
+  weeklyChart.setOption(option);
+}
+
+
+
+
+form.addEventListener("change", fetchWeeklyChart);
+fetchWeeklyChart();
+
+
+function fetchEventMatrixTable() {
+    const formData = new FormData(form);
+
+    fetch("{{ url_for('analytics_bp.table_events_matrix') }}", {
+        method: "POST",
+        body: formData
+    })
+    .then(r => r.text())
+    .then(html => {
+        document.getElementById("event-matrix-table-container").innerHTML = html;
+    })
+    .catch(err => {
+        console.error("Matrix fetch failed", err);
+        document.getElementById("event-matrix-table-container").innerText = "Fehler beim Laden der Matrix.";
+    });
+}
+
+form.addEventListener("change", fetchEventMatrixTable);
+fetchEventMatrixTable();
+</script>
 
 </body>
 </html>

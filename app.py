@@ -31,8 +31,6 @@ load_dotenv()
 
 # TODO debug doppelte Posts
 
-# TODO Absagen tracken
-
 # TODO Link zum Kalender präsenter machen
 
 # TODO Veranstaltungen in Popup checken, nur 1 Woche wird getrackt

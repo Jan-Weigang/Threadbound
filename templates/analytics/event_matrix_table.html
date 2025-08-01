@@ -1,0 +1,46 @@
+<table class="event-matrix">
+    <thead>
+        <tr>
+            <th>Kategorie / Typ</th>
+            {% for t in types %}
+                <th>{{ t }}</th>
+            {% endfor %}
+            <th>Σ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in categories %}
+            <tr>
+                <td><strong>{{ c }}</strong></td>
+                {% for t in types %}
+                    <td>{{ matrix[c][t] or 0 }}</td>
+                {% endfor %}
+                <td><strong>{{ row_totals[c] }}</strong></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Σ</th>
+            {% for t in types %}
+                <th>{{ col_totals[t] }}</th>
+            {% endfor %}
+            <th>{{ row_totals.values() | sum }}</th>
+        </tr>
+    </tfoot>
+</table>
+
+<style>
+.event-matrix {
+    border-collapse: collapse;
+    width: 100%;
+}
+.event-matrix th, .event-matrix td {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: center;
+}
+.event-matrix th {
+    background-color: #f4f4f4;
+}
+</style>
