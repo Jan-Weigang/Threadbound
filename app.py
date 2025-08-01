@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_dance.contrib.discord import make_discord_blueprint, discord
-from datetime import datetime
 import signal, os, asyncio, threading
 
 import discord_bot
@@ -24,6 +23,12 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Terminerinnerungen erste Name nicht als Liste
+
+# TODO Template Einstellung korrekt gespeichert von wann posts live gehen?
+
+# TODO debug doppelte Posts
+
 # TODO Absagen tracken
 
 # TODO Link zum Kalender präsenter machen
@@ -41,8 +46,6 @@ load_dotenv()
 # TODO Lageplan
 
 # TODO Event overlay show event
-
-# TODO Create Room Model.
 
 # TODO Close Reqeust hat nur einen Mention.
 

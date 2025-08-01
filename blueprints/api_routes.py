@@ -228,12 +228,6 @@ def generate_virtual_reservations_from_templates(start_date, end_date, existing_
 
 
 
-
-
-
-
-
-
 # POST endpoint to add a new reservation (if needed)
 @api.route('/reservations', methods=['POST'])
 def api_create_reservation():
@@ -427,7 +421,11 @@ def mark_attendance_by_user_and_event(discord_user_id: str, username: str, event
     if action == "attend":
         if user not in event.attendees:
             event.attendees.append(user)
+        if user in event.declined_attendees:
+            event.declined_attendees.remove(user)
     elif action == "not_attend":
+        if user not in event.declined_attendees:
+            event.declined_attendees.append(user)
         if user in event.attendees:
             event.attendees.remove(user)
 

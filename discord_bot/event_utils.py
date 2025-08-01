@@ -2,7 +2,7 @@ import discord
 from .bot import bot
 
 from flask import url_for
-import logging
+import logging, random
 
 
 async def post_event_embed_to_channel(channel_id, embed):
@@ -89,8 +89,17 @@ def generate_event_embed(event, channel_id, action):
         embed.add_field(name="", value="", inline=False)
 
         # Attendees: Add the list of attendees for the event
+        total_yes = len(event.attendees)
+        total_no = len(event.declined_attendees)
+
+        YES_EMOJIS = [':saluting_face:', ':saluting_face:', ':saluting_face:', ':saluting_face:', ':saluting_face:', ':saluting_face:', ':rainbow:']
+        NO_EMOJIS = [':person_gesturing_no:', ':woman_gesturing_no:', ':man_gesturing_no:']
+
+        yes_emoji = random.choice(YES_EMOJIS)
+        no_emoji = random.choice(NO_EMOJIS)
+
         attendees_list = ', '.join([attendee.username for attendee in event.attendees]) or 'Keine Teilnehmer'  # If no attendees, show "Keine Teilnehmer"
-        embed.add_field(name=f"{len(event.attendees)} Teilnehmer:", value=attendees_list, inline=False)
+        embed.add_field(name=f"{yes_emoji} {len(event.attendees)}  | {no_emoji} {len(event.declined_attendees)}", value=attendees_list, inline=False)
     
     embed.set_footer(text=f"Event ID: {event.id} - Erstellt:")
     embed.timestamp = event.time_created

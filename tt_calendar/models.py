@@ -38,6 +38,10 @@ event_attendees = db.Table('event_attendees',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
 )
 
+event_declined_attendees = db.Table('event_declined_attendees',
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+)
 
 event_overlaps = db.Table(
     "event_overlaps",
@@ -193,6 +197,7 @@ class Event(db.Model, SoftDeleteMixin):
     reservations = db.relationship('Reservation', backref='associated_event', lazy=True, cascade='all, delete-orphan')
     user = db.relationship('User', backref='events')
     attendees = db.relationship('User', secondary=event_attendees, backref='attending_events')
+    declined_attendees = db.relationship('User', secondary=event_declined_attendees, backref='declined_attending_events')
 
     # States
     is_published = db.Column(db.Boolean, nullable=False, default=False)
