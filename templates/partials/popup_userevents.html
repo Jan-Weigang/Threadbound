@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                     {% for event in templates %}
-                        <tr class="{{ 'created-event' if event.user_id == current_user_id }}">
+                        <tr class="{{ 'created-event' if event.user_id == session.user_id }}">
                             <td>{{ event.start_time.strftime('%a') }}</td>
                             <td>{{ event.start_time.strftime('%d.%m.%Y') }}</td>
                             <td>{{ event.start_time.strftime('%H:%M') }}</td>
@@ -29,7 +29,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if event.user_id == current_user_id %}
+                                {% if event.user_id == session.user_id %}
                                     <a href="{{ url_for('template_bp.edit_template', event_id=event.id) }}" class="edit-link">
                                         Bearbeiten
                                     </a>
@@ -46,7 +46,7 @@
                 </tbody>
 
                     {% for event in events %}
-                        <tr class="{{ 'created-event' if event.user_id == current_user_id }}">
+                        <tr class="{{ 'created-event' if event.user_id == session.user_id }}">
                             <td>{{ event.start_time.strftime('%a') }}</td>
                             <td>{{ event.start_time.strftime('%d.%m.%Y') }}</td>
                             <td>{{ event.start_time.strftime('%H:%M') }}</td>
@@ -59,7 +59,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if event.user_id == current_user_id %}
+                                {% if event.user_id == session.user_id %}
                                     <a href="{{ url_for('event_bp.edit_event', event_id=event.id) }}" class="edit-link">
                                         Bearbeiten
                                     </a>

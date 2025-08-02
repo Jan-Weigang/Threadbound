@@ -172,4 +172,4 @@ def popup_userevents():
         Event.user_id == user.id
     )
 
-    return render_template('partials/popup_userevents.html', events=events, templates=templates, current_user_id=user.id)
+    return render_template('partials/popup_userevents.html', events=events, templates=templates)
