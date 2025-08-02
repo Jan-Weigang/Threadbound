@@ -83,10 +83,12 @@ def edit_event(event_id):
         user = user_manager.get_or_create_user()
     except UserNotAuthenticated:
         return redirect(url_for("discord.login"))
+    
+    is_allowed = session.get('is_admin') or session.get('is_vorstand')
     event = Event.query.get_or_404(event_id)
 
     # Ensure the user is the creator of the event
-    if event.user_id != user.id and not session.get('is_vorstand'):
+    if event.user_id != user.id and not is_allowed:
         flash('You are not authorized to edit this event.', 'error')
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 

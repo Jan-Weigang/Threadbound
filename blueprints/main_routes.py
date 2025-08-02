@@ -35,13 +35,13 @@ def login():
     except UserNotAuthenticated:
         return redirect(url_for("discord.login"))
     discord_handler = get_discord_handler()
-    session['is_member'] = discord_handler.is_role(user.discord_id, "member") # type: ignore
-    session['is_beirat'] = discord_handler.is_role(user.discord_id, "beirat") # type: ignore
-    session['is_mod'] = discord_handler.is_role(user.discord_id, "mod") # type: ignore
-    session['is_vorstand'] = discord_handler.is_role(user.discord_id, "vorstand") # type: ignore
-    session['is_admin'] = discord_handler.is_role(user.discord_id, "admin") # type: ignore
-    session['username'] = user.username
-    session['user_id'] = user.id
+    session['is_member'] =      discord_handler.is_role(user.discord_id, "member")      # type: ignore
+    session['is_beirat'] =      discord_handler.is_role(user.discord_id, "beirat")      # type: ignore
+    session['is_mod'] =         discord_handler.is_role(user.discord_id, "mod")         # type: ignore
+    session['is_vorstand'] =    discord_handler.is_role(user.discord_id, "vorstand")    # type: ignore
+    session['is_admin'] =       discord_handler.is_role(user.discord_id, "admin")       # type: ignore
+    session['username'] =   user.username
+    session['user_id'] =    user.id
     session['discord_user_id'] = user.discord_id
 
     session.permanent = True

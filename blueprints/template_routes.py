@@ -56,13 +56,16 @@ def build_rrule_from_form(form_data: dict) -> str:
 @decorators.login_required
 def create_template():
     user_manager = current_app.config['user_manager']
+    
     try:
         user = user_manager.get_or_create_user()
     except UserNotAuthenticated:
         return redirect(url_for("discord.login"))
 
+    is_allowed = session.get('is_admin') or session.get('is_vorstand') or session.get('is_beirat')
+
     # Check if the user is allowed to create a template (Beirat or Vorstand roles)
-    if not session.get('is_beirat') and not session.get('is_vorstand'):
+    if not is_allowed:
         flash("You do not have permission to create a template.", "danger")
         return redirect(url_for("cal_bp.view", view_type="regular"))
     
@@ -121,9 +124,10 @@ def edit_template(event_id):
         return redirect(url_for("discord.login"))
 
     event = Event.query.get_or_404(event_id)
+    is_allowed = session.get('is_admin') or session.get('is_vorstand')
 
     # Ensure the user is the creator of the event
-    if event.user_id != user.id and not session.get('is_vorstand'):
+    if event.user_id != user.id and not is_allowed:
         flash('You are not authorized to edit this event.', 'error')
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
