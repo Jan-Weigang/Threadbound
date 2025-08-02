@@ -53,7 +53,7 @@ def build_rrule_from_form(form_data: dict) -> str:
 
 
 @template_bp.route("/create", methods=["GET", "POST"])
-@decorators.login_required
+@decorators.require_min_role('beirat')
 def create_template():
     user_manager = current_app.config['user_manager']
     
@@ -115,7 +115,7 @@ def create_template():
 
 
 @template_bp.route("/edit/<string:event_id>", methods=["GET", "POST"])
-@decorators.login_required
+@decorators.require_min_role('beirat')
 def edit_template(event_id):
     user_manager = current_app.config['user_manager']
     try:

@@ -54,7 +54,7 @@ def calculate_statistics(events):
 
 
 @analytics_bp.route('/', methods=['GET'])
-@decorators.login_required
+@decorators.require_min_role('member')
 def view_stats():
     # Only allow user to see their own data unless admin
     user_id = session.get('user_id')
@@ -78,7 +78,7 @@ def view_stats():
 
 
 @analytics_bp.route('/stats/data', methods=['POST'])
-@decorators.login_required
+@decorators.require_min_role('vorstand')
 def fetch_stats_data():
     data = request.form
     start_date = data.get('start_date')

@@ -14,7 +14,7 @@ event_bp = Blueprint('event_bp', __name__)
 
 
 @event_bp.route('/create', methods=['GET', 'POST'])
-@decorators.login_required
+@decorators.require_min_role('member')
 def create_event():
     user_manager = current_app.config['user_manager']
     try:
@@ -76,7 +76,7 @@ def create_event():
 
 
 @event_bp.route('/edit/<string:event_id>', methods=['GET', 'POST'])
-@decorators.login_required
+@decorators.require_min_role('member')
 def edit_event(event_id):
     user_manager = current_app.config['user_manager']
     try:
@@ -143,7 +143,7 @@ def edit_event(event_id):
 
 
 @event_bp.route('/delete/<string:event_id>', methods=['POST'])
-@decorators.login_required
+@decorators.require_min_role('member')
 def delete_event(event_id):
     user_manager = current_app.config['user_manager']
     event_manager = current_app.config['event_manager']

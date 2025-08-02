@@ -52,6 +52,9 @@ def fetch_day():
     view_type = request.args.get('view_type', 'public')
     room_id = request.args.get('room_id', type=int)
 
+    if not session.get("is_member"):
+        view_type = "public"
+
     reservations = prepare_reservations_for_jinja(view_type, date_str, date_str, room_id=room_id)
     tables = Table.query.filter_by(room_id=room_id).order_by(Table.id).all() # Table ID must be ordered
     event_types = EventType.query.all()
@@ -70,6 +73,9 @@ def fetch_month():
     date = datetime.strptime(date_str, '%Y-%m-%d').date()
     view_type = request.args.get('view_type', 'public')
     room_id = request.args.get('room_id', type=int)
+
+    if not session.get("is_member"):
+        view_type = "public"
 
     week_start, week_end = utils.get_end_days_of_week(date)
     date_range, first_date_str, last_date_str = utils.get_end_days_of_month(date)

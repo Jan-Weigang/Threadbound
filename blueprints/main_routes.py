@@ -119,8 +119,8 @@ def serve_thumbnail(filename):
     return send_from_directory('static/images', filename)
 
 
-@main.route('/events', methods=['GET'])
-@decorators.login_required
-def list_events():
-    events = Event.get_regular_events().all()
-    return render_template('events/list.html', events=events)
+# @main.route('/events', methods=['GET'])
+# @decorators.require_min_role('member')
+# def list_events():
+#     events = Event.get_regular_events().all()
+#     return render_template('events/list.html', events=events)
