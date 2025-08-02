@@ -1,29 +1,63 @@
-# Das Buchungssystem des TableTopTreff Hannover e. V.
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![HTMX](https://img.shields.io/badge/HTMX-1.9-blue)
+
+<img src="readme_assets/threadbound_logo.png" width="400"/>
+
 
 ## Wer?
 
 In diesem Repo wird das Buchungssystem des 3TH entwickelt. 
 
-Der [TableTopTreff Hannover](https://tabletoptreff-hannover.de/) ist mit über 200 Mitgliedern einer der größten Vereine Deutschlands für Tabletop-, Brett- und Rollenspiele. Dies war in einem üblichen Kalender nicht mehr vernünftig zu tracken. Dafür wurde dieses Buchungssystem entwickelt, welches an die Kommunikationsplattform des Vereins (Discord) angebunden ist.
+Der [TableTopTreff Hannover](https://tabletoptreff-hannover.de/) ist mit über 200 Mitgliedern einer der größten Vereine Deutschlands für Tabletop-, Brett- und Rollenspiele. 
+
+## Was?
+
+Threadbound ist ein Buchungssystem. Unsere ~1500 Termine pro Jahr waren in einem üblichen Kalender nicht mehr vernünftig zu tracken: Häufige Doppelbuchungen, unhandliche Notizen für die Buchung bestimmter Tische, 20+ verschiedene Kalender für die Spielsysteme... 
+
+Threadbound ist unsere Lösung für digitale Reservierungen. 
+
+Es ist an die Kommunikationsplattform des Vereins (Discord) angebunden und spiegelt unsere Vereinsstruktur aus einem Vorstand und größerem Beirat mit regelmäßigen Stammtischen, Spielterminen und Turnieren sowie öffentlichen und geschlossenen Veranstaltungen auf beliebig vielen Tischen in zwei Räumlichkeiten wieder.
+
+### **Architekturüberblick**
+
+- **Frontend:** Jinja, HTML, HTMX, JS
+- **Backend:** Python (*Flask, SQLAlchemy, APScheduler*)
+- **Auth:** über Discord (*OAuth2*)
+- **Datenbank:** SQLite
+
 
 ## Funktionen
 
-- SSO-Login per Discord
-- Rollenprüfung über Discord
-- Erstellen von Events mit Reservierung einer beliebigen Anzahl Tische in mehreren Räumen
-- Automatische Discord-Posts mit übersichtlichem Embed und Thread für Absprachen zum Event
-- Zusagen und Absagen per App und Discord-Buttons möglich
-- Erinnerungsmeldungen für Ersteller und Absagemeldungen and Personen, die zugesagt haben
-- Prävention von Kollisionen - Möglichkeit Kollisionen automatisch anzufragen und per Ticket in Discord zu klären
-- Einschränkung der Buchungsgröße - Automatisches Anfragen für Erlaubnis beim Vorstand per Ticket in Discord
-- Per Rolle zuweisbare Rechte "Stammtische" (Regelmäßige Events) einzutragen.
-- Einstellbare Vorlaufzeit, wann das Event auf Discord gepostet wird
+- Angeschlossen an Discord:
+  - SSO-Login mit übernahme der Server-Nicknames
+  - Rollenprüfung
+  - Automatische Posts mit übersichtlichem Embed und Thread für Absprachen zum Event
+  - Einstellbare Vorlaufzeit, wann das Event auf Discord gepostet wird
+  - Erinnerungsmeldungen für Ersteller und Absagemeldungen and Personen, die zugesagt haben
+- Funktionen der App:
+  - moderne Kalenderansicht auf allen Geräten
+  - Erstellen von Events mit Reservierung von Tischen in mehreren Räumen
+  - Zusagen und Absagen per App und Discord-Buttons möglich
+  - Unabsichtliche Doppelbuchungen werden geprüft und verhindert
+- Funktionen des Servers:
+  - Ausgeklügeltes System für Vormerkungen (Events, die noch Zustimmungen bedürfen)
+  - Discord-Tickets zur Absprache des Buchenden mit relevanten Personen bei:
+    - Absichtliche Event-Überlagerung z. B. bei Turnieren (*bestehendes Event muss zustimmen*)
+    - Zu große Buchungen z. B. 4+ Tische (*Vorstand muss zustimmen*)
+  - Änderungen im Kalender werden erkannt, Vormerkungen und Tickets entsprechend aufgelöst.
+- Sonstiges:
+  - Per Rolle zuweisbare Rechte "Stammtische" (regelmäßige Events) einzutragen.
+  - ICS Export für Events oder ganze Kalender
+  - Analytics der eingetragenen Events
+  - Leichte Bedienung, große Zahl an Shortcuts, Infozeile, Poweruser-Features
 
-- Leichte Bedienung, Shortcuts, Infozeile, Mobiles Design
+### Beispielbilder
 
 ![alt text](readme_assets/hauptansicht.png)
 
 ![alt text](readme_assets/reservation_popup.png)
+
+![alt text](image.png)
 
 ![alt text](readme_assets/form.png)
 
@@ -33,7 +67,7 @@ Der [TableTopTreff Hannover](https://tabletoptreff-hannover.de/) ist mit über 2
 
 ## Anleitung
 
-[![Watch the video](https://img.youtube.com/vi/-Dex5jn4HPg/hqdefault.jpg)](https://www.youtube.com/watch?v=-Dex5jn4HPg)
+[Demo - Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptreff.de/calendar/)
 
 
 ## Voraussetzungen
@@ -97,6 +131,8 @@ Folgende Umgebungsvariablen müssen gesetzt werden, um die Anwendung korrekt zu 
 | `BOT_ROLE_ID=`| Rollen-ID des Bots auf dem Discordserver. 
 
 ---
+
+
 
 
 Der aktuelle Branch der Entwicklung ist "htmx"
