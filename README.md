@@ -55,15 +55,19 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 ## Beispielbilder
 
 ### Hauptansicht in der App
-![alt text](readme_assets/hauptansicht.png)
+<img src="readme_assets/hauptansicht.png" width="600"/>
+
 ### Ansicht einer Reservierung in der App
-![alt text](readme_assets/reservation_popup.png)
+<img src="readme_assets/reservation_popup.png" width="600"/>
+
 ### Buchungs-Formular in der App
-![alt text](readme_assets/form.png)
+<img src="readme_assets/form.png" width="600"/>
+
 ### Discord Event-Post mit Zusagen, Absagen und Thread
-![alt text](readme_assets/discord_event_post.png)
+<img src="readme_assets/discord_event_post.png" width="600"/>
+
 ### Mobile Ansicht der App
-![alt text](readme_assets/mobile_ansicht.png)
+<img src="readme_assets/mobile_ansicht.png" width="400"/>
 
 # Selbst aufsetzen
 
