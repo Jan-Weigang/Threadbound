@@ -23,7 +23,7 @@
             <div class="popup-value">{{ relatedTablesInfo }}</div>
 
             <div class="popup-label">Teilnehmende:</div>
-            <div class="popup-value">{{ reservation.attendees or 0 }}</div>
+            <div class="popup-value">{% if session.get('is_member') %}{{ reservation.attendees or "Keine Teilnehmer" }}{% else %}{{ reservation.attendees|length if reservation.attendees else "0" }}{% endif %}</div>
 
 
             <div class="popup-label">Discord:</div>
