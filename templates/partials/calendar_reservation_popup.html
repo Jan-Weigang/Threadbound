@@ -61,7 +61,7 @@
                     hx-headers='{"Content-Type": "application/json"}'
                     hx-trigger="click"
                     hx-swap="none">
-                    Zusagen
+                    Ich bin dabei!
                 </button>
 
                 <button 
@@ -77,7 +77,7 @@
                     hx-headers='{"Content-Type": "application/json"}'
                     hx-trigger="click"
                     hx-swap="none">
-                    Absagen
+                    Ich kann nicht.
                 </button>
 
                 <button class="edit-popup" onclick="window.location.href='{{ url_for('ics_bp.get_event_ics', event_id=reservation.event_id) }}'">ICS Laden</button>
