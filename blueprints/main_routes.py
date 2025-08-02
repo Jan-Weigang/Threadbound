@@ -37,7 +37,6 @@ def login():
     discord_handler = get_discord_handler()
     session['is_member'] =      discord_handler.is_role(user.discord_id, "member")      # type: ignore
     session['is_beirat'] =      discord_handler.is_role(user.discord_id, "beirat")      # type: ignore
-    session['is_mod'] =         discord_handler.is_role(user.discord_id, "mod")         # type: ignore
     session['is_vorstand'] =    discord_handler.is_role(user.discord_id, "vorstand")    # type: ignore
     session['is_admin'] =       discord_handler.is_role(user.discord_id, "admin")       # type: ignore
     session['username'] =   user.username
@@ -46,7 +45,7 @@ def login():
 
     session.permanent = True
 
-    logging.info(f"I logged in user {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
+    logging.info(f"I logged in user {user.username} with id {user.discord_id}. member: {session['is_member']} - admin: {session['is_admin']}") # type: ignore
 
     # if not session['is_member']:
     #     flash('You are not a member and cannot be given access', 'failure')

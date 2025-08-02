@@ -69,7 +69,7 @@ def create_template():
         flash("You do not have permission to create a template.", "danger")
         return redirect(url_for("cal_bp.view", view_type="regular"))
     
-    logging.info(f"Template creating is {user.username} with id {user.discord_id}. member: {session['is_member']} - mod: {session['is_mod']} - admin: {session['is_admin']}") # type: ignore
+    logging.info(f"Template creating is {user.username} with id {user.discord_id}. member: {session['is_member']} - admin: {session['is_admin']}") # type: ignore
 
     if request.method == "POST":
         form_data = utils.extract_template_form_data(request)
