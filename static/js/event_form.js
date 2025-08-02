@@ -402,7 +402,7 @@ function updateSubmitButton() {
     const regex = /stammtisch/i;
     const hasForbiddenWord = regex.test(nameInput.value) || regex.test(descInput.value);
 
-    if (!isTemplate && hasForbiddenWord) {
+    if (!isTemplate && !isEditMode && hasForbiddenWord) {
         submitButton.setAttribute('disabled', 'disabled');
         submitButton.classList.add('unavailable');
         submitButton.textContent = 'Falsches Formular für "Stammtisch"!';
