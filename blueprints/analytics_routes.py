@@ -60,9 +60,6 @@ def view_stats():
     user_id = session.get('user_id')
     is_admin = session.get('is_admin') or session.get('is_vorstand')
 
-    if not is_admin:
-        return redirect(url_for('cal_bp.view'))
-
     # Preload filter options
     users = User.query.all() if is_admin else [User.query.get(user_id)]
     game_categories = GameCategory.query.all()
@@ -74,10 +71,8 @@ def view_stats():
 
     return render_template('analytics/stats_dashboard.html',
                            users=users,
-                           user_id=user_id,
                            game_categories=game_categories,
                            event_types=event_types,
-                           is_admin=is_admin,
                            start_date_prefill=first_of_last_month.strftime('%Y-%m-%d'),
                            end_date_prefill=today.strftime('%Y-%m-%d'))
 

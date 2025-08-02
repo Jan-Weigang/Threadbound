@@ -1,6 +1,5 @@
-from flask import session, request, redirect, render_template, url_for, abort
-from flask import request, Blueprint, current_app
-from flask_dance.contrib.discord import discord
+from flask import session, request, render_template, abort
+from flask import request, Blueprint
 from tt_calendar.models import *
 from tt_calendar import utils
 

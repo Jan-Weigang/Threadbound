@@ -37,7 +37,7 @@
             {% endfor %}
         </select>
 
-        {% if is_admin %}
+        {% if session.is_admin %}
             <label for="user">Benutzer:</label>
             <select name="user_id" id="user">
                 <option value="">Alle</option>
@@ -46,7 +46,7 @@
                 {% endfor %}
             </select>
         {% else %}
-            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <input type="hidden" name="user_id" value="{{ session.user_id }}">
         {% endif %}
 
         
