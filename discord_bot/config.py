@@ -22,22 +22,33 @@ if not guild_id_str or not guild_id_str.isdigit():
 guild_id = int(guild_id_str)
 
 
-raw_guild_roles = {
-    "bot": os.getenv('BOT_ROLE_ID'),
-    "member": os.getenv('MEMBER_ROLE_ID'),
-    "beirat": os.getenv('BEIRAT_ROLE_ID'),
-    "vorstand": os.getenv('VORSTAND_ROLE_ID'),
-    "mod": os.getenv('MOD_ROLE_ID'),
-    "admin": os.getenv('ADMIN_ROLE_ID')
-}
-guild_roles = {}
+def parse_role_ids(value: str, role_name: str) -> list[int]:
+    if not value:
+        raise ValueError(f"{role_name.upper()}_ROLE_ID is missing")
 
-for role_name, role_id_str in raw_guild_roles.items():
-    if not role_id_str or not role_id_str.isdigit():
+    ids = [v.strip() for v in value.split(',')]
+    
+    for v in ids:
+        if not v.isdigit():
+            raise ValueError(f"Invalid ID '{v}' in {role_name.upper()}_ROLE_ID — must be digits only.")
+
+    return [int(v) for v in ids]
+
+
+def parse_single_role_id(value: str, role_name: str) -> int:
+    if not value or not value.strip().isdigit():
         raise ValueError(f"{role_name.upper()}_ROLE_ID must be a valid integer")
+    return int(value.strip())
 
-    guild_roles[role_name] = int(role_id_str)
 
+
+guild_roles = {
+    "bot":      parse_single_role_id(os.getenv('BOT_ROLE_ID'), 'bot'),
+    "member":   parse_role_ids(os.getenv('MEMBER_ROLE_ID'), 'member'),
+    "beirat":   parse_role_ids(os.getenv('BEIRAT_ROLE_ID'), 'beirat'),
+    "vorstand": parse_role_ids(os.getenv('VORSTAND_ROLE_ID'), 'vorstand'),
+    "admin":    parse_role_ids(os.getenv('ADMIN_ROLE_ID'), 'admin')
+}
 
 ticket_category_id: int = int(os.getenv('TICKET_CATEGORY_ID')) # type: ignore
 ticket_log_id: int = int(os.getenv('TICKET_LOG_ID')) # type: ignore

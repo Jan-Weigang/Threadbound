@@ -16,7 +16,7 @@ async def get_nickname(discord_user_id):
         return None
 
 
-async def is_guild_role(discord_user_id: int, role_string):
+async def is_guild_role(discord_user_id: int, role_string: str):
     discord_user_id = int(discord_user_id)
     guild = bot.get_guild(guild_id)
 
@@ -27,15 +27,12 @@ async def is_guild_role(discord_user_id: int, role_string):
     if not member:
         return False
     
-    role_id = guild_roles.get(role_string)
-    if role_id is None:
+    role_ids = guild_roles.get(role_string)
+    if role_ids is None:
         raise ValueError(f"Role '{role_string}' does not exist in guild_roles.")
 
-    role = guild.get_role(role_id)
-    if role and role in member.roles:
-        return True 
-    else:
-        return False
+    member_role_ids = [role.id for role in member.roles]
+    return any(role_id in member_role_ids for role_id in role_ids)
 
 
 async def send_message_in_event_thread(channel_id, message_id, message: str):

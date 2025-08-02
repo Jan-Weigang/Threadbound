@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 
-from .config import discord_token, guild_id, guild_roles
+from .config import discord_token, guild_id
 from .ticketing import OverlapTicketView, SizeTicketView, CloseOnlyTicketView, reaction_close_check
 
 

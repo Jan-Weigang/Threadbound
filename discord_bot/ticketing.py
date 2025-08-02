@@ -39,7 +39,7 @@ class OverlapTicketView(View):
     @discord.ui.button(label="🛠️ Sofort schließen (Vorstand)", style=ButtonStyle.secondary	, custom_id="ticket_sudo_close")
     async def sudo_close(self, interaction: discord.Interaction, button: Button):
         # Optional: check if the user has mod/admin role
-        if not any(r.id == guild_roles["vorstand"] for r in interaction.user.roles): # type: ignore
+        if not any(r.id in guild_roles["vorstand"] for r in interaction.user.roles): # type: ignore
             await interaction.response.send_message("❌ Keine Berechtigung.", ephemeral=True)
             return
 
@@ -129,17 +129,19 @@ async def create_ticket(bot, creator_id: int, overlapped_member_id: int | None =
     creator = await get_member_safely(guild, creator_id)
 
     bot_role = guild.get_role(guild_roles["bot"])
-    vorstand_role = guild.get_role(guild_roles["vorstand"])
-    beirat_role = guild.get_role(guild_roles["beirat"])
 
     timestamp = datetime.now().strftime("%d%m%y-%H:%M")
 
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(read_messages=False),
-        vorstand_role: discord.PermissionOverwrite(read_messages=True),
         bot_role: discord.PermissionOverwrite(read_messages=True),
         creator: discord.PermissionOverwrite(read_messages=True),
     }
+
+    for role_id in guild_roles["vorstand"]:
+        role = guild.get_role(role_id)
+        if role:
+            overwrites[role] = discord.PermissionOverwrite(read_messages=True)
 
     if overlapped_member_id:
         assert new_event
@@ -198,8 +200,10 @@ Bitte besprecht hier, ob das Event verschoben werden soll, ob das bestehende Eve
         description=description,
         color=discord.Color.blue()
     )
+    vorstand_roles = [guild.get_role(rid) for rid in guild_roles["vorstand"]]
+    vorstand_roles = [r for r in vorstand_roles if r is not None]
 
-    mentions = f"{creator.mention} {vorstand_role.mention}"
+    mentions = f"{creator.mention} " + " ".join(r.mention for r in vorstand_roles)
     if overlapped_member_id:
         mentions += f" {overlapped_member.mention}"
     await ticket_channel.send(f"{mentions}", embed=embed, view=view)
@@ -345,7 +349,11 @@ async def handle_overlap_resolution(interaction, approve: bool):
     if not member:
         member = await guild.fetch_member(interaction.user.id)
 
-    is_vorstand = any(role.id in [guild_roles["vorstand"], guild_roles["admin"]] for role in member.roles)
+    
+    is_vorstand = any(
+        role.id in guild_roles["vorstand"] or role.id in guild_roles["admin"]
+        for role in member.roles
+    )
 
     data = {
         "discord_user_id": interaction.user.id,
@@ -387,7 +395,10 @@ async def handle_size_resolution(interaction, approve: bool):
     if not member:
         member = await guild.fetch_member(interaction.user.id)
 
-    is_vorstand = any(role.id in [guild_roles["vorstand"], guild_roles["admin"]] for role in member.roles)
+    is_vorstand = any(
+        role.id in guild_roles["vorstand"] or role.id in guild_roles["admin"]
+        for role in member.roles
+    )
 
     data = {
         "channel_id": interaction.channel.id,
