@@ -3,7 +3,6 @@
 
 <img src="readme_assets/threadbound_logo.png" width="400"/>
 
-
 ## Wer?
 
 In diesem Repo wird das Buchungssystem des 3TH entwickelt. 
@@ -18,6 +17,8 @@ Threadbound ist unsere Lösung für digitale Reservierungen.
 
 Es ist an die Kommunikationsplattform des Vereins (Discord) angebunden und spiegelt unsere Vereinsstruktur aus einem Vorstand und größerem Beirat mit regelmäßigen Stammtischen, Spielterminen und Turnieren sowie öffentlichen und geschlossenen Veranstaltungen auf beliebig vielen Tischen in zwei Räumlichkeiten wieder.
 
+Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptreff.de/calendar/)
+
 ### **Architekturüberblick**
 
 - **Frontend:** Jinja, HTML, HTMX, JS
@@ -28,47 +29,43 @@ Es ist an die Kommunikationsplattform des Vereins (Discord) angebunden und spieg
 
 ## Funktionen
 
-- Angeschlossen an Discord:
-  - SSO-Login mit übernahme der Server-Nicknames
-  - Rollenprüfung
-  - Automatische Posts mit übersichtlichem Embed und Thread für Absprachen zum Event
-  - Einstellbare Vorlaufzeit, wann das Event auf Discord gepostet wird
-  - Erinnerungsmeldungen für Ersteller und Absagemeldungen and Personen, die zugesagt haben
-- Funktionen der App:
-  - moderne Kalenderansicht auf allen Geräten
-  - Erstellen von Events mit Reservierung von Tischen in mehreren Räumen
-  - Zusagen und Absagen per App und Discord-Buttons möglich
-  - Unabsichtliche Doppelbuchungen werden geprüft und verhindert
-- Funktionen des Servers:
-  - Ausgeklügeltes System für Vormerkungen (Events, die noch Zustimmungen bedürfen)
-  - Discord-Tickets zur Absprache des Buchenden mit relevanten Personen bei:
-    - Absichtliche Event-Überlagerung z. B. bei Turnieren (*bestehendes Event muss zustimmen*)
-    - Zu große Buchungen z. B. 4+ Tische (*Vorstand muss zustimmen*)
-  - Änderungen im Kalender werden erkannt, Vormerkungen und Tickets entsprechend aufgelöst.
-- Sonstiges:
-  - Per Rolle zuweisbare Rechte "Stammtische" (regelmäßige Events) einzutragen.
-  - ICS Export für Events oder ganze Kalender
-  - Analytics der eingetragenen Events
-  - Leichte Bedienung, große Zahl an Shortcuts, Infozeile, Poweruser-Features
+#### Angeschlossen an Discord:
+- SSO-Login mit übernahme der Server-Nicknames
+- Rollenprüfung
+- Automatische Posts mit übersichtlichem Embed und Thread für Absprachen zum Event
+- Einstellbare Vorlaufzeit, wann das Event auf Discord gepostet wird
+- Erinnerungsmeldungen für Ersteller und Absagemeldungen and Personen, die zugesagt haben
+#### Funktionen der App:
+- moderne Kalenderansicht auf allen Geräten
+- Erstellen von Events mit Reservierung von Tischen in mehreren Räumen
+- Zusagen und Absagen per App und Discord-Buttons möglich
+- Unabsichtliche Doppelbuchungen werden geprüft und verhindert
+#### Funktionen des Servers:
+- Ausgeklügeltes System für Vormerkungen (Events, die noch Zustimmungen bedürfen)
+- Discord-Tickets zur Absprache des Buchenden mit relevanten Personen bei:
+  - Absichtliche Event-Überlagerung z. B. bei Turnieren (*bestehendes Event muss zustimmen*)
+  - Zu große Buchungen z. B. 4+ Tische (*Vorstand muss zustimmen*)
+- Änderungen im Kalender werden erkannt, Vormerkungen und Tickets entsprechend aufgelöst.
+#### Sonstiges:
+- Per Rolle zuweisbare Rechte "Stammtische" (regelmäßige Events) einzutragen.
+- ICS Export für Events oder ganze Kalender
+- Analytics der eingetragenen Events
+- Leichte Bedienung, große Zahl an Shortcuts, Infozeile, Poweruser-Features
 
-### Beispielbilder
+## Beispielbilder
 
+### Hauptansicht in der App
 ![alt text](readme_assets/hauptansicht.png)
-
+### Ansicht einer Reservierung in der App
 ![alt text](readme_assets/reservation_popup.png)
-
-![alt text](image.png)
-
+### Buchungs-Formular in der App
 ![alt text](readme_assets/form.png)
-
+### Discord Event-Post mit Zusagen, Absagen und Thread
 ![alt text](readme_assets/discord_event_post.png)
-
+### Mobile Ansicht der App
 ![alt text](readme_assets/mobile_ansicht.png)
 
-## Anleitung
-
-[Demo - Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptreff.de/calendar/)
-
+# Selbst aufsetzen
 
 ## Voraussetzungen
 
