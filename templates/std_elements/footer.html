@@ -27,7 +27,7 @@
 
     <!-- Login / Link to Footer Sheet -->
     <div class="footer-left">
-        {% if is_authenticated %}
+        {% if session.user_id %}
             <button onclick="toggleFooterSheet()">Menü</button>
             {% if user.name %} 
                 <div class="user-status" style="display: flex; flex-direction: column; position:relative"

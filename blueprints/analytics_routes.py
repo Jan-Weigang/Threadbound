@@ -58,10 +58,10 @@ def calculate_statistics(events):
 def view_stats():
     # Only allow user to see their own data unless admin
     user_id = session.get('user_id')
-    is_admin = session.get('is_admin') or session.get('is_vorstand')
+    is_allowed = session.get('is_admin') or session.get('is_vorstand')
 
     # Preload filter options
-    users = User.query.all() if is_admin else [User.query.get(user_id)]
+    users = User.query.all() if is_allowed else [User.query.get(user_id)]
     game_categories = GameCategory.query.all()
     event_types = EventType.query.all()
 

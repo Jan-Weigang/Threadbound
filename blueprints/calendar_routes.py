@@ -22,10 +22,6 @@ def view(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
-    is_authenticated = False
-    if session:
-        is_authenticated = True
-
     user = {}
     user['name'] = session.get('username', None)
     user['is_member'] = session.get('is_member', None)
@@ -42,7 +38,7 @@ def view(view_type):
 
     rooms = Room.query.order_by(Room.id).all()
 
-    return render_template('view.html', view_type=view_type, date=date, is_authenticated=is_authenticated, user=user, rooms=rooms)
+    return render_template('view.html', view_type=view_type, date=date, user=user, rooms=rooms)
 
 
 
@@ -101,9 +97,6 @@ def fetch_month():
 
 @cal.route('/fetch/reservation/<string:event_id>')
 def reservation_popup(event_id):
-    user_id = session['user_id']
-    is_admin = session.get('is_admin', False) or session.get('is_vorstand', False)
-
     # Fetch reservation and related data from the database
     reservation = Reservation.query.filter_by(event_id=event_id).first()
 
@@ -146,9 +139,7 @@ def reservation_popup(event_id):
     return render_template('partials/calendar_reservation_popup.html', 
                            reservation=reservation_data, 
                            event_type=event_type, 
-                           relatedTablesInfo=relatedTablesInfo,
-                           user_id=user_id,
-                           is_admin=is_admin)
+                           relatedTablesInfo=relatedTablesInfo)
 
 @cal.route('/shortcuts')
 def popup_shortcuts():
