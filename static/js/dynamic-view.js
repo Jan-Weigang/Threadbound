@@ -462,7 +462,7 @@ function set_up_tableHeaders() {
                 const viewTypeSelect = document.getElementById('viewTypeSelect');
                 const viewtype = viewTypeSelect.value;
                 const blueprint = viewtype === 'template' ? 'templates' : 'events';
-                window.location.href = `/${blueprint}/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+                callToCreateReservation(blueprint, table_id, time, selectedDate);
 
             }
 
@@ -489,7 +489,7 @@ function set_up_tableHeaders() {
             const viewTypeSelect = document.getElementById('viewTypeSelect');
             const viewtype = viewTypeSelect.value;
             const blueprint = viewtype === 'template' ? 'templates' : 'events';
-            window.location.href = `/${blueprint}/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+            callToCreateReservation(blueprint, table_id, time, selectedDate);
 
             //window.location.href = `/events/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
         });
@@ -510,6 +510,39 @@ function set_up_tableHeaders() {
 
     });
 }
+
+function callToCreateReservation(blueprint, table_id, time, selectedDate) {
+    if (!window.userRoles["is_member"]) {
+        flashMessage("Für SReservierungen musst du eingeloggt und Member sein.", "warning");
+        return;
+    }
+    if (!window.userRoles["is_beirat"] && blueprint == 'templates') {
+        flashMessage("Für Stammtisch-Reservierungen musst du eingeloggt und Beirat sein.", "danger");
+        return;
+    }
+    window.location.href = `/${blueprint}/create?table_id=${table_id}&time=${encodeURIComponent(time)}&date=${selectedDate}`;
+
+}
+
+function flashMessage(message, category = "info", timeout = 3000) {
+    const flashStack = document.getElementById("flash-stack") || createFlashStack();
+    const msg = document.createElement("div");
+    msg.className = `flash ${category}`;
+    msg.textContent = message;
+    flashStack.appendChild(msg);
+
+    setTimeout(() => {
+        msg.remove();
+    }, timeout);
+}
+
+function createFlashStack() {
+    const stack = document.createElement("div");
+    stack.id = "flash-stack";
+    document.body.appendChild(stack);
+    return stack;
+}
+
 
 function set_up_reservations() {
     const reservations = document.querySelectorAll('.reservation');

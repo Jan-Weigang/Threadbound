@@ -106,6 +106,16 @@
             }
         });
     </script>
+
+    <script>
+        // For UI feedback on restricted actions (creating events, creating templates)
+        window.userRoles = {};
+        window.userRoles["is_member"] = {{ session.get('is_member', False) | tojson }};
+        window.userRoles["is_beirat"] = {{ session.get('is_beirat', False) | tojson }};
+        window.userRoles["is_vorstand"] = {{ session.get('is_vorstand', False) | tojson }};
+        window.userRoles["is_admin"] = {{ session.get('is_admin', False) | tojson }};
+    </script>
+
         
 </body>
 </html>
