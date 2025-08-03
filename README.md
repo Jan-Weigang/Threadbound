@@ -73,8 +73,26 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 
 ## Voraussetzungen
 
-## Einstellungen
+Die App lässt sich per Docker starten. Es wird ein Reverse Proxy empfohlen, der die für den SSO notwendige SSL-Verschlüsselung bereitstellt. 
 
+## Einstellungen
+### compose.yaml
+```docker compose
+services:
+  threadbound:
+    image: threadbound:latest
+    restart: unless-stopped
+    ports:
+      - "[PORT]:5000"
+    volumes:
+      - ./db_data:/usr/src/app/instance
+    env_file:
+      - .env
+volumes:
+  db_data:
+```
+
+### .env
 ```Environment variables
 # Server Setup (Domain and Cookie Signing Key)
 SERVER_NAME=
@@ -103,8 +121,3 @@ VORSTAND_ROLE_ID=
 ADMIN_ROLE_ID=
 
 ```
-
-
-
-
-Der aktuelle Branch der Entwicklung ist "htmx"

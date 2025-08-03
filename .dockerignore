@@ -18,3 +18,4 @@ instance
 instance/
 _backup
 _backup/
+.github/
