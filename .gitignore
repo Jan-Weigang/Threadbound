@@ -9,7 +9,6 @@ build
 logfile.log
 *.tar
 .yml
-Dockerfile
 .venv/**
 .vent
 *.env
