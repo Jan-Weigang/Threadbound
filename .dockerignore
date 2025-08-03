@@ -1,21 +1,31 @@
-__pycache__/**
-__pycache__
-dist/**
-dist
-Mitarbeit/**
-Mitarbeit
-build/**
-build
-logfile.log
-*.tar
-.yml
-Dockerfile
-.venv/**
-.vent
-*.env
+# Bytecode and cache
+__pycache__/
+*.py[cod]
+
+# Build and dist artifacts
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+.vent/
+
+# Env and secrets
 .env
-instance
+*.env
+
+# Logs
+logfile.log
+
+# Backup and instance data
 instance/
-_backup
 _backup/
+
+# Docker and GitHub meta
+Dockerfile
+*.tar
+*.yml
 .github/
+.git/

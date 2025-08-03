@@ -10,8 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip list
+RUN pip install --no-cache-dir -r requirements.txt
     
 # Set up timezone and print debugs
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
@@ -21,8 +20,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
 COPY . .
 
 EXPOSE 5000
-
-WORKDIR /usr/src/app
 
 RUN chmod +x entrypoint.sh
 
