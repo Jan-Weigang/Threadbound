@@ -130,3 +130,8 @@ VORSTAND_ROLE_ID=
 ADMIN_ROLE_ID=
 
 ```
+
+
+# Lizenz
+
+Dieses Projekt wurde unter **GPL v3** veröffentlicht.
