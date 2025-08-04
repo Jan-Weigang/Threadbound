@@ -1,5 +1,12 @@
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/janweigang/threadbound)](https://hub.docker.com/r/janweigang/threadbound)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Jan-Weigang/threadbound/docker-publish.yml?branch=main)](https://github.com/Jan-Weigang/threadbound/actions)
+![Docker Image Size](https://img.shields.io/docker/image-size/janweigang/threadbound/latest)
+[![Release](https://img.shields.io/github/v/release/Jan-Weigang/threadbound)](https://github.com/Jan-Weigang/threadbound/releases)
+
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![HTMX](https://img.shields.io/badge/HTMX-1.9-blue)
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 <img src="readme_assets/threadbound_logo.png" width="400"/>
 
