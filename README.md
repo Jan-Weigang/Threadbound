@@ -77,8 +77,9 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 ### Hauptansicht in der App
 <img src="readme_assets/hauptansicht.png" width="600"/>
 
+<br>
 <details>
-<summary><b>Weitere Bilder anzeigen</b></summary>
+<summary align=center><b>Weitere Bilder anzeigen</b></summary>
 
 ### Ansicht einer Reservierung in der App
 <img src="readme_assets/reservation_popup.png" width="600"/>
@@ -162,9 +163,9 @@ Erstelle hier einen Bot und kopiere das Token in die .env-Datei.
 Der Bot sollte öffentlich gestellt sein und die Intents "Server Members Intent" und "Message Content Intent" aktiviert haben.
 
 
-
+<br>
 <details>
-<summary><b>Bot & nginx Beispiele anzeigen</b></summary>
+<summary align=center><b>Bot & nginx Beispiele anzeigen</b></summary>
 
 #### Bot -> Permissions
 
