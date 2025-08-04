@@ -56,32 +56,29 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 ## Funktionen
 
 ### Angeschlossen an Discord:
-- SSO-Login mit übernahme der Server-Nicknames
-- Rollenprüfung
+- SSO-Login mit übernahme der Server-Nicknames und Server-Rollen
 - Automatische Posts mit übersichtlichem Embed und Thread für Absprachen zum Event
-- Einstellbare Vorlaufzeit, wann das Event auf Discord gepostet wird
-- Erinnerungsmeldungen für Ersteller und Absagemeldungen and Personen, die zugesagt haben
+- Einstellbare Vorlaufzeit für automatische Posts und Erinnerungsmeldungen
 ### Funktionen der App:
 - moderne Kalenderansicht auf allen Geräten
 - Erstellen von Events mit Reservierung von Tischen in mehreren Räumen
-- Zusagen und Absagen per App und Discord-Buttons möglich
+- Zusagen und Absagen per App und Discord-Buttons
 - Unabsichtliche Doppelbuchungen werden geprüft und verhindert
 ### Funktionen des Servers:
-- Ausgeklügeltes System für Vormerkungen (Events, die noch Zustimmungen bedürfen)
-- Discord-Tickets zur Absprache des Buchenden mit relevanten Personen bei:
-  - Absichtliche Event-Überlagerung z. B. bei Turnieren (*bestehendes Event muss zustimmen*)
-  - Zu große Buchungen z. B. 4+ Tische (*Vorstand muss zustimmen*)
-- Änderungen im Kalender werden erkannt, Vormerkungen und Tickets entsprechend aufgelöst.
+- Ausgeklügeltes System für Vormerkungen und Absprachen per Ticket, z. B. bei:
+  - Absichtlichen Event-Überlagerungen z. B. bei Turnieren (*bestehendes Event muss zustimmen*)
+  - Zu große Buchungen z. B. 4+ Tische (*Vorstand muss zustimmen*).
 ### Sonstiges:
 - Per Rolle zuweisbare Rechte "Stammtische" (regelmäßige Events) einzutragen.
-- ICS Export für Events oder ganze Kalender
-- Analytics der eingetragenen Events
-- Leichte Bedienung, große Zahl an Shortcuts, Infozeile, Poweruser-Features
+- ICS Export, Statistik der Buchungen, große Zahl an Shortcuts & Poweruser-Features
 
 ## Beispielbilder
 
 ### Hauptansicht in der App
 <img src="readme_assets/hauptansicht.png" width="600"/>
+
+<details>
+<summary><b>Weitere Bilder anzeigen</b></summary>
 
 ### Ansicht einer Reservierung in der App
 <img src="readme_assets/reservation_popup.png" width="600"/>
@@ -94,7 +91,7 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 
 ### Mobile Ansicht der App
 <img src="readme_assets/mobile_ansicht.png" width="400"/>
-
+</details>
 
 ## Anleitungen
 
@@ -164,11 +161,37 @@ Stelle OAuth2 ein, kopiere Client ID und Client Secret in die .env und trage die
 Erstelle hier einen Bot und kopiere das Token in die .env-Datei.
 Der Bot sollte öffentlich gestellt sein und die Intents "Server Members Intent" und "Message Content Intent" aktiviert haben.
 
+
+
+<details>
+<summary><b>Bot & nginx Beispiele anzeigen</b></summary>
+
 #### Bot -> Permissions
 
 ![alt text](readme_assets/bot_permissions.png)
 
 Stelle sicher, dass der Bot nachdem er mit dem Server verknüpft ist, die entsprechenden Rechte auf dem Server und in den entsprechenden Kanälen erhält. 
+
+#### nginx Beispielsetup
+
+```nginx
+server {
+  server_name beispiel.domain.de;
+  
+  location / {
+    proxy_pass http://localhost:[PORT EINTRAGEN];
+    proxy_set_header Hose $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    listen 443 ssl; # managed by Certbot
+    [...]
+  }
+}
+```
+
+</details>
 
 ## Lizenz
 
