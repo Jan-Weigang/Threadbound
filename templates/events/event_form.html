@@ -107,7 +107,7 @@
             <option value="2" {% if event and event.discord_post_days_ahead == 2 %}selected{% endif %}>2 Tage vorher</option>
             <option value="3" {% if event and event.discord_post_days_ahead == 3 %}selected{% endif %}>3 Tage vorher</option>
             <option value="6" {% if event and event.discord_post_days_ahead == 6 or not event %}selected{% endif %}>Eine Woche vorher</option>
-            <option value="14" {% if event and event.discord_post_days_ahead == 13 %}selected{% endif %}>Zwei Wochen vorher</option>
+            <option value="13" {% if event and event.discord_post_days_ahead == 13 %}selected{% endif %}>Zwei Wochen vorher</option>
             <option value="1000" {% if event and event.discord_post_days_ahead == 1000 %}selected{% endif %}>Sofort</option>
         </select>
 
