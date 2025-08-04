@@ -1,18 +1,27 @@
-
+<p align="center">
 <img src="readme_assets/threadbound_logo.png" width="400"/>
+</p>
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/janweigang/threadbound)](https://hub.docker.com/r/janweigang/threadbound)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Jan-Weigang/threadbound/docker-publish.yml?branch=main)](https://github.com/Jan-Weigang/threadbound/actions)
-![Docker Image Size](https://img.shields.io/docker/image-size/janweigang/threadbound/latest)
-[![Release](https://img.shields.io/github/v/release/Jan-Weigang/threadbound)](https://github.com/Jan-Weigang/threadbound/releases)
+<p align="center">
+  <a href="https://hub.docker.com/r/janweigang/threadbound">
+    <img src="https://img.shields.io/docker/pulls/janweigang/threadbound" alt="Docker Pulls">
+  </a>
+  <a href="https://github.com/Jan-Weigang/threadbound/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/Jan-Weigang/threadbound/docker-publish.yml?branch=main" alt="GitHub Workflow Status">
+  </a>
+  <img src="https://img.shields.io/docker/image-size/janweigang/threadbound/latest" alt="Docker Image Size">
+  <a href="https://github.com/Jan-Weigang/threadbound/releases">
+    <img src="https://img.shields.io/github/v/release/Jan-Weigang/threadbound" alt="Release">
+  </a>
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.11-blue" alt="Python">
+  <img src="https://img.shields.io/badge/HTMX-1.9-blue" alt="HTMX">
+  <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
+</p>
 
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![HTMX](https://img.shields.io/badge/HTMX-1.9-blue)
-![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
-
-
-## Inhalt
+### Inhalt
 - [Überblick](#überblick)
 - [Funktionen](#funktionen)
 - [Beispielbilder](#beispielbilder)
@@ -20,23 +29,23 @@
 - [Lizenz](#lizenz)
 
 
-# Überblick
+## Überblick
 
 In diesem Repo wird das Buchungssystem des 3TH entwickelt. 
 
 Der [TableTopTreff Hannover](https://tabletoptreff-hannover.de/) ist mit über 200 Mitgliedern einer der größten Vereine Deutschlands für Tabletop-, Brett- und Rollenspiele. 
 
-## Was ist Threadbound?
+### Was ist Threadbound?
 
 Threadbound ist ein Buchungssystem. Unsere ~1500 Termine pro Jahr waren in einem üblichen Kalender nicht mehr vernünftig zu tracken: Häufige Doppelbuchungen, unhandliche Notizen für die Buchung bestimmter Tische, 20+ verschiedene Kalender für die Spielsysteme... 
 
-Threadbound ist unsere Lösung für digitale Reservierungen. 
+**Threadbound ist unsere Lösung für digitale Reservierungen.**
 
 Es ist an die Kommunikationsplattform des Vereins (Discord) angebunden und spiegelt unsere Vereinsstruktur aus einem Vorstand und größerem Beirat mit regelmäßigen Stammtischen, Spielterminen und Turnieren sowie öffentlichen und geschlossenen Veranstaltungen auf beliebig vielen Tischen in zwei Räumlichkeiten wieder.
 
 Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptreff.de/calendar/)
 
-### Architekturüberblick
+#### Architekturüberblick
 
 - **Frontend:** Jinja, HTML, HTMX, JS
 - **Backend:** Python (*Flask, SQLAlchemy, APScheduler*)
@@ -44,7 +53,7 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 - **Datenbank:** SQLite
 
 
-# Funktionen
+## Funktionen
 
 ### Angeschlossen an Discord:
 - SSO-Login mit übernahme der Server-Nicknames
@@ -69,7 +78,7 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 - Analytics der eingetragenen Events
 - Leichte Bedienung, große Zahl an Shortcuts, Infozeile, Poweruser-Features
 
-# Beispielbilder
+## Beispielbilder
 
 ### Hauptansicht in der App
 <img src="readme_assets/hauptansicht.png" width="600"/>
@@ -87,9 +96,9 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 <img src="readme_assets/mobile_ansicht.png" width="400"/>
 
 
-# Anleitungen
+## Anleitungen
 
-## Voraussetzungen
+### Voraussetzungen
 
 Die App lässt sich per Docker starten. Es wird ein Reverse Proxy empfohlen, der die für den SSO notwendige SSL-Verschlüsselung bereitstellt. 
 
@@ -161,6 +170,6 @@ Der Bot sollte öffentlich gestellt sein und die Intents "Server Members Intent"
 
 Stelle sicher, dass der Bot nachdem er mit dem Server verknüpft ist, die entsprechenden Rechte auf dem Server und in den entsprechenden Kanälen erhält. 
 
-# Lizenz
+## Lizenz
 
 Dieses Projekt wurde unter **GPL v3** veröffentlicht.
