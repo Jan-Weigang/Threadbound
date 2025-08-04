@@ -75,12 +75,14 @@ Demo: [Kalender des TableTopTreffs Hannover e. V.](https://3th-test.tabletoptref
 
 Die App lässt sich per Docker starten. Es wird ein Reverse Proxy empfohlen, der die für den SSO notwendige SSL-Verschlüsselung bereitstellt. 
 
-## Einstellungen
+Das Docker Image ist auf [Docker Hub](https://hub.docker.com/r/janweigang/threadbound) hinterlegt und can per Docker Compose genutzt werden:
+
+
 ### compose.yaml
 ```docker compose
 services:
   threadbound:
-    image: threadbound:latest
+    image: janweigang/threadbound:latest
     restart: unless-stopped
     ports:
       - "[PORT]:5000"
