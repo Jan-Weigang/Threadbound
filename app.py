@@ -119,13 +119,18 @@ def create_app():
     discord_blueprint = make_discord_blueprint(
         scope=['identify', 'email', 'guilds'],
         redirect_to="main.login")  # Adjust scopes based on your needs
-    app.register_blueprint(discord_blueprint, url_prefix='/login')
+    
 
 
     app.config['SERVER_NAME'] = os.getenv('SERVER_NAME')  # Replace with your actual domain or localhost for testing
     app.config['APPLICATION_ROOT'] = '/'  # Set the application root
     app.config['PREFERRED_URL_SCHEME'] = 'https'  # Use 'http' if you're testing locally
 
+    app.config['SESSION_COOKIE_DOMAIN'] = os.getenv('COOKIE_DOMAIN')
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = "Lax"
+
+    app.register_blueprint(discord_blueprint, url_prefix='/login')
     from werkzeug.middleware.proxy_fix import ProxyFix
 
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
