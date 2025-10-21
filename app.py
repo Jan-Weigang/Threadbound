@@ -23,17 +23,14 @@ load_dotenv()
 # ============= TO DO LIST =============
 # ======================================
 
+# TODO Stammtisch als Event Typ nur für Stammtische zulassen
+# Ggfls untersheidung Stammtische von regelmäßige Events
+
+# TODO Stammtische hervorheben
+
 # TODO Template Einstellung korrekt gespeichert von wann posts live gehen?
 
 # TODO debug doppelte Posts
-
-# TODO Link zum Kalender präsenter machen
-
-# TODO Veranstaltungen in Popup checken, nur 1 Woche wird getrackt
-
-# TODO Checken, wann Nicknames gespeichert werden. Siehe Glauriel. Server nickname vs general.
-
-# TODO show edit button in reservation popup only if posible to edit
 
 # TODO Event Form icon and such tags. Rename some HTML templates (head header into html_head)
 
@@ -50,6 +47,7 @@ load_dotenv()
 
 # TODO Bekannte Collisionen bei Check Availability ausschließen.
 
+# TODO Kollisionen bei Stammtischen noch falsch ?
 
 # possible: Remove the DB logic from the api Calls and put them in their own module
 # Mouse Cursor can_i_use checken und evtl ausblenden oder mit "move" ersetzen beim hovern über table_header
