@@ -179,3 +179,13 @@ def popup_userevents():
     )
 
     return render_template('partials/popup_userevents.html', events=events, templates=templates)
+
+
+@cal.route('/calendar/popup-useridcard')
+def popup_useridcard():
+    user = User.query.get(session['user_id'])
+    assert user
+
+    now = datetime.now(pytz.timezone('Europe/Berlin'))
+
+    return render_template('partials/popup_useridcard.html', user=user)

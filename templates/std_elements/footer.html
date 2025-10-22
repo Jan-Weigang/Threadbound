@@ -7,6 +7,14 @@
         </form>
     </div>
 
+
+    <div class="footer-center">
+        <form hx-get="{{ url_for('cal_bp.popup_useridcard') }}" method="GET" hx-target="body" hx-swap="beforeend">
+            <input hidden value="{{ user.id }}">
+            <button type="submit">Mitgliedsausweis</button>
+        </form>
+    </div>
+
     <!-- Help -->
     <div class="footer-center">
         <form hx-get="{{ url_for('cal_bp.popup_shortcuts') }}" method="GET" hx-target="body" hx-swap="beforeend">

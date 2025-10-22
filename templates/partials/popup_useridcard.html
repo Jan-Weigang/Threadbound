@@ -1,0 +1,89 @@
+<div class="popup-overlay" style="inset: 0; margin: 0; position: fixed; backdrop-filter: blur(3px);">
+  <div class="idcard-popup">
+    <div class="idcard-header">
+      <video src="/static/badge/badge_spinning.mov" autoplay loop muted playsinline class="idcard-video"></video>
+      <div style="display: flex;
+            flex-direction: column;
+            gap: .5rem;"  >
+        <div class="idcard-title">{{ session.username }}</div>
+        <div class="idcard-id">{{user.discord_id}}</div>
+        <div class="idcard-role">✅ Aktives Mitglied</div>
+        <div class="idcard-time-opened" id="idcard-opened"></div>
+        <div class="idcard-time-current" id="idcard-now"></div>
+      </div>
+    </div>
+
+    <div class="idcard-footer">
+      <button class="close-popup" onclick="this.closest('.popup-overlay').remove()">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.idcard-popup {
+  width: max(50%, 400px);
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin: auto;
+  position: absolute;
+  inset: 0;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+.idcard-header {
+  display: flex;
+  align-items: center;
+  gap: 10%;
+}
+.idcard-video {
+  width: max(150px, 15vw);
+  height: max(150px, 15vw);
+  object-fit: cover;
+}
+.idcard-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.idcard-role {
+  font-size: 1.2rem;
+  color: #099409;
+  font-weight: bold;
+  line-height: 2rem;
+}
+.idcard-id {
+  font-size: .95rem;
+  color: #999;
+}
+.idcard-time-opened {
+  margin-top: .4rem;
+  font-size: .9rem;
+  opacity: .8;
+}
+.idcard-time-current {
+  font-size: .9rem;
+  opacity: .7;
+}
+.idcard-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>
+
+<script>
+const opened = new Date();
+document.getElementById('idcard-opened').textContent =
+  'Geöffnet: ' +
+  opened.toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+function updateNow() {
+  document.getElementById('idcard-now').textContent =
+    'Uhrzeit: ' +
+    new Date().toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+updateNow();
+setInterval(updateNow, 1000);
+</script>
