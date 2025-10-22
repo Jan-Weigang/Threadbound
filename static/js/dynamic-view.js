@@ -658,7 +658,8 @@ function combine_reservations(calendar) {
 
     reservationBlocks.forEach((block, index) => {
         const currentId = block.getAttribute('data-event-id');
-        const currentRow = parseInt(block.getAttribute('data-table-id'), 10);
+        const lowestTable = parseInt(block.getAttribute('data-lowest-table-id'), 10);
+        const currentRow = parseInt(block.getAttribute('data-table-id'), 10) - lowestTable + 1;
 
         if (previousBlock) {
             const previousId = previousBlock.getAttribute('data-event-id');

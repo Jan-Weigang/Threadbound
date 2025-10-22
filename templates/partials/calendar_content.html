@@ -7,6 +7,7 @@
 
 {% set is_weekend = date.weekday() in [5, 6] %}  {# 5 is Saturday, 6 is Sunday #}
 
+{% set lowest_table_id = tables[0].id %} {# used for multiple rooms so the grid row funcs work #}
 
 
 
@@ -39,9 +40,10 @@
 
         <div class="reservation" 
              style="background-color: {{ eventTypeColorMap.get(reservation.event_type_id, '#3788d8') }};
-                grid-row: {{ reservation.table_id }} / {{ reservation.table_id + 1}};"
+                grid-row: {{ reservation.table_id - lowest_table_id + 1}} / {{ reservation.table_id - lowest_table_id + 2}};"
              data-event-id="{{ reservation.event_id }}"
              data-table-id="{{ reservation.table_id }}"
+             data-lowest-table-id="{{ lowest_table_id }}"
              data-reservation-start="{{ reservation.start_time }}"
              data-reservation-end="{{ reservation.end_time }}"
              data-is-marked="{{ reservation.is_marked }}"
