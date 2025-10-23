@@ -192,7 +192,7 @@ def is_event_deletable(event: Event) -> bool:
     return True
 
 
-
+from zoneinfo import ZoneInfo
 def get_planned_occurrences(template, start, end):
     """
     Returns a list of valid occurrences for a given template,
@@ -200,13 +200,16 @@ def get_planned_occurrences(template, start, end):
 
     Assumes template.start_time is already aligned and tz-aware.
     """
+    BERLIN = ZoneInfo("Europe/Berlin")
+
     if isinstance(start, date) and not isinstance(start, datetime):
         start = localize_to_berlin_time(datetime.combine(start, datetime.min.time()))
 
     if isinstance(end, date) and not isinstance(end, datetime):
         end = localize_to_berlin_time(datetime.combine(end, datetime.max.time()))
     try:
-        rule = rrulestr(template.recurrence_rule, dtstart=template.start_time)
+        dtstart_local = template.start_time.astimezone(BERLIN)
+        rule = rrulestr(template.recurrence_rule, dtstart=dtstart_local)
         occurrences = rule.between(start, end, inc=False)
 
         excluded = set((template.excluded_dates or "").splitlines())
