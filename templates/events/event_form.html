@@ -322,12 +322,14 @@
                     onclick="history.back();">
                 Zurück
             </button>
+            {% if not is_template%}
             <button type="submit" name="action" value="delete" class="delete-button revert-button"
                 onclick="return confirm('⚠️ Willst du das Event ABSAGEN? ⚠️\n\nAbsagen: Es wird eine Discordnachricht generiert.\nLöschen: Das Event wird einfach entfernt.\n\nWenn das Event näher als eine Woche entfernt liegt wird jedes Löschen eine Absage.');">
                 Event Löschen</button>
             <button type="submit" name="action" value="cancel" class="cancel-button revert-button"
                 onclick="return confirm('⚠️ Willst du das Event ABSAGEN? ⚠️\n\nAbsagen: Es wird eine Discordnachricht generiert.\nLöschen: Das Event wird einfach entfernt.\n\nWenn das Event näher als eine Woche entfernt liegt wird jedes Löschen eine Absage.');">
-                Event absagen</button>
+                Event absagen</button>    
+            {% endif %}  
         </form>
 
     {% endif %}

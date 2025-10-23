@@ -516,7 +516,7 @@ function callToCreateReservation(blueprint, table_id, time, selectedDate) {
         flashMessage("Für SReservierungen musst du eingeloggt und Member sein.", "warning");
         return;
     }
-    if (!window.userRoles["is_beirat"] && blueprint == 'templates') {
+    if ((!window.userRoles["is_beirat"] && !window.userRoles["is_vorstand"]) && blueprint == 'templates') {
         flashMessage("Für Stammtisch-Reservierungen musst du eingeloggt und Beirat sein.", "danger");
         return;
     }

@@ -131,7 +131,6 @@ def edit_template(event_id):
         flash('You are not authorized to edit this event.', 'error')
         return redirect(url_for('cal_bp.view'))  # Redirect to the event listing or another page
 
-
     if not event.is_template:
         flash("This event is not a template.", "danger")
         return redirect(url_for("cal_bp.view", view_type="regular"))

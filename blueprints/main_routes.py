@@ -100,12 +100,28 @@ def settings():
 # =========== Test routes ==============
 # ======================================
 
-
+@decorators.require_min_role('admin')
 @main.route('/remind')
 def remind():
     import services.task_scheduler
     app = current_app._get_current_object()  # type: ignore
     services.task_scheduler.run_daily_reminder(app=app)
+    return "Done"
+
+@decorators.require_min_role('admin')
+@main.route('/createtemplates')
+def createtemplates():
+    import services.task_scheduler
+    app = current_app._get_current_object()  # type: ignore
+    services.task_scheduler.create_events_from_templates(app=app)
+    return "Done"
+
+@decorators.require_min_role('admin')
+@main.route('/createposts')
+def createposts():
+    import services.task_scheduler
+    app = current_app._get_current_object()  # type: ignore
+    services.task_scheduler.create_discord_posts_ahead_of_events(app=app)
     return "Done"
 
 
