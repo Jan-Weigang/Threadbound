@@ -102,7 +102,7 @@
 
         <label for="discord_post_days_ahead">Auf Discord Posten:</label>
         <select name="discord_post_days_ahead" id="discord_post_days_ahead">
-            <option value="" {% if event and not event.discord_post_days_ahead %}selected{% endif %}>Gar nicht</option>
+            <option value="-1" {% if event and not event.discord_post_days_ahead %}selected{% endif %}>Gar nicht</option>
             <option value="1" {% if event and event.discord_post_days_ahead == 1 %}selected{% endif %}>Vortag</option>
             <option value="2" {% if event and event.discord_post_days_ahead == 2 %}selected{% endif %}>2 Tage vorher</option>
             <option value="3" {% if event and event.discord_post_days_ahead == 3 %}selected{% endif %}>3 Tage vorher</option>

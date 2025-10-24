@@ -60,17 +60,24 @@ class DiscordHandler:
             logging.info(f"Skipping Discord post: publicity level '{event.publicity.name}' blocks posting.")
             return
         
-        # Skip if discord_post_days_ahead is set and not yet due
-        if event.discord_post_days_ahead:
-            event_date = event.start_time.date()
-            today = datetime.now(pytz.utc).date()
-            days_until = (event_date - today).days
-            if days_until > event.discord_post_days_ahead:
-                logging.info(f"Skipping post: event {event.name} is in {days_until} days, threshold is {event.discord_post_days_ahead}")
-                return
-        else:
-            logging.info(f"Skipping post: event {event.name} has requested to not post on discord.")
+        days_ahead = event.discord_post_days_ahead
+        
+        # Skip if explicitly disabled
+        if days_ahead is None:
+            logging.info(f"Skipping post: event {event.name} has no setting for discord posts (should this happen?)")
             return
+        
+        if days_ahead < 0:
+            logging.info(f"Skipping post: event {event.name} explicitly disabled Discord posting (-1).")
+            return
+        
+        event_date = event.start_time.date()
+        today = datetime.now(pytz.utc).date()
+        days_until = (event_date - today).days
+        if days_until > days_ahead:
+            logging.info(f"Skipping post: event {event.name} is in {days_until} days, threshold is {event.discord_post_days_ahead}")
+            return
+
 
                 
         # Skip if no channel is set
