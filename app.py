@@ -87,6 +87,8 @@ compress = Compress()
 def create_app():
     app = Flask(__name__)
     compress.init_app(app)
+
+    app.config["VERSION"] = "v1.0.5"
     
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')

@@ -44,7 +44,7 @@
                         
                         <div class="hover-popup" style="display: none; 
                                                     position: absolute; 
-                                                    top: -6rem; left: 0; 
+                                                    top: -8rem; left: 0; 
                                                     background: white; 
                                                     border: 1px solid #ccc;
                                                     border-radius: .5rem; 
@@ -59,6 +59,7 @@
                         <div>Vorstand:</div>   <div>{{ user.vorstand }}</div>
                         <div>Admin:</div>      <div>{{ user.admin }}</div>
                         <div>ID:</div>      <div>{{ user.id }}</div>
+                        <div>Version:</div>     <div>{{ config.VERSION }}</div>
                     </div>
 
                     <span style="font-size: 0.8rem; width: 20ch; color: gray; padding-left: 1rem;">{% if not user.is_member %}Gast:{% else %}Nutzer: {% endif %}</span>
