@@ -1,17 +1,12 @@
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
-
-from tt_calendar.models import Event, Reservation, Table, db
-from tt_calendar import utils
-
-import pytz
+import logging
 from datetime import date, datetime, timedelta
 
-from dateutil.rrule import rrulestr
-
-
-import logging
+import pytz
+from apscheduler.triggers.cron import CronTrigger
 from flask import current_app
+
+from tt_calendar import utils
+from tt_calendar.models import Event, db
 
 logging.basicConfig(level=logging.INFO)
 

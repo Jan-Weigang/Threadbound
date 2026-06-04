@@ -69,16 +69,17 @@
     method="post" class="main-form">
         
         
-        <label for="name">Name:</label>
+        <label for="name">Name: *</label>
         <input type="text" name="name" id="name" required>
 
         <label for="description">Beschreibung:</label>
         <textarea name="description" id="description"></textarea>
 
-        <label class="{% if event %}hidden{% endif %}" for="game_category_id">Kategorie:</label>
+        <label class="{% if event %}hidden{% endif %}" for="game_category_id">Kategorie: *</label>
         <div class="{% if event %}hidden{% endif %}"
              style="display: flex; flex-direction: row; align-items: center;">
-            <select name="game_category_id" id="game_category_id">
+            <select name="game_category_id" id="game_category_id" required>
+                <option value=""></option>
                 {% for category in game_categories %}
                     <option value="{{ category.id }}" data-icon="{{ category.icon | safe }}">{{ category.name }}</option>
                 {% endfor %}
@@ -86,21 +87,23 @@
             <div class="icon-preview" id="icon-preview" style="margin-left: 1rem; margin-right: 1rem;"></div>
         </div>
 
-        <label for="event_type_id">Art des Events:</label>
-        <select name="event_type_id" id="event_type_id">
+        <label for="event_type_id">Art des Events: *</label>
+        <select name="event_type_id" id="event_type_id" required>
+            <option value=""></option>
             {% for event_type in event_types %}
                 <option value="{{ event_type.id }}" data-color="{{ event_type.color }}">{{ event_type.name }}</option>
             {% endfor %}
         </select>
 
-        <label for="publicity_id">Öffentlichkeit:</label>
-        <select name="publicity_id" id="publicity_id">
+        <label for="publicity_id">Öffentlichkeit: *</label>
+        <select name="publicity_id" id="publicity_id" required>
+            <option value=""></option>
             {% for publicity in publicity_levels %}
                 <option value="{{ publicity.id }}">{{ publicity.name }}</option>
             {% endfor %}
         </select>
 
-        <label for="discord_post_days_ahead">Auf Discord Posten:</label>
+        <label for="discord_post_days_ahead">Auf Discord Posten: *</label>
         <select name="discord_post_days_ahead" id="discord_post_days_ahead">
             <option value="-1" {% if event and not event.discord_post_days_ahead %}selected{% endif %}>Gar nicht</option>
             <option value="1" {% if event and event.discord_post_days_ahead == 1 %}selected{% endif %}>Vortag</option>
@@ -118,15 +121,15 @@
         <hr style="grid-column: 1 / -1;">
         
 
-        <label for="date">Datum:</label>
+        <label for="date">Datum: *</label>
         <input type="date" name="date" id="date" required value="{{ event.date if event else '' }}">
 
         <div id="date-warning" style="grid-column: 1 / -1; color: darkorange; font-weight: bold; text-align: right; display: none"></div>
 
-        <label for="startTime">Startzeit:</label>
+        <label for="startTime">Startzeit: *</label>
         <input type="time" name="start_time" id="startTime" required value="{{ start_time }}">
 
-        <label for="endTime">Endzeit:</label>
+        <label for="endTime">Endzeit: *</label>
         <input type="time" name="end_time" id="endTime" required value="{{ end_time }}">
 
         <label for="table_ids">Verfügbare Tische:</label>
@@ -153,37 +156,37 @@
 
         
         {% if is_template %}
-            <label>Rhythmus:</label>
+            <label for="frequency-select">Rhythmus:</label>
             <select name="frequency" id="frequency-select">
                 <option value="WEEKLY">Wöchentlich</option>
                 <option value="MONTHLY">Monatlich</option>
             </select>
 
-            <label class="weekly-field">Intervall:</label>
-            <select class="weekly-field" name="interval">
+            <label for=weekly_field" class="weekly-field">Intervall:</label>
+            <select class="weekly-field" name="interval" id="weekly_field">
                 <option value="1">Alle Wochen</option>
                 <option value="2">Alle 2 Wochen</option>
                 <option value="3">Alle 3 Wochen</option>
                 <option value="4">Alle 4 Wochen</option>
             </select>
 
-            <label class="weekly-field">Wochentag:</label>
-            <select class="weekly-field" name="byday">
+            <label for="byday-select" class="weekly-field">Wochentag:</label>
+            <select class="weekly-field" name="byday" id="byday-select">
                 {% for val, label in [('MO','Montag'),('TU','Dienstag'),('WE','Mittwoch'),('TH','Donnerstag'),('FR','Freitag'),('SA','Samstag'),('SU','Sonntag')] %}
                 <option  value="{{ val }}"> {{ label }}</option>
                 {% endfor %}
             </select>
 
-            <label class="monthly-field">Lage im Monat:</label>
-            <select class="monthly-field" name="bysetpos">
+            <label for="day-of-month-select" class="monthly-field">Lage im Monat:</label>
+            <select class="monthly-field" name="bysetpos" id="day-of-month-select">
                 <option value="1">Jeden 1. im Monat</option>
                 <option value="2">Jeden 2. im Monat</option>
                 <option value="3">Jeden 3. im Monat</option>
                 <option value="4">Jeden 4. im Monat</option>
             </select>
 
-            <label class="monthly-field">Wochentag?</label>
-            <select class="monthly-field" name="byday_single">
+            <label for="byday-single-select" class="monthly-field">Wochentag?</label>
+            <select class="monthly-field" name="byday_single" id="byday-single-select">
                 {% for val, label in [('MO','Montag'),('TU','Dienstag'),('WE','Mittwoch'),('TH','Donnerstag'),('FR','Freitag'),('SA','Samstag'),('SU','Sonntag')] %}
                 <option value="{{ val }}">{{ label }}</option>
                 {% endfor %}

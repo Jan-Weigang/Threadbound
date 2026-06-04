@@ -1,13 +1,12 @@
-from flask import Blueprint, redirect, url_for, session, render_template, request, flash, send_from_directory, current_app
+import logging
+
+from flask import Blueprint, redirect, url_for, session, render_template, request, flash, send_from_directory, \
+    current_app
 from flask_dance.contrib.discord import discord
 
-from tt_calendar.models import db, Event, GameCategory, DiscordChannel, Reservation, EventType, Publicity
-from tt_calendar import decorators
-from tt_calendar import utils
-
 from exceptions import *
-
-import logging
+from tt_calendar import decorators
+from tt_calendar.models import db, GameCategory, DiscordChannel, EventType, Publicity
 
 main = Blueprint('main', __name__)
 
@@ -47,9 +46,6 @@ def login():
 
     logging.info(f"I logged in user {user.username} with id {user.discord_id}. member: {session['is_member']} - admin: {session['is_admin']}") # type: ignore
 
-    # if not session['is_member']:
-    #     flash('You are not a member and cannot be given access', 'failure')
-    # return redirect(url_for('main.index'))  
     return render_template('partials/login_success.html')
 
 
@@ -133,10 +129,3 @@ def createposts():
 def serve_thumbnail(filename):
     logging.info(f"serving {filename}")
     return send_from_directory('static/images', filename)
-
-
-# @main.route('/events', methods=['GET'])
-# @decorators.require_min_role('member')
-# def list_events():
-#     events = Event.get_regular_events().all()
-#     return render_template('events/list.html', events=events)

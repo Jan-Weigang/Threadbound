@@ -513,7 +513,7 @@ function set_up_tableHeaders() {
 
 function callToCreateReservation(blueprint, table_id, time, selectedDate) {
     if (!window.userRoles["is_member"]) {
-        flashMessage("Für SReservierungen musst du eingeloggt und Member sein.", "warning");
+        flashMessage("Für Reservierungen musst du eingeloggt und Member sein.", "warning");
         return;
     }
     if ((!window.userRoles["is_beirat"] && !window.userRoles["is_vorstand"]) && blueprint == 'templates') {

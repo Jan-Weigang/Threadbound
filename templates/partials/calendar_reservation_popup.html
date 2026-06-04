@@ -23,15 +23,20 @@
             <div class="popup-value">{{ relatedTablesInfo }}</div>
 
             <div class="popup-label">Teilnehmende:</div>
-            <div class="popup-value">{% if session.get('is_member') %}{{ reservation.attendees or "Keine Teilnehmer" }}{% else %}{{ reservation.attendees|length if reservation.attendees else "0" }}{% endif %}</div>
+            <div class="popup-value">{% if user.is_member %}{{ reservation.attendees or "Keine Teilnehmer" }}{% else %}{{ reservation.attendees|length if reservation.attendees else "0" }}{% endif %}</div>
 
 
             <div class="popup-label">Discord:</div>
-            <div class="popup-value" style="white-space: initial">
-                App: discord://{{ reservation.discord_link }} -
-                Web: https://{{ reservation.discord_link }}
-            </div>
-
+            {% if reservation.discord_link %}
+                <div class="popup-value" style="white-space: initial">
+                    App: discord://{{ reservation.discord_link }} -
+                    Web: https://{{ reservation.discord_link }}
+                </div>
+            {% else %}
+                <div class="popup-value" style="white-space: initial">
+                    Kein Discord-Link.
+                </div>
+            {% endif %}
 
             <div class="popup-label">Beschreibung:</div>
             <div style="max-height: 8rem;"
@@ -85,7 +90,7 @@
             </div>
             <br>
             <div class="popup-footer-buttons" style="margin-top: 1rem;">
-                {% if reservation.user_id == session.user_id or session.is_admin or session.is_vorstand %}
+                {% if reservation.user_id == session.user_id or user.is_vorstand %}
                     <button class="edit-popup" onclick="window.location.href='{{ url_for('event_bp.edit_event', event_id=reservation.event_id) }}'">Editieren</button>
                     {% if reservation.template_id %}
                         <button class="edit-popup" onclick="window.location.href='{{ url_for('template_bp.edit_template', event_id=reservation.template_id) }}'">

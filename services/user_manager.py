@@ -1,10 +1,9 @@
-from tt_calendar.models import User, db
-
-from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
-from flask import redirect, url_for
 import logging
 
+from oauthlib.oauth2.rfc6749.errors import TokenExpiredError
+
 from exceptions import *
+from tt_calendar.models import User, db
 
 
 class UserManager:
