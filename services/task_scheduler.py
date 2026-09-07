@@ -112,7 +112,8 @@ def create_events_from_templates(start_date: date | None = None, end_date: date 
                     end_time=end_utc,
                     table_ids=table_ids,
                     template_id=template.id,
-                    state_size=EventState.APPROVED
+                    state_size=EventState.APPROVED,
+                    discord_post_days_ahead=template.discord_post_days_ahead
                 )
 
                 event_manager.exclude_date_from_template(template, dt_start.date())
