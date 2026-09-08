@@ -1,17 +1,17 @@
-from flask import session, request, jsonify
-from flask import request, Blueprint, current_app
-from flask_dance.contrib.discord import discord
-from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Event, Table, Reservation, Overlap, EventState
+import logging
+import threading
 from datetime import datetime, time, timedelta
+
 import pytz
-from sqlalchemy import or_, and_
+from flask import request, Blueprint, current_app
+from flask import session, jsonify
+from flask_dance.contrib.discord import discord
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
-
+from blueprints.user_dto import UserDto
 from tt_calendar import utils
-import threading
-import logging
-import time as performancetime
+from tt_calendar.models import db, User, Event, Table, Reservation, Overlap, EventState
 
 # ======================================
 # ========== API Endpoints =============
@@ -136,7 +136,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_i
     } for res in reservations]
 
 
-    if not discord.authorized or not session.get('is_member', False):
+    if not discord.authorized or not UserDto.from_session(session).is_member:
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
 

@@ -1,12 +1,14 @@
-from flask import session, request, render_template, abort
-from flask import request, Blueprint
-from tt_calendar.models import *
-from tt_calendar import utils
-
-from datetime import datetime, timezone, timedelta
-
-import json, logging
+import json
+import logging
 import time
+from datetime import timezone, timedelta
+
+from flask import request, Blueprint
+from flask import session, render_template, abort
+
+from blueprints.user_dto import UserDto
+from tt_calendar import utils
+from tt_calendar.models import *
 
 cal = Blueprint('cal_bp', __name__)
 
@@ -22,15 +24,7 @@ def view(view_type):
     if view_type not in ['public', 'regular', 'template']:
         abort(404)
 
-    user = {}
-    user['name'] = session.get('username', None)
-    user['is_member'] = session.get('is_member', None)
-    user['member'] = "Ja" if session.get('is_member', None) else "Nein"
-    user['beirat'] = "Ja" if session.get('is_beirat', None) else "Nein"
-    user['vorstand'] = "Ja" if session.get('is_vorstand', None) else "Nein"
-    user['admin'] = "Ja" if session.get('is_admin', None) else "Nein"
-    user['id'] = session.get('user_id', None)
-
+    user = UserDto.from_session(session)
     logging.info(f"Calendar opened by {user['name']}, {user['is_member']=}")
 
     date_str = request.args.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
@@ -52,7 +46,7 @@ def fetch_day():
     view_type = request.args.get('view_type', 'public')
     room_id = request.args.get('room_id', type=int)
 
-    if not session.get("is_member"):
+    if not UserDto.from_session(session).is_member:
         view_type = "public"
 
     reservations = prepare_reservations_for_jinja(view_type, date_str, date_str, room_id=room_id)
@@ -74,7 +68,9 @@ def fetch_month():
     view_type = request.args.get('view_type', 'public')
     room_id = request.args.get('room_id', type=int)
 
-    if not session.get("is_member"):
+
+    user = UserDto.from_session(session)
+    if not user.is_member:
         view_type = "public"
 
     week_start, week_end = utils.get_end_days_of_week(date)
@@ -90,7 +86,8 @@ def fetch_month():
     print(f"[prep] month total:           {(t1 - t0)*1000:.1f}ms")
     return render_template('partials/month_content.html', 
                            date=date, 
-                           tables=tables, 
+                           tables=tables,
+                           user=user,
                            event_types=event_types,
                            reservations=reservations,
                            date_list=list(date_range),
@@ -129,12 +126,12 @@ def reservation_popup(event_id):
         'discord_link': reservation.associated_event.get_discord_message_url()
     }
 
-    if session.get('is_member', False):
+    user = UserDto.from_session(session)
+    if user.is_member:
         reservation_data['attendees'] = ', '.join([attendee.username for attendee in reservation.associated_event.attendees])
     else:
         reservation_data['attendees'] = len(reservation.associated_event.attendees)
 
-    table = Table.query.get(reservation.table_id)
     event_type = EventType.query.get(reservation.associated_event.event_type_id)
     related_tables = Table.query.join(Reservation, Reservation.table_id == Table.id)\
                                 .filter(Reservation.event_id == event_id)\
@@ -143,7 +140,8 @@ def reservation_popup(event_id):
 
     # Render the popup template with the fetched data
     return render_template('partials/calendar_reservation_popup.html', 
-                           reservation=reservation_data, 
+                           reservation=reservation_data,
+                           user=user,
                            event_type=event_type, 
                            relatedTablesInfo=relatedTablesInfo)
 

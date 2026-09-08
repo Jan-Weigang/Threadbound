@@ -24,3 +24,4 @@ docker-compose.yml
 .venv/
 **/venv/
 venv/
+/.idea/
