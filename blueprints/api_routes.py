@@ -1,17 +1,16 @@
-from flask import session, request, jsonify
-from flask import request, Blueprint, current_app
-from flask_dance.contrib.discord import discord
-from tt_calendar.models import db, User, GameCategory, EventType, Publicity, Event, Table, Reservation, Overlap, EventState
+import logging
+import threading
 from datetime import datetime, time, timedelta
+
 import pytz
-from sqlalchemy import or_, and_
+from flask import request, Blueprint, current_app
+from flask import session, jsonify
+from flask_dance.contrib.discord import discord
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
-
 from tt_calendar import utils
-import threading
-import logging
-import time as performancetime
+from tt_calendar.models import db, User, Event, Table, Reservation, Overlap, EventState
 
 # ======================================
 # ========== API Endpoints =============
@@ -259,7 +258,7 @@ def check_table_availability():
             )
         ).all()
 
-        reservations = extend_with_template_reservations(reservations, start_datetime, end_datetime)
+        reservations = extend_with_template_reservations(reservations, start_datetime, end_datetime, table.id)
 
         earliest_available_start = datetime.combine(start_datetime.date(), time(hour=8, minute=0))
         latest_possible_end = datetime.combine(start_datetime.date(), time(hour=23, minute=59))
@@ -299,7 +298,7 @@ def check_table_availability():
 
 
 
-def extend_with_template_reservations(reservations, start_dt: datetime, end_dt: datetime):
+def extend_with_template_reservations(reservations, start_dt: datetime, end_dt: datetime, table_id: int):
     # Create a list of synthetic Reservation-like objects
     virtuals = []
 
@@ -318,16 +317,7 @@ def extend_with_template_reservations(reservations, start_dt: datetime, end_dt: 
 
             for res in template.reservations:
                 # Clone only relevant reservations by table and time
-                if res.table and res.table_id:
-                    # virtuals.append(
-                    #     type('VirtualReservation', (object,), {
-                    #         'table_id': res.table_id,
-                    #         'associated_event': type('VirtualEvent', (object,), {
-                    #             'start_time': occ_start,
-                    #             'end_time': occ_end
-                    #         })()
-                    #     })()
-                    # )
+                if res.table and res.table_id and res.table_id == table_id:
                     virtual_event = Event(
                         id=f"virtual-{template.id}-{occ.date()}",       # type: ignore
                         start_time=occ_start,                           # type: ignore
