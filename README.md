@@ -21,6 +21,7 @@
 </p>
 
 
+
 ### Inhalt
 - [Überblick](#überblick)
 - [Funktionen](#funktionen)
@@ -128,7 +129,6 @@ SERVER_NAME=
 SECRET_KEY=
 
 # Discord SSO (get these mostly from Discord Developer Portal)
-REDIRECT_URI=https://[SERVER_NAME EINTRAGEN]/login/discord/authorized
 CLIENT_ID=
 CLIENT_SECRET=
 
@@ -156,7 +156,7 @@ ADMIN_ROLE_ID=
 Melde dich im [Discord Developer Portal](https://discord.com/developers/applications) und erstelle eine neue Application.
 
 #### OAuth2:
-Stelle OAuth2 ein, kopiere Client ID und Client Secret in die .env und trage dieselbe "REDIRECT_URI" in Discord Developer Portal und der .env-Datei ein.
+Stelle OAuth2 ein, kopiere Client ID und Client Secret in die .env ein.
 
 #### Bot:
 Erstelle hier einen Bot und kopiere das Token in die .env-Datei.
@@ -196,4 +196,4 @@ server {
 
 ## Lizenz
 
-Dieses Projekt wurde unter **GPL v3** veröffentlicht.
+Dieses Projekt wurde unter **GPL v3** veröffentlicht. 

@@ -9,6 +9,7 @@ from flask_dance.contrib.discord import discord
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
+from blueprints.user_dto import UserDto
 from tt_calendar import utils
 from tt_calendar.models import db, User, Event, Table, Reservation, Overlap, EventState
 
@@ -135,7 +136,7 @@ def prepare_reservations_for_jinja(view_type, date_param, end_date_param, room_i
     } for res in reservations]
 
 
-    if not discord.authorized or not session.get('is_member', False):
+    if not discord.authorized or not UserDto.from_session(session).is_member:
         for entry in reservation_data:
             entry['user_name'] = 'Mitglied' 
 

@@ -1,21 +1,21 @@
+import asyncio
+import logging
+import os
+import signal
+import threading
+
+from dotenv import load_dotenv
 from flask import Flask
+from flask_apscheduler import APScheduler
+from flask_compress import Compress
 from flask_dance.contrib.discord import make_discord_blueprint, discord
-import signal, os, asyncio, threading
 
 import discord_bot
 from services import *
-
-from flask_compress import Compress
-
-from tt_calendar.models import *
 from tt_calendar.admin import init_admin
 from tt_calendar.db_populate import check_and_populate_db
+from tt_calendar.models import *
 
-from flask_apscheduler import APScheduler
-
-import logging
-
-from dotenv import load_dotenv
 load_dotenv()
 
 
@@ -182,6 +182,8 @@ def signal_handler(signal, frame):
 if __name__ == '__main__':
     app = create_app()
 
+    # app.secret_key = 'super secret key' # fixme: session type und secret key
+    # app.config['SESSION_TYPE'] = 'filesystem' # fixme: session type und secret key
 
     with app.app_context():
         check_and_populate_db()
