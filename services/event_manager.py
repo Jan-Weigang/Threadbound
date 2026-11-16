@@ -1,20 +1,20 @@
 # services/event_manager.py
 
-from tt_calendar.models import User, Event, Reservation, db, EventState, Overlap
-from tt_calendar import utils
-from sqlalchemy import false, true
-from datetime import datetime
 import datetime as dt
 import logging
-from dateutil.rrule import rrulestr
+from datetime import datetime
+
+from tt_calendar import utils
+from tt_calendar.models import User, Event, Reservation, db, EventState, Overlap
+
 
 class EventManager:
     def __init__(self, discord_handler):
         self.discord_handler = discord_handler
 
-    def create_event_in_db(self, user: User, *, name: str, description: str | None, game_category_id: int, event_type_id: int, publicity_id: int, 
+    def create_event_in_db(self, user: User, *, name: str, description: str | None, game_category_id: int, event_type_id: int, publicity_id: int,
                            start_time: datetime, end_time: datetime, table_ids: list[int], state_size: EventState = EventState.NOT_SET, attend_self: bool = False,
-                           is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None, days_ahead: int | None = None) -> Event:
+                           is_template: bool = False, template_id: str | None = None, recurrence_rule: str | None = None, discord_post_days_ahead: int | None = None) -> Event:
         
         new_event = Event(
             name=name,                              # type: ignore
@@ -30,7 +30,7 @@ class EventManager:
             recurrence_rule=recurrence_rule,        # type: ignore
             state_size=state_size,                  # type: ignore
             attend_self=attend_self,                # type: ignore
-            discord_post_days_ahead=days_ahead      # type: ignore
+            discord_post_days_ahead=discord_post_days_ahead      # type: ignore
         )
         db.session.add(new_event)
         db.session.flush()
@@ -64,7 +64,7 @@ class EventManager:
             end_time=end_dt_utc,
             table_ids=form_data['table_ids'],
             attend_self=form_data['attend_self'],
-            days_ahead=form_data['discord_post_days_ahead']
+            discord_post_days_ahead=form_data['discord_post_days_ahead']
         )
     
     def create_template_from_form(self, user: User, form_data: dict) -> Event:
@@ -93,7 +93,7 @@ class EventManager:
             table_ids=form_data['table_ids'],
             is_template=True,
             recurrence_rule=form_data.get('recurrence_rule'),
-            days_ahead=form_data['discord_post_days_ahead']
+            discord_post_days_ahead=form_data['discord_post_days_ahead']
         )
 
 
@@ -118,10 +118,10 @@ class EventManager:
             return dtstart
 
 
-    def update_event_in_db(self, event: Event, *, name: str, description: str | None, game_category_id: int, 
-                           event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime, 
-                           table_ids: list[int], days_ahead: int, rrule=None
-    ) -> Event:
+    def update_event_in_db(self, event: Event, *, name: str, description: str | None, game_category_id: int,
+                           event_type_id: int, publicity_id: int, start_time: datetime, end_time: datetime,
+                           table_ids: list[int], discord_post_days_ahead: int, rrule=None
+                           ) -> Event:
         logging.info(f"Updating Event {event.name} {event.is_template=} with rrule {event.recurrence_rule}")
         event.name = name
         event.description = description
@@ -130,7 +130,7 @@ class EventManager:
         event.publicity_id = publicity_id
         event.start_time = start_time
         event.end_time = end_time
-        event.discord_post_days_ahead = days_ahead
+        event.discord_post_days_ahead = discord_post_days_ahead
 
         if event.is_template:
             if not rrule:
@@ -167,7 +167,7 @@ class EventManager:
                 start_time=start_utc,
                 end_time=end_utc,
                 table_ids=form_data['table_ids'],
-                days_ahead=form_data['discord_post_days_ahead'],
+                discord_post_days_ahead=form_data['discord_post_days_ahead'],
                 rrule=form_data['recurrence_rule']
             )
         else:
@@ -181,7 +181,7 @@ class EventManager:
                 start_time=start_utc,
                 end_time=end_utc,
                 table_ids=form_data['table_ids'],
-                days_ahead=form_data['discord_post_days_ahead']
+                discord_post_days_ahead=form_data['discord_post_days_ahead']
             )
     
 
